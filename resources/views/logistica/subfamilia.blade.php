@@ -12,7 +12,7 @@
         </div>
         <div class="w-full px-4 mb-4">
           <div class="flex justify-center">
-            @livewire('familia-modal')
+            @livewire('sub-familia-modal')
           </div>
         </div>
       </div>
