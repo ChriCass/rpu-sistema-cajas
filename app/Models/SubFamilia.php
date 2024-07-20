@@ -12,16 +12,17 @@
      protected $table = 'Logistica.subfamilias';
  
      // Especifica los campos que pueden ser llenados masivamente
-     protected $fillable = ['id_familias', 'id', 'desripcion', 'new_id'];
+     protected $fillable = ['id_familias', 'id', 'desripcion' ];
  
      // Desactiva las timestamps si no existen en la tabla
      public $timestamps = false;
  
-     // Define la nueva clave primaria
-     protected $primaryKey = 'new_id';
-     public $incrementing = true;
-     protected $keyType = 'int';
- 
+     // Ensure the primary key and foreign keys are treated as strings
+     protected $casts = [
+        'id_familias' => 'string',
+        'id_subfamilia' => 'string',
+    ];
+
      // Define las relaciones
      public function familia()
      {
