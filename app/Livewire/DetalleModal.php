@@ -19,7 +19,7 @@ class DetalleModal extends Component
     public function consultas()
     {
         $this->cuentas = Cuenta::all() ;
-        Log::info('Ejecutando consulta función', ['cuentas' => $this->cuentas]);
+        
     }
  
 

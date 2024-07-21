@@ -7,6 +7,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Familia;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
+use Livewire\Attributes\On;
 class FamiliaTable extends DataTableComponent
 {
     protected $model = Familia::class;
@@ -16,6 +17,9 @@ class FamiliaTable extends DataTableComponent
         $this->setPrimaryKey('id');
         $this->setSearchDisabled(); // Desactivar búsqueda global
         $this->setColumnSelectDisabled(); // Desactivar selección de columnas
+
+
+       
     }
 
     public function columns(): array
@@ -52,6 +56,12 @@ class FamiliaTable extends DataTableComponent
                 }),
         ];
     }
+
+    #[On('familia-created')]
+    public function refreshTable()
+    {
+    }
+
     public function builder(): Builder
     {
         // Log para indicar que el método builder fue llamado

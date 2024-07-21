@@ -21,5 +21,11 @@ class TipoFamilia extends Model
       // Define la clave primaria
       protected $primaryKey = 'id';
   
+   
       // Si la clave primaria es incremental (lo cual es lo usual con ints), no es necesario cambiar $incrementing y $keyTyp
+
+      public function familias()
+      {
+          return $this->hasMany(Familia::class, 'id_tipofamilias', 'id');
+      }
 }

@@ -37,4 +37,9 @@ class Familia extends Model
     {
         return $this->hasMany(Detalle::class, 'id_familias', 'id');
     }
+
+    public function tipoFamilia()
+    {
+        return $this->belongsTo(TipoFamilia::class, 'id_tipofamilias', 'id');
+    }
 }
