@@ -12,14 +12,20 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Detalle;
 class DetalleModal extends Component
 {
-   public $openModal = false;
+    public $openModal = false;
+    public $cuentas = [];
+ 
      
-
-     
+    public function consultas()
+    {
+        $this->cuentas = Cuenta::all() ;
+        Log::info('Ejecutando consulta función', ['cuentas' => $this->cuentas]);
+    }
+ 
 
     public function render()
     {
-        
-        return view('livewire.detalle-modal' );
+        $this->consultas();
+        return view('livewire.detalle-modal', ['cuentas' => $this->cuentas]  );
     }
 }

@@ -30,7 +30,7 @@ final class DetalleTable extends PowerGridComponent
             
             Footer::make()
                 ->showPerPage()
-                 
+                ->showRecordCount(mode: 'full'), 
         ];
     }
 
@@ -107,7 +107,7 @@ final class DetalleTable extends PowerGridComponent
             });
 
         return [
-            Filter::select('familia_descripcion', 'Familia')
+            Filter::select('familia_descripcion', 'detalle.id_familias')
                 ->dataSource(Familia::all()->map(function($familia) {
                     return [
                         'id' => $familia->id,
