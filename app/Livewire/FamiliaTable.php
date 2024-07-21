@@ -64,18 +64,15 @@ class FamiliaTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        // Log para indicar que el método builder fue llamado
-        Log::info('Método builder llamado en FamiliaTable');
-
+         
         // Consulta con filtro aplicado
         $query = Familia::query()->where('id', 'not like', '0%');
 
-        // Log para verificar la consulta SQL generada
-        Log::info("Consulta SQL generada: " . $query->toSql());
+      
 
         // Log para verificar cuántos registros se obtuvieron después de aplicar el filtro
         $count = $query->count();
-        Log::info("Número de registros después de aplicar el filtro: {$count}");
+      
 
         return $query;
     }

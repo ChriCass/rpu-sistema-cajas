@@ -5,7 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Familia;
 use App\Models\TipoFamilia;
-use Illuminate\Support\Facades\Log;
+ 
 class FamiliaModal extends Component
 {
 
@@ -45,11 +45,7 @@ class FamiliaModal extends Component
                 'id_tipofamilias' => $this->selectedTipoFamilia,
             ]);
 
-            Log::info('Familia creada exitosamente.', [
-                'id' => $this->newId,
-                'descripcion' => $this->nuevafamilia,
-                'id_tipofamilias' => $this->selectedTipoFamilia,
-            ]);
+          
 
              // Emitir el evento para refrescar la tabla
              $this->dispatch('familia-created');
@@ -64,7 +60,7 @@ class FamiliaModal extends Component
             session()->flash('message', 'Familia creada exitosamente.');
 
         } catch (\Exception $e) {
-            Log::error('Error al crear la familia.', ['error' => $e->getMessage()]);
+            
             session()->flash('error', 'Ocurrió un error al crear la familia.');
         }
     }
