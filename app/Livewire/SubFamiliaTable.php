@@ -44,7 +44,7 @@ class SubFamiliaTable extends DataTableComponent
                         ->toArray()
                 )
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->where('Logistica.subfamilias.id_familias', $value);
+                    $builder->where('subfamilias.id_familias', $value);
                 }),
                 TextFilter::make('Id')
                 ->config([
@@ -52,7 +52,7 @@ class SubFamiliaTable extends DataTableComponent
                     'maxlength' => '255',
                 ])
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->where('Logistica.subfamilias.id', 'like', '%' . $value . '%');
+                    $builder->where('subfamilias.id', 'like', '%' . $value . '%');
                 }),
 
             TextFilter::make('Subfamilia')
@@ -61,22 +61,22 @@ class SubFamiliaTable extends DataTableComponent
                     'maxlength' => '255',
                 ])
                 ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(Logistica.subfamilias.desripcion) like ?', ['%' . strtolower($value) . '%']);
+                    $builder->whereRaw('LOWER(subfamilias.desripcion) like ?', ['%' . strtolower($value) . '%']);
                 }),
         ];
     }
 
     public function builder(): Builder
     {
-        // Crear la consulta con el join y el filtro
-        return SubFamilia::query()
-            ->join('Logistica.familias AS familias', 'Logistica.subfamilias.id_familias', '=', 'familias.id')
-            ->where('Logistica.subfamilias.id_familias', 'NOT LIKE', '0%')
-            ->select(
-                'Logistica.subfamilias.id', 
-                'Logistica.subfamilias.desripcion', 
-                'familias.descripcion as familia_descripcion'
-            )
-            ->orderByRaw('CAST(familias.id AS INTEGER) ASC');
-    }
+             // Crear la consulta con el join y el filtro
+             return SubFamilia::query()
+             ->join('familias AS familias', 'subfamilias.id_familias', '=', 'familias.id')
+             ->where('subfamilias.id_familias', 'NOT LIKE', '0%')
+             ->select(
+                 'subfamilias.id', 
+                 'subfamilias.desripcion', 
+                 'familias.descripcion as familia_descripcion'
+             )
+             ->orderBy('familias.id', 'ASC');
+     }
 }
