@@ -66,7 +66,7 @@ class FamiliaTable extends DataTableComponent
     {
          
         // Consulta con filtro aplicado
-        $query = Familia::query()->where('id', 'not like', '0%');
+        $query = Familia::query()->where('id', 'not like', '0%')->orderBy('id', 'asc');
 
       
 
