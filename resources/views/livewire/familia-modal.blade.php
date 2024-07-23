@@ -7,11 +7,14 @@
 
             <div class="flex flex-wrap -mx-4">
                 @if (session()->has('message'))
-                    <x-alert title="Felicidades!" positive>
-                        {{ session('message') }}
-                    </x-alert>
-                @endif
-
+                <x-alert title="Felicidades!" positive>
+                    {{ session('message') }}
+                </x-alert>
+            @elseif (session()->has('error'))
+                <x-alert title="Error!" negative>
+                    {{ session('error') }}
+                </x-alert>
+            @endif
                 <div class="w-full sm:w-6/12 px-4">
                     <x-maskable wire:model="nuevafamilia" mask="AAAAAAAAAAAAAAAAAAA" label="Nueva familia"
                         class="w-full" />

@@ -8,6 +8,10 @@
                 <x-alert title="Felicidades!" positive>
                     {{ session('message') }}
                 </x-alert>
+            @elseif (session()->has('error'))
+                <x-alert title="Error!" negative>
+                    {{ session('error') }}
+                </x-alert>
             @endif
                 <div class="w-full sm:w-6/12 px-4">
                     <x-select wire:model="selectedFamilia" label="Familia" placeholder="Selecciona" :options="$familia" option-value="id" option-label="descripcion" />

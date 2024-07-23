@@ -18,6 +18,7 @@ use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Support\Facades\DB;
 use App\Models\Familia;
 use App\Models\SubFamilia;
+use Livewire\Attributes\On;
 final class DetalleTable extends PowerGridComponent
 {
     use WithExport;
@@ -74,6 +75,12 @@ final class DetalleTable extends PowerGridComponent
             Column::make('FAMILIA', 'familia_descripcion')->searchable(),
             Column::make('SUBFAMILIA', 'subfamilia_descripcion')->searchable(),
         ];
+    }
+
+    #[On('producto-created')]
+    public function refreshTable(): void
+    {
+        $this->fillData();
     }
 
     public function filters(): array
