@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 use App\Models\Familia;
 use Rappasoft\LaravelLivewireTables\Views\Filters\TextFilter;
+use Livewire\Attributes\On;
 class SubFamiliaTable extends DataTableComponent
 {
     protected $model = SubFamilia::class;
@@ -63,6 +64,11 @@ class SubFamiliaTable extends DataTableComponent
                     $builder->whereRaw('LOWER(subfamilias.desripcion) like ?', ['%' . strtolower($value) . '%']);
                 }),
         ];
+    }
+
+    #[On('subfamilia-created')]
+    public function refreshTable()
+    {
     }
 
     public function builder(): Builder
