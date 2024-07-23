@@ -64,31 +64,15 @@ final class DetalleTable extends PowerGridComponent
             ->add('descripcion')
             ->add('familia_descripcion')
             ->add('subfamilia_descripcion');
-       
-            
     }
 
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
-               
-                ->searchable(),
-
-                Column::make('DESCRIPCION', 'descripcion')
-               
-                ->searchable(),
-
-            Column::make('FAMILIA', 'familia_descripcion')
-                
-                ->searchable(),
-
-            Column::make('SUBFAMILIA', 'subfamilia_descripcion')
-               
-                ->searchable(),
-
-         
-
+            Column::make('ID', 'id')->searchable(),
+            Column::make('DESCRIPCION', 'descripcion')->searchable(),
+            Column::make('FAMILIA', 'familia_descripcion')->searchable(),
+            Column::make('SUBFAMILIA', 'subfamilia_descripcion')->searchable(),
         ];
     }
 
@@ -125,7 +109,6 @@ final class DetalleTable extends PowerGridComponent
                 ->optionLabel('descripcion'),
         ];
     }
-
 
     #[\Livewire\Attributes\On('edit')]
     public function edit($rowId): void
