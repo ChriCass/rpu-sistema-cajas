@@ -9,7 +9,7 @@
      use HasFactory;
  
      // Especifica el nombre de la tabla incluyendo el esquema
-     protected $table = 'Logistica.subfamilias';
+     protected $table = 'subfamilias';
  
      // Especifica los campos que pueden ser llenados masivamente
      protected $fillable = ['id_familias', 'id', 'desripcion' ];

@@ -37,9 +37,10 @@ final class DetalleTable extends PowerGridComponent
     public function datasource(): Builder
     {
         return Detalle::query()->with(['familia', 'subfamilia'])
-            ->leftJoin('Logistica.familias as familias', 'detalle.id_familias', '=', 'familias.id')
-            ->leftJoin('Logistica.subfamilias as subfamilias', function($join) {
-                $join->on(DB::raw("detalle.id_familias || detalle.id_subfamilia"), '=', DB::raw("subfamilias.id_familias || subfamilias.id"));
+            ->leftJoin('familias as familias', 'detalle.id_familias', '=', 'familias.id')
+            ->leftJoin('subfamilias as subfamilias', function($join) {
+                $join->on('detalle.id_familias', '=', 'subfamilias.id_familias')
+                     ->on('detalle.id_subfamilia', '=', 'subfamilias.id');
             })
             ->select(
                 'detalle.id',
@@ -49,6 +50,7 @@ final class DetalleTable extends PowerGridComponent
             )
             ->whereRaw('LEFT(detalle.id_familias, 1) <> ?', ['0']);
     }
+
 
     public function relationSearch(): array
     {

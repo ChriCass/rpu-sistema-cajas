@@ -10,7 +10,7 @@ class Detalle extends Model
     use HasFactory;
 
      // Especifica el nombre de la tabla incluyendo el esquema
-     protected $table = 'Logistica.detalle';
+     protected $table = 'detalle';
 
      // Especifica los campos que pueden ser llenados masivamente
      protected $fillable = ['id_familias', 'id_subfamilia', 'id', 'descripcion', 'id_cuenta'];

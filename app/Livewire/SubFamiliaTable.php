@@ -44,24 +44,23 @@ class SubFamiliaTable extends DataTableComponent
                         ->toArray()
                 )
                 ->filter(function (Builder $builder, string $value) {
-                    $builder->where('Logistica.subfamilias.id_familias', $value);
+                    $builder->where('subfamilias.id_familias', $value);
                 }),
-                TextFilter::make('Id')
+            TextFilter::make('Id')
                 ->config([
                     'placeholder' => 'Buscar Id',
                     'maxlength' => '255',
                 ])
-                ->filter(function(Builder $builder, string $value) {
-                    $builder->where('Logistica.subfamilias.id', 'like', '%' . $value . '%');
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->where('subfamilias.id', 'like', '%' . $value . '%');
                 }),
-
             TextFilter::make('Subfamilia')
                 ->config([
                     'placeholder' => 'Buscar Descripcion',
                     'maxlength' => '255',
                 ])
-                ->filter(function(Builder $builder, string $value) {
-                    $builder->whereRaw('LOWER(Logistica.subfamilias.desripcion) like ?', ['%' . strtolower($value) . '%']);
+                ->filter(function (Builder $builder, string $value) {
+                    $builder->whereRaw('LOWER(subfamilias.desripcion) like ?', ['%' . strtolower($value) . '%']);
                 }),
         ];
     }
@@ -70,13 +69,13 @@ class SubFamiliaTable extends DataTableComponent
     {
         // Crear la consulta con el join y el filtro
         return SubFamilia::query()
-            ->join('Logistica.familias AS familias', 'Logistica.subfamilias.id_familias', '=', 'familias.id')
-            ->where('Logistica.subfamilias.id_familias', 'NOT LIKE', '0%')
+            ->join('familias', 'subfamilias.id_familias', '=', 'familias.id')
+            ->where('subfamilias.id_familias', 'NOT LIKE', '0%')
             ->select(
-                'Logistica.subfamilias.id', 
-                'Logistica.subfamilias.desripcion', 
+                'subfamilias.id', 
+                'subfamilias.desripcion', 
                 'familias.descripcion as familia_descripcion'
             )
-            ->orderByRaw('CAST(familias.id AS INTEGER) ASC');
+            ->orderBy('familias.id', 'ASC');
     }
 }

@@ -10,7 +10,7 @@ class TipoFamilia extends Model
     use HasFactory;
 
       // Especifica el nombre de la tabla incluyendo el esquema
-      protected $table = 'Logistica.tipofamilia';
+      protected $table = 'tipofamilia';
 
       // Especifica los campos que pueden ser llenados masivamente
       protected $fillable = ['id', 'descripcion'];

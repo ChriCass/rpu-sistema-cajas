@@ -10,7 +10,7 @@ class Cuenta extends Model
     use HasFactory;
 
     // Definir el nombre de la tabla
-    protected $table = 'Tesoreria.cuentas';
+    protected $table = 'cuentas';
 
     // Definir la clave primaria
     protected $primaryKey = 'id';
