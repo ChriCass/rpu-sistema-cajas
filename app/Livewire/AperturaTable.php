@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Livewire;
-
+use Livewire\Attributes\On;
 use App\Models\Apertura;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -98,9 +98,16 @@ final class AperturaTable extends PowerGridComponent
 
          
             Column::make('Fecha', 'fecha_formatted', 'fecha')
-                ->sortable(),
+                
         ];
     }
+
+    #[On('apertura-created')]
+    public function refreshTable(): void
+    {
+        $this->fillData();
+    }
+
 
     public function filters(): array
     {

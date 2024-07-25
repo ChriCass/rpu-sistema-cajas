@@ -11,7 +11,8 @@ class Apertura extends Model
     use HasFactory;
 
     protected $table = 'aperturas';
-
+    // Indicar que no se manejan marcas de tiempo automáticamente
+    public $timestamps = false;
     protected $fillable = [
         'id_tipo',
         'numero',
