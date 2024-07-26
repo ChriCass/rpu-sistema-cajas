@@ -13,7 +13,10 @@
       </div>
       <div class="w-full px-4 mb-4">
         <div class="flex justify-center">
-          @livewire('detalle-modal')
+          <div class="bg-white rounded-md p-4 shadow-lg">
+            @livewire('detalle-modal')
+          </div>
+         
         </div>
       </div>
     </div>
