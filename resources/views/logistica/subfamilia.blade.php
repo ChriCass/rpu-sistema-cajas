@@ -6,15 +6,19 @@
     </x-slot>
 
     <div class="max-w-screen-xl mx-auto px-4 mt-12">
-      <div class="flex flex-wrap justify-center -mx-4">
-        <div class="w-full sm:w-6/12 px-4 mb-4">
-          @livewire('sub-familia-table')
+        <div class="flex flex-wrap justify-center -mx-4">
+            <div class="w-full sm:w-6/12 px-4 mb-4">
+                <div class="bg-white rounded-md p-4 shadow-lg">
+                    @livewire('sub-familia-table')
+                </div>
+            </div>
+
         </div>
         <div class="w-full px-4 mb-4">
-          <div class="flex justify-center">
-            @livewire('sub-familia-modal')
-          </div>
+            <div class="flex justify-center">
+                @livewire('sub-familia-modal')
+            </div>
         </div>
-      </div>
+    </div>
     </div>
 </x-app-layout>

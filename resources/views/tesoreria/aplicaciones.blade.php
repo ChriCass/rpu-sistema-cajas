@@ -12,7 +12,12 @@
             @livewire('aplicacion-table')
           </div>
         </div>
-    
+        <div class="w-full px-4 mb-4">
+          <div class="flex justify-center">
+       
+            @livewire('aplicacion-modal')
+          </div>
+        </div>
       </div>
     </div>
 </x-app-layout>

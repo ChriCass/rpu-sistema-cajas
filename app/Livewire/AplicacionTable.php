@@ -2,153 +2,68 @@
 
 namespace App\Livewire;
 
-use App\Models\MovimientoDeCaja;
-use Illuminate\Support\Carbon;
+use Rappasoft\LaravelLivewireTables\DataTableComponent;
+use Rappasoft\LaravelLivewireTables\Views\Column;
+use App\Models\MovimientoDeCajaCustom;
 use Illuminate\Database\Eloquent\Builder;
-use PowerComponents\LivewirePowerGrid\Button;
-use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Exportable;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
-use PowerComponents\LivewirePowerGrid\Footer;
-use PowerComponents\LivewirePowerGrid\Header;
-use PowerComponents\LivewirePowerGrid\PowerGrid;
-use PowerComponents\LivewirePowerGrid\PowerGridFields;
-use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-
-final class AplicacionTable extends PowerGridComponent
+use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
+use App\Models\Mes;
+class AplicacionTable extends DataTableComponent
 {
-    use WithExport;
+    protected $model = MovimientoDeCajaCustom::class;
 
-    public function setUp(): array
+    public function configure(): void
     {
-        $this->showCheckBox();
-
-        return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
-            Header::make()->showSearchInput(),
-            Footer::make()
-                ->showPerPage()
-                ->showRecordCount(),
-        ];
-    }
-
-    public function datasource(): Builder
-    {
-        return MovimientoDeCaja::query();
-    }
-
-    public function relationSearch(): array
-    {
-        return [];
-    }
-
-    public function fields(): PowerGridFields
-    {
-        return PowerGrid::fields()
-            ->add('id')
-            ->add('id_libro')
-            ->add('id_apertura')
-            ->add('mov')
-            ->add('fec_formatted', fn (MovimientoDeCaja $model) => Carbon::parse($model->fec)->format('d/m/Y'))
-            ->add('id_documentos')
-            ->add('id_cuentas')
-            ->add('id_dh')
-            ->add('monto')
-            ->add('montodo')
-            ->add('fecha_registro_formatted', fn (MovimientoDeCaja $model) => Carbon::parse($model->fecha_registro)->format('d/m/Y H:i:s'))
-            ->add('glosa');
-    }
-
-    public function columns(): array
-    {
-        return [
-            Column::make('Id', 'id')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Id libro', 'id_libro')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Id apertura', 'id_apertura')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Mov', 'mov')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Fec', 'fec_formatted', 'fec')
-                ->sortable(),
-
-            Column::make('Id documentos', 'id_documentos')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Id cuentas', 'id_cuentas')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Id dh', 'id_dh')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Monto', 'monto')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Montodo', 'montodo')
-                ->sortable()
-                ->searchable(),
-
-            Column::make('Fecha registro', 'fecha_registro_formatted', 'fecha_registro')
-                ->sortable(),
-
-            Column::make('Glosa', 'glosa')
-                ->sortable()
-                ->searchable(),
-
-            Column::action('Action')
-        ];
+        $this->setPrimaryKey('id_representativo');
+        $this->setSearchDisabled(); // Desactivar búsqueda global
+        $this->setColumnSelectDisabled(); // Desactivar selección de columnas
     }
 
     public function filters(): array
     {
         return [
-            Filter::datepicker('fec'),
-            Filter::datetimepicker('fecha_registro'),
+            SelectFilter::make('Mes')
+                ->options(
+                    Mes::pluck('descripcion', 'id')->toArray()
+                )
+                ->filter(function (Builder $builder, string $value) {
+                    if ($value !== '') {
+                        $builder->whereRaw('MONTH(STR_TO_DATE(fec, "%d/%m/%Y")) = ?', [$value]);
+                    }
+                }),
+                SelectFilter::make('Año')
+                ->options([
+                    '' => 'Todos',
+                    '2024' => '2024',
+                    '2025' => '2025',
+                    '2026' => '2026',
+                ])
+                ->filter(function (Builder $builder, string $value) {
+                    if ($value !== '') {
+                        $builder->whereRaw('YEAR(STR_TO_DATE(fec, "%d/%m/%Y")) = ?', [$value]);
+                    }
+                }),
         ];
     }
-
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    public function query(): Builder
     {
-        $this->js('alert('.$rowId.')');
+        return MovimientoDeCajaCustom::query();
     }
 
-    public function actions(MovimientoDeCaja $row): array
+    public function columns(): array
     {
         return [
-            Button::add('edit')
-                ->slot('Edit: '.$row->id)
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+            Column::make("Id Representativo", "id_representativo")
+                ->sortable(),
+            Column::make("Aplicaciones", "apl")
+                ->sortable(),
+            Column::make("Fecha", "fec")
+                ->sortable(),
+            Column::make("Movimiento", "mov")
+                ->sortable(),
+            Column::make("Promedio", "promedio")
+                ->sortable(),
+       
         ];
     }
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
 }

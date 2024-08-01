@@ -7,9 +7,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <h1>hellooooo</h1>
+          
 
-            @component('components.alert', ['type' => 'success', 'title' => 'esta es mi alerta!', 'message' => 'algo bueno o malo puede ocurrir'])
+            @component('components.alert', ['type' => 'success', 'title' => 'esta es mi alerta!', 'message' => 'bienvenido usuario!'])
             @endcomponent
         </div>
     </div>

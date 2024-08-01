@@ -9,14 +9,15 @@
     @livewire('header-subfamilia-detalle' )
     <div class="flex flex-wrap justify-center -mx-4">
       <div class="w-full   px-4 mb-4">
-        @livewire('detalle-table')
+        <div class="bg-white rounded-md p-4 shadow-lg">
+          @livewire('detalle-table')
+        </div>
+       
       </div>
       <div class="w-full px-4 mb-4">
         <div class="flex justify-center">
-          <div class="bg-white rounded-md p-4 shadow-lg">
-            @livewire('detalle-modal')
-          </div>
-         
+     
+          @livewire('detalle-modal')
         </div>
       </div>
     </div>
