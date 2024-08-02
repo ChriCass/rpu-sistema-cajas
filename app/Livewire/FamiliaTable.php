@@ -63,7 +63,7 @@ final class FamiliaTable extends PowerGridComponent
                 ->searchable(),
 
             Column::make('Id tipofamilias', 'id_tipofamilias')
-                ->searchable(),
+                ->searchable()->hidden(),
 
             Column::action('Action')
         ];
@@ -87,10 +87,9 @@ final class FamiliaTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('Edit: '.$row->id)
-                ->class('bg-blue-500 text-white font-bold py-2 px-2 rounded')
-                ->route('familia.edit', ['id' => $row->id], 'wire:navigate')
+                ->slot('Edit')
+                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
+                ->openModal('edit-familia-modal', ['familiaId' => $row->id])
         ];
     }
-   
 }
