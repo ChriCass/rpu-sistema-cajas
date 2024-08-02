@@ -17,17 +17,13 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
-
 final class FamiliaTable extends PowerGridComponent
 {
     use WithExport;
 
     public function setUp(): array
     {
-        
-
         return [
-            
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(mode: 'full'), 
@@ -36,10 +32,8 @@ final class FamiliaTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        // Consulta con filtro aplicado
         $query = Familia::query()->where('id', 'not like', '0%')->orderBy('id', 'asc');
 
-        // Log para verificar cuántos registros se obtuvieron después de aplicar el filtro
         $count = $query->count();
         Log::info("Número de registros después de aplicar el filtro: " . $count);
 
@@ -49,12 +43,6 @@ final class FamiliaTable extends PowerGridComponent
     public function relationSearch(): array
     {
         return [];
-    }
-
-    #[On('familia-created')]
-    public function refreshTable(): void
-    {
-        $this->fillData();
     }
 
     public function fields(): PowerGridFields
@@ -69,19 +57,15 @@ final class FamiliaTable extends PowerGridComponent
     {
         return [
             Column::make('Id', 'id')
-             
                 ->searchable(),
- 
 
             Column::make('Descripcion', 'descripcion')
-             
                 ->searchable(),
 
             Column::make('Id tipofamilias', 'id_tipofamilias')
-              
                 ->searchable(),
 
-            
+            Column::action('Action')
         ];
     }
 
@@ -91,32 +75,22 @@ final class FamiliaTable extends PowerGridComponent
             Filter::inputText('descripcion')
                 ->operators(['contains'])
                 ->placeholder('Buscar descripción'),
-            
+
             Filter::select('id')
                 ->dataSource(Familia::query()->where('id', 'not like', '0%')->orderBy('id', 'asc')->get(['id']))
                 ->optionLabel('id')
                 ->optionValue('id')
-                 
         ];
     }
-    
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    public function actions(Familia $row): array
     {
-        $this->js('alert('.$rowId.')');
-    }
-
- 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+        return [
+            Button::add('edit')
+                ->slot('Edit: '.$row->id)
+                ->class('bg-blue-500 text-white font-bold py-2 px-2 rounded')
+                ->route('familia.edit', ['id' => $row->id], 'wire:navigate')
         ];
     }
-    */
+   
 }

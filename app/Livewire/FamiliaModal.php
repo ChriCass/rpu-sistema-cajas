@@ -45,24 +45,31 @@ class FamiliaModal extends Component
                 'id_tipofamilias' => $this->selectedTipoFamilia,
             ]);
 
-          
-
-             // Emitir el evento para refrescar la tabla
-             $this->dispatch('familia-created');
-
+            // Emitir el evento para refrescar la tabla
+            $this->dispatch('familia-created');
 
             // Limpiar campos después de insertar
             $this->reset(['nuevafamilia', 'selectedTipoFamilia']);
-
-          
 
             // Emitir un evento o mensaje de éxito (opcional)
             session()->flash('message', 'Familia creada exitosamente.');
 
         } catch (\Exception $e) {
-            
             session()->flash('error', 'Ocurrió un error al crear la familia.');
         }
+    }
+
+    public function closeModal()
+    {
+        $this->resetValidation();
+        $this->reset(['nuevafamilia', 'selectedTipoFamilia']);
+        $this->openModal = false;
+    }
+
+    public function clearFields()
+    {
+        $this->resetValidation();
+        $this->reset(['nuevafamilia', 'selectedTipoFamilia']);
     }
     public function render()
     {

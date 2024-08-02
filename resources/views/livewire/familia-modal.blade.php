@@ -1,5 +1,4 @@
 <div>
-
     <x-button label="Nuevo" wire:click="$set('openModal', true)" primary />
 
     <x-modal name="persistentModal" wire:model="openModal" persistent>
@@ -10,16 +9,15 @@
                 <x-alert title="Felicidades!" positive>
                     {{ session('message') }}
                 </x-alert>
-            @elseif (session()->has('error'))
+                @elseif (session()->has('error'))
                 <x-alert title="Error!" negative>
                     {{ session('error') }}
                 </x-alert>
-            @endif
+                @endif
                 <div class="w-full sm:w-6/12 px-4">
                     <x-maskable wire:model="nuevafamilia" mask="AAAAAAAAAAAAAAAAAAA" label="Nueva familia"
                         class="w-full" />
                     @error('nuevafamilia')
-                         
                     @enderror
                 </div>
                 <div class="w-full sm:w-6/12 px-4">
@@ -28,8 +26,11 @@
                     @error('selectedTipoFamilia')
                     @enderror
                 </div>
+                <div class="w-full px-4 mt-4">
+                    <x-button outline label="Limpiar Campos" wire:click="clearFields" />
+                </div>
                 <x-slot name="footer" class="flex justify-end gap-x-4">
-                    <x-button flat label="Cancelar" wire:click="$set('openModal', false)" />
+                    <x-button flat label="Cancelar" wire:click="closeModal" />
                     <x-button primary label="Aceptar" wire:click="insertNewFamilia" />
                 </x-slot>
             </div>
