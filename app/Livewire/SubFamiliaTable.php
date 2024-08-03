@@ -16,7 +16,7 @@ use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
-
+use Livewire\Attributes\On;
 final class SubFamiliaTable extends PowerGridComponent
 {
     use WithExport;
@@ -67,7 +67,7 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Familia Descripcion', 'familia_descripcion', 'id_familias') // Mostrar la descripción de la familia pero buscar por id_familias
                 ->searchable(),
-            Column::action('Action')
+            Column::action('Acciones')
         ];
     }
 
@@ -99,11 +99,14 @@ final class SubFamiliaTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    #[On('subfamiliaUpdated')]
+    #[On('subfamilia-created')]
+    public function refreshTable(): void
     {
-        $this->js('alert(' . $rowId . ')');
+        $this->fillData();
     }
+    
+    
 
     public function actions(SubFamilia $row): array
     {
@@ -111,20 +114,10 @@ final class SubFamiliaTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('Editar')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
+                ->openModal('edit-sub-familia-modal', ['subfamiliaId' => $row->id])
         ];
     }
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+ 
 }

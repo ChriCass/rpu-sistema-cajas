@@ -29,8 +29,7 @@ class EditFamiliaModal   extends ModalComponent
             return ['id' => $tipoFamilia->id, 'descripcion' => $tipoFamilia->descripcion];
         })->toArray();
 
-        Log::info("Loaded familia: ", $familia->toArray());
-        Log::info("Loaded tipoFamilias: ", $this->tipoFamilias);
+        
     }
 
     public function save()
