@@ -41,16 +41,20 @@ class EditFamiliaModal   extends ModalComponent
             'descripcion' => 'required|string|max:255',
         ]);
 
-        $familia = Familia::findOrFail($this->familiaId);
-        $familia->descripcion = $this->descripcion;
-        $familia->id_tipofamilias = $this->idTipofamilias;
-        $familia->save();
+        try {
+            $familia = Familia::findOrFail($this->familiaId);
+            $familia->descripcion = $this->descripcion;
+            $familia->id_tipofamilias = $this->idTipofamilias;
+            $familia->save();
 
-        Log::info("Successfully saved familia: ", $familia->toArray());
+            Log::info("Successfully saved familia: ", $familia->toArray());
 
-        $this->closeModalWithEvents([
-            $this->dispatch('familiaUpdated')
-        ]);
+            session()->flash('message', 'Familia actualizada exitosamente.');
+            $this->dispatch('familiaUpdated');
+        } catch (\Exception $e) {
+            Log::error("Error saving familia: ", ['error' => $e->getMessage()]);
+            session()->flash('error', 'Ocurrió un error al actualizar la familia.');
+        }
     }
 
     public function render()

@@ -1,11 +1,21 @@
 <div>
+    @if (session()->has('message'))
+        <x-alert title="Felicidades!" positive>
+            {{ session('message') }}
+        </x-alert>
+    @elseif (session()->has('error'))
+        <x-alert title="Error!" negative>
+            {{ session('error') }}
+        </x-alert>
+    @endif
+
     <x-card title="Editar Familia">
         <form class="flex flex-wrap justify-center -mx-4" wire:submit.prevent="save">
             <div class="w-full sm:w-3/12 px-4">
-                <x-input label="ID" wire:model="familiaId"  readonly />
+                <x-input label="ID" wire:model="familiaId" readonly />
             </div>
             <div class="w-full sm:w-4/12 px-4">
-                <x-input label="Descripción" wire:model="descripcion" />
+                <x-maskable mask="AAAAAAAAAAAAAAAAAAA" label="Descripción" wire:model="descripcion" />
                 @error('descripcion') <span class="text-red-500">{{ $message }}</span> @enderror
             </div>
             <div class="w-full sm:w-5/12 px-4">

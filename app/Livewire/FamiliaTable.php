@@ -65,7 +65,7 @@ final class FamiliaTable extends PowerGridComponent
             Column::make('Id tipofamilias', 'id_tipofamilias')
                 ->searchable()->hidden(),
 
-            Column::action('Action')
+            Column::action('Acciones')
         ];
     }
 
@@ -83,11 +83,20 @@ final class FamiliaTable extends PowerGridComponent
         ];
     }
 
+    #[On('familiaUpdated')]
+    #[On('familia-created')]
+    public function refreshTable(): void
+    {
+        $this->fillData();
+    }
+    
+    
+
     public function actions(Familia $row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit')
+                ->slot('Editar')
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
                 ->openModal('edit-familia-modal', ['familiaId' => $row->id])
         ];
