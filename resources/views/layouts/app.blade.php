@@ -10,8 +10,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        @wireUiScripts
-        @livewire('livewire-ui-modal')
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -41,7 +40,8 @@
 
         @stack('modals')
       
-       
+        @wireUiScripts
+        @livewire('livewire-ui-modal')
         @livewireScripts
     </body>
 </html>
