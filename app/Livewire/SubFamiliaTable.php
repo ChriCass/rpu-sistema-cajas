@@ -4,6 +4,7 @@ namespace App\Livewire;
 use App\Models\Familia;
 use App\Models\SubFamilia;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
@@ -72,11 +73,7 @@ final class SubFamiliaTable extends PowerGridComponent
 
     public function filters(): array
     {
-        $idsDisponibles = SubFamilia::query()
-            ->join('familias', 'subfamilias.id_familias', '=', 'familias.id')
-            ->where('subfamilias.id_familias', 'NOT LIKE', '0%')
-            ->pluck('subfamilias.id')
-            ->toArray();
+     
 
         return [
             Filter::inputText('desripcion')
@@ -85,14 +82,20 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->dataSource(Familia::all())
                 ->optionValue('id')
                 ->optionLabel('descripcion'),
-            Filter::select('id')
-                ->dataSource(SubFamilia::query()
-                    ->join('familias', 'subfamilias.id_familias', '=', 'familias.id')
-                    ->where('subfamilias.id_familias', 'NOT LIKE', '0%')
-                    ->select('subfamilias.id')
-                    ->get())
-                ->optionValue('id')
-                ->optionLabel('id')
+                Filter::inputText('id')
+                ->operators(['contains'])
+                ->builder(function (Builder $builder, $value) {
+                    // Log the value to see what is received
+                    
+
+                    if (is_array($value) && isset($value['value'])) {
+                        // Extract the actual search value
+                        $searchValue = $value['value'];
+                       
+                        // Ensure the query filters by the correct table column
+                        $builder->where('subfamilias.id', 'like', "%{$searchValue}%");
+                    }
+                })
         ];
     }
 
@@ -106,7 +109,7 @@ final class SubFamiliaTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('Edit: ' . $row->id)
+                ->slot('Editar')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $row->id])
