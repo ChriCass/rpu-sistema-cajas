@@ -1,13 +1,16 @@
 <?php
 
 namespace App\Livewire;
+
 use LivewireUI\Modal\ModalComponent;
 use Livewire\Component;
 use App\Models\Familia;
 use App\Models\SubFamilia;
 use Illuminate\Support\Facades\Log;
+
 class EditSubFamiliaModal extends ModalComponent
-{ public $subfamiliaId;
+{
+    public $subfamiliaId;
     public $descripcion;
     public $idFamilia;
     public $familias;
@@ -20,7 +23,7 @@ class EditSubFamiliaModal extends ModalComponent
     public function mount(int $subfamiliaId)
     {
         Log::info("Mounting EditSubFamiliaModal with subfamiliaId: {$subfamiliaId}");
-        
+
         $this->subfamiliaId = $subfamiliaId;
         $subfamilia = SubFamilia::findOrFail($subfamiliaId);
         $this->descripcion = $subfamilia->desripcion;

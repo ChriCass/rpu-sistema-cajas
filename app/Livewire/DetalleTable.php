@@ -74,9 +74,10 @@ final class DetalleTable extends PowerGridComponent
             Column::make('DESCRIPCION', 'descripcion')->searchable(),
             Column::make('FAMILIA', 'familia_descripcion')->searchable(),
             Column::make('SUBFAMILIA', 'subfamilia_descripcion')->searchable(),
+            Column::action('Acciones')
         ];
     }
-
+    #[On('detalleUpdated')]
     #[On('producto-created')]
     public function refreshTable(): void
     {
@@ -84,7 +85,7 @@ final class DetalleTable extends PowerGridComponent
     }
 
     public function filters(): array
-    {
+    {   
         // Fetch distinct subfamilias related to the current familias in the datasource query
         $familiaIds = Detalle::select('id_familias')->distinct()->pluck('id_familias');
         
@@ -114,26 +115,38 @@ final class DetalleTable extends PowerGridComponent
                 ->dataSource($subfamilias)
                 ->optionValue('id')
                 ->optionLabel('descripcion'),
+                Filter::inputText('descripcion')
+                ->operators(['contains'])
+                ->placeholder('Buscar descripción')
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $searchValue = $value['value'];
+                        $builder->where('detalle.descripcion', 'like', "%{$searchValue}%");
+                    }
+                }),
+            
+                Filter::inputText('id')
+                ->operators(['contains'])
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $searchValue = $value['value'];
+                        $builder->where('detalle.id', 'like', "%{$searchValue}%");
+                    }
+                })
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    public function actions(Detalle $row): array
     {
-        $this->js('alert('.$rowId.')');
+        return [
+            Button::add('edit')
+                ->slot('Editar')
+                ->id()
+                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
+                ->openModal('edit-detalle-modal', ['detalleId' => $row->id])
+        ];
     }
 
  
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
-    }
-    */
+ 
 }
