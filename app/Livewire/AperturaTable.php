@@ -97,8 +97,8 @@ final class AperturaTable extends PowerGridComponent
                 ->searchable(),
 
          
-            Column::make('Fecha', 'fecha_formatted', 'fecha')
-                
+            Column::make('Fecha', 'fecha_formatted', 'fecha'),
+            Column::action('Acciones')
         ];
     }
 
@@ -129,23 +129,14 @@ final class AperturaTable extends PowerGridComponent
         ];
     }
 
-    #[\Livewire\Attributes\On('edit')]
-    public function edit($rowId): void
+    public function actions(Apertura $row): array
     {
-        $this->js('alert('.$rowId.')');
-    }
-
-    
-
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
+        return [
+            Button::add('edit')
+                ->slot('Editar')
+                ->id()
+                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
+                ->openModal('edit-movimientos-modal', ['aperturaId' => $row->id])
         ];
     }
-    */
 }
