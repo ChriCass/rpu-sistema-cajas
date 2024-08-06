@@ -132,11 +132,11 @@ final class AperturaTable extends PowerGridComponent
     public function actions(Apertura $row): array
     {
         return [
-            Button::add('edit')
+            Button::add('view')
                 ->slot('Editar')
-                ->id()
+                
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-                ->openModal('edit-movimientos-modal', ['aperturaId' => $row->id])
+                ->route('apertura.edit', ['aperturaId' => $row->id]),
         ];
     }
 }

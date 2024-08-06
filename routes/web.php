@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FamiliaController;
+use App\Http\Controllers\AperturaController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,7 +41,7 @@ Route::middleware([
     Route::get('/productos/familias', function () {
         return view('logistica.familia', ['routeName' => 'familias']);
     })->name('familias');
-    Route::get('/productos/familia/{id}/edit', [FamiliaController::class, 'edit'])->name('familia.edit');
+     
     Route::get('/productos/subfamilias', function () {
         return view('logistica.subfamilia', ['routeName' => 'subfamilias']);
     })->name('subfamilias');
@@ -54,5 +54,6 @@ Route::middleware([
         return view('logistica.producto', ['routeName' => 'producto']);
     })->name('producto');
 
-   
+    Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
+
 });
