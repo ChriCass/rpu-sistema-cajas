@@ -103,7 +103,7 @@
                 </div>
             </div>
             <div class="flex justify-end mt-4 space-x-2">
-                <x-button label="Detalle" />
+                @livewire('cuadro-de-ordenes-modal')
                 <x-button label="Cancelar" wire:navigate outline secondary href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" />
                 <x-button label="Aceptar" primary />
             </div>
