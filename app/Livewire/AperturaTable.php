@@ -136,7 +136,7 @@ final class AperturaTable extends PowerGridComponent
                 ->slot('Editar')
                 
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-                ->route('apertura.edit', ['aperturaId' => $row->id]),
+                ->route('apertura.edit', ['aperturaId' => $row->id] ),
         ];
     }
 }

@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AperturaController;
+use App\Livewire\AperturaEditParent;
+use App\Livewire\RegistroDocumentosIngreso;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -54,6 +55,10 @@ Route::middleware([
         return view('logistica.producto', ['routeName' => 'producto']);
     })->name('producto');
 
-    Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
-
+    Route::prefix('apertura/{aperturaId}/edit')->group(function () {
+        Route::get('/', AperturaEditParent::class)->name('apertura.edit');
+        Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
+    });
+   /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
+    /// usar el aperturaController si hay futuros problemas en el manejo de layouts y uso de rutas con livewire
 });
