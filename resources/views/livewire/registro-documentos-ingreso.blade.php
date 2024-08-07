@@ -104,7 +104,7 @@
             </div>
             <div class="flex justify-end mt-4 space-x-2">
                 <x-button label="Detalle" />
-                <x-button label="Cancelar" />
+                <x-button label="Cancelar" wire:navigate outline secondary href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" />
                 <x-button label="Aceptar" primary />
             </div>
         </x-card>

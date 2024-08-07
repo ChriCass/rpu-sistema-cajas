@@ -24,10 +24,10 @@
 
       <div class="flex flex-wrap gap-3 mt-4 -mx-2">
         <x-button primary label="Ingreso" wire:navigate href="{{ route('apertura.edit.registodocumentosingreso', ['aperturaId' => $aperturaId]) }}" />
-        <x-button primary label="Salida" />
-        <x-button primary label="CXP" />
-        <x-button primary label="CXC" />
-        <x-button primary label="Aplicaciones" />
+        <x-button primary label="Salida" wire:navigate href="{{ route('apertura.edit.registodocumentosegreso', ['aperturaId' => $aperturaId]) }}"  />
+        <x-button primary label="CXP" wire:navigate href="{{ route('apertura.edit.vaucherdepagos', ['aperturaId' => $aperturaId]) }}"  />
+        <x-button primary label="CXC" wire:navigate href="{{ route('apertura.edit.vaucherdepagosventas', ['aperturaId' => $aperturaId]) }}" />
+        <x-button primary label="Aplicaciones" wire:navigate href="{{ route('apertura.edit.cuadroaplicaciones', ['aperturaId' => $aperturaId]) }}" />
       </div>
 
      
