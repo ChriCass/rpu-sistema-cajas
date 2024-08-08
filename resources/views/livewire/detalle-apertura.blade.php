@@ -22,16 +22,21 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-3 mt-4 -mx-2">
-        <x-button primary label="Ingreso" wire:navigate href="{{ route('apertura.edit.registodocumentosingreso', ['aperturaId' => $aperturaId]) }}" />
-        <x-button primary label="Salida" wire:navigate href="{{ route('apertura.edit.registodocumentosegreso', ['aperturaId' => $aperturaId]) }}"  />
-        <x-button primary label="CXP" wire:navigate href="{{ route('apertura.edit.vaucherdepagos', ['aperturaId' => $aperturaId]) }}"  />
-        <x-button primary label="CXC" wire:navigate href="{{ route('apertura.edit.vaucherdepagosventas', ['aperturaId' => $aperturaId]) }}" />
-        <x-button primary label="Aplicaciones" wire:navigate href="{{ route('apertura.edit.cuadroaplicaciones', ['aperturaId' => $aperturaId]) }}" />
+      <div class="flex justify-between flex-wrap gap-3 mt-4 -mx-2">
+        <div>
+          <x-button primary label="Ingreso" wire:navigate href="{{ route('apertura.edit.registodocumentosingreso', ['aperturaId' => $aperturaId]) }}" />
+            <x-button primary label="Salida" wire:navigate href="{{ route('apertura.edit.registodocumentosegreso', ['aperturaId' => $aperturaId]) }}"  />
+            <x-button primary label="CXP" wire:navigate href="{{ route('apertura.edit.vaucherdepagos', ['aperturaId' => $aperturaId]) }}"  />
+            <x-button primary label="CXC" wire:navigate href="{{ route('apertura.edit.vaucherdepagosventas', ['aperturaId' => $aperturaId]) }}" />
+            <x-button primary label="Aplicaciones" wire:navigate href="{{ route('apertura.edit.cuadroaplicaciones', ['aperturaId' => $aperturaId]) }}" />
+        </div>
+          <div class="flex flex-wrap justify-start">
+            <input type="text" class="mt-1 block   border-gray-300 rounded-md shadow-sm" value="428.43" readonly>
+          </div>
       </div>
 
      
-     @livewire('tabla-detalle-apertura')
+     @livewire('tabla-detalle-apertura', ['aperturaId' => $aperturaId])
       
       <div class="flex flex-wrap justify-end mt-4 -mx-2">
         <div class="w-full sm:w-1/2 px-2 mb-2 sm:mb-0">

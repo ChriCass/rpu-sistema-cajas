@@ -42,6 +42,16 @@ class DetalleApertura extends Component
         $this->años = array_map(function ($año) {
             return ['key' => $año, 'year' => $año];
         }, $años);
+
+          // Emitir el evento con los datos de la apertura
+          $this->dispatch('aperturaLoaded', [
+            'aperturaId' => $this->aperturaId,
+            'caja' => $this->caja,
+            'año' => $this->año,
+            'mes' => $this->mes,
+            'numero' => $this->numero,
+            'fecha' => $this->fecha,
+        ]);
     }
 
      
