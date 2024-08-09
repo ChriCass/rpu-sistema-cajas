@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\TipoDeCaja;
 use App\Models\Mes;
 use App\Models\Apertura;
-
+use Livewire\Attributes\On;
 class DetalleApertura extends Component
 {
     public $aperturaId;
@@ -19,6 +19,8 @@ class DetalleApertura extends Component
     public $mes;
     public $numero;
     public $fecha;
+    public $montoInicial;
+    public $totalCalculado;
 
     public function mount($aperturaId)
     {
@@ -42,21 +44,28 @@ class DetalleApertura extends Component
         $this->años = array_map(function ($año) {
             return ['key' => $año, 'year' => $año];
         }, $años);
-
-          // Emitir el evento con los datos de la apertura
-          $this->dispatch('aperturaLoaded', [
-            'aperturaId' => $this->aperturaId,
-            'caja' => $this->caja,
-            'año' => $this->año,
-            'mes' => $this->mes,
-            'numero' => $this->numero,
-            'fecha' => $this->fecha,
-        ]);
     }
 
-     
+    #[On('monto-inicial')]
+    public function recibirMontoInicial($montoInicial)
+    {
+        // Formatear el monto inicial a dos decimales
+        $this->montoInicial = number_format($montoInicial, 2, '.', '');
+    }
+    
+    #[On('total-calculado')]
+    public function recibirTotalCalculado($totalCalculado)
+    {
+        // Formatear el total calculado a dos decimales
+        $this->totalCalculado = number_format($totalCalculado, 2, '.', '');
+    }
+    
+
     public function render()
     {
-        return view('livewire.detalle-apertura');
+        return view('livewire.detalle-apertura', [
+            'montoInicial' => $this->montoInicial,
+            'totalCalculado' => $this->totalCalculado,
+        ]);
     }
 }

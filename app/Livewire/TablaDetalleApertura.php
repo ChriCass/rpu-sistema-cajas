@@ -46,10 +46,10 @@ class TablaDetalleApertura extends Component
                 'meses.descripcion as mesDescripcion',
                 DB::raw("DATE_FORMAT(fecha, '%d/%m/%Y') as fecha")
             )
-            ->leftJoin('tipodecaja', 'tipodecaja.id', '=', 'aperturas.id_tipo')
-            ->leftJoin('meses', 'meses.id', '=', 'aperturas.id_mes')
-            ->where('aperturas.id', $this->aperturaId)
-            ->firstOrFail();
+                ->leftJoin('tipodecaja', 'tipodecaja.id', '=', 'aperturas.id_tipo')
+                ->leftJoin('meses', 'meses.id', '=', 'aperturas.id_mes')
+                ->where('aperturas.id', $this->aperturaId)
+                ->firstOrFail();
 
             Log::info('Detalles de la apertura obtenidos', ['apertura' => $apertura]);
 
@@ -75,8 +75,8 @@ class TablaDetalleApertura extends Component
             $fechaFormatted = DateTime::createFromFormat('d/m/Y', $this->textBox6)->format('Y-m-d');
             Log::info('Fecha formateada:', ['fechaFormatted' => $fechaFormatted]);
 
-            // Consulta para obtener el monto inicial
-            $montoInicialQuery = MovimientoDeCaja::select(DB::raw("SUM(IF(id_dh = '1', monto, monto * -1)) as monto"))
+            // Consulta para obtener el monto inicial y redondearlo a dos decimales
+            $montoInicialQuery = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto"))
                 ->where('id_cuentas', $this->caja)
                 ->where('fec', '<', $fechaFormatted);
 
@@ -84,8 +84,9 @@ class TablaDetalleApertura extends Component
 
             $montoInicial = $montoInicialQuery->first();
 
+
             if ($montoInicial) {
-                $this->textBox8 = $montoInicial->monto ?? 0;
+                $this->textBox8 = number_format($montoInicial->monto, 2, '.', '');
             } else {
                 $this->textBox8 = 0;
                 Log::info('No se encontró un registro coincidente para la consulta del monto inicial.');
@@ -156,6 +157,10 @@ class TablaDetalleApertura extends Component
             // Calcular el total de la tabla
             $this->textBox4 = $this->textBox8 + $this->movimientos->sum('monto');
             Log::info('Total calculado', ['total' => $this->textBox4]);
+
+            // Despachar los eventos con los valores calculados
+            $this->dispatch('monto-inicial', $this->textBox8);
+            $this->dispatch('total-calculado', $this->textBox4);
         } catch (ModelNotFoundException $e) {
             Log::error('Cuenta no encontrada: ' . $this->comboBox5);
             session()->flash('error', 'No se encontró la cuenta con la descripción: ' . $this->comboBox5);
