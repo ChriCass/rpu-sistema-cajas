@@ -6,6 +6,7 @@ use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use App\Models\TipoFamilia;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 class EditFamiliaModal   extends ModalComponent
 {  public $familiaId;
     public $descripcion;
@@ -33,28 +34,28 @@ class EditFamiliaModal   extends ModalComponent
     }
 
     public function save()
-    {
-        Log::info("Attempting to save familia with id: {$this->familiaId}");
+{
+    Log::info("Attempting to save familia with id: {$this->familiaId}");
 
-        $this->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
+    $this->validate([
+        'descripcion' => 'required|string|max:255',
+    ]);
 
-        try {
-            $familia = Familia::findOrFail($this->familiaId);
-            $familia->descripcion = $this->descripcion;
-            $familia->id_tipofamilias = $this->idTipofamilias;
-            $familia->save();
+    DB::transaction(function () {
+        // Bloquear la fila para evitar concurrencia
+        $familia = Familia::lockForUpdate()->findOrFail($this->familiaId);
 
-            Log::info("Successfully saved familia: ", $familia->toArray());
+        $familia->descripcion = $this->descripcion;
+        $familia->id_tipofamilias = $this->idTipofamilias;
+        $familia->save();
 
-            session()->flash('message', 'Familia actualizada exitosamente.');
-            $this->dispatch('familiaUpdated');
-        } catch (\Exception $e) {
-            Log::error("Error saving familia: ", ['error' => $e->getMessage()]);
-            session()->flash('error', 'Ocurrió un error al actualizar la familia.');
-        }
-    }
+        Log::info("Successfully saved familia: ", $familia->toArray());
+
+        session()->flash('message', 'Familia actualizada exitosamente.');
+        $this->dispatch('familiaUpdated');
+    }, 5); // 5 segundos de tiempo de espera para el bloqueo
+
+}
 
     public function render()
     {

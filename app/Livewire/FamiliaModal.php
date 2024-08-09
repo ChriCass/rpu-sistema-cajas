@@ -5,7 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Familia;
 use App\Models\TipoFamilia;
- 
+ use Illuminate\Support\Facades\DB;
 class FamiliaModal extends Component
 {
 
@@ -36,27 +36,27 @@ class FamiliaModal extends Component
     {
         $this->validate();
 
-        $this->newId = Familia::max('id') + 1;
-
-        try {
+        DB::transaction(function () {
+            // Bloquear fila para evitar lecturas concurrentes
+            $this->newId = Familia::lockForUpdate()->max('id') + 1;
+    
+            // Inserta la nueva familia
             Familia::create([
                 'id' => $this->newId,
                 'descripcion' => $this->nuevafamilia,
                 'id_tipofamilias' => $this->selectedTipoFamilia,
             ]);
-
+    
             // Emitir el evento para refrescar la tabla
             $this->dispatch('familia-created');
-
+    
             // Limpiar campos después de insertar
             $this->reset(['nuevafamilia', 'selectedTipoFamilia']);
-
+    
             // Emitir un evento o mensaje de éxito (opcional)
             session()->flash('message', 'Familia creada exitosamente.');
-
-        } catch (\Exception $e) {
-            session()->flash('error', 'Ocurrió un error al crear la familia.');
-        }
+        }, 5); // Tiempo de espera de la transacción (5 segundos)
+    
     }
 
     public function closeModal()

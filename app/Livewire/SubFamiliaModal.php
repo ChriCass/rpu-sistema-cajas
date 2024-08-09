@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Familia;
 use Illuminate\Support\Facades\Log;
 use App\Models\SubFamilia;
-
+use Illuminate\Support\Facades\DB;
 class SubFamiliaModal extends Component
 {
     public $openModal = false;
@@ -28,37 +28,31 @@ class SubFamiliaModal extends Component
     ];
 
     public function insertNewSubFamilia()
-    {
-        $this->validate();
-        $this->nuevoId = SubFamilia::max('id') + 1;
+{
+    $this->validate();
 
-        try {
-            SubFamilia::create([
-                'id_familias' => $this->selectedFamilia,
-                'id' => $this->nuevoId,
-                'desripcion' => $this->nuevaSubfamilia,
-            ]);
+    DB::transaction(function () {
+        // Bloquear fila para evitar concurrencia
+        $this->nuevoId = SubFamilia::lockForUpdate()->max('id') + 1;
 
-          
+        // Crear la nueva subfamilia
+        SubFamilia::create([
+            'id_familias' => $this->selectedFamilia,
+            'id' => $this->nuevoId,
+            'desripcion' => $this->nuevaSubfamilia,
+        ]);
 
-             // Emitir el evento para refrescar la tabla
-             $this->dispatch('subfamilia-created');
+        // Emitir el evento para refrescar la tabla
+        $this->dispatch('subfamilia-created');
 
+        // Limpiar campos después de insertar
+        $this->reset(['selectedFamilia', 'nuevaSubfamilia']);
 
-            // Limpiar campos después de insertar
-            $this->reset(['selectedFamilia', 'nuevaSubfamilia']);
+        // Emitir un mensaje de éxito
+        session()->flash('message', 'SubFamilia creada exitosamente.');
+    }, 5); // Tiempo de espera de la transacción
+}
 
-          
-
-            // Emitir un evento o mensaje de éxito (opcional)
-            session()->flash('message', 'SubFamilia creada exitosamente.');
-
-        } catch (\Exception $e) {
-            
-            session()->flash('error', 'Ocurrió un error al crear la familia.');
-        }
-
-    }
 
     public function mount()
     {

@@ -9,6 +9,8 @@ use Livewire\Component;
 use App\Models\Detalle;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 class EditDetalleModal extends ModalComponent
 {
     public $detalleId;
@@ -60,29 +62,32 @@ class EditDetalleModal extends ModalComponent
     }
 
     public function save()
-    {
-        $this->validate([
-            'descripcion' => 'required|string|max:255',
-            'familia' => 'required|exists:familias,id',
-            'subfamilia' => 'required|exists:subfamilias,id',
-            'cuenta' => 'required|exists:cuentas,id'
-        ]);
+{
+    $this->validate([
+        'descripcion' => 'required|string|max:255',
+        'familia' => 'required|exists:familias,id',
+        'subfamilia' => 'required|exists:subfamilias,id',
+        'cuenta' => 'required|exists:cuentas,id'
+    ]);
 
-        try {
-            $detalle = Detalle::findOrFail($this->detalleId);
-            $detalle->descripcion = $this->descripcion;
- 
-            $detalle->save();
+    DB::transaction(function () {
+        // Bloquear la fila para evitar concurrencia
+        $detalle = Detalle::lockForUpdate()->findOrFail($this->detalleId);
 
-            Log::info("Successfully saved detalle: ", $detalle->toArray());
+        $detalle->descripcion = $this->descripcion;
+        $detalle->id_familias = $this->familia;
+        $detalle->id_subfamilia = $this->subfamilia;
+        $detalle->id_cuenta = $this->cuenta;
 
-            session()->flash('message', 'Detalle actualizado exitosamente.');
-            $this->dispatch('detalleUpdated');
-        } catch (\Exception $e) {
-            Log::error("Error saving detalle: " . $e->getMessage());
-            session()->flash('error', 'Ocurrió un error al actualizar el detalle.');
-        }
-    }
+        $detalle->save();
+
+        Log::info("Successfully saved detalle: ", $detalle->toArray());
+
+        session()->flash('message', 'Detalle actualizado exitosamente.');
+        $this->dispatch('detalleUpdated');
+    });
+}
+
 
     public function render()
     {

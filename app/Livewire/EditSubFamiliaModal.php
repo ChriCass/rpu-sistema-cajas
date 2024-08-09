@@ -7,7 +7,7 @@ use Livewire\Component;
 use App\Models\Familia;
 use App\Models\SubFamilia;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\DB;
 class EditSubFamiliaModal extends ModalComponent
 {
     public $subfamiliaId;
@@ -34,28 +34,28 @@ class EditSubFamiliaModal extends ModalComponent
     }
 
     public function save()
-    {
-        Log::info("Attempting to save subfamilia with id: {$this->subfamiliaId}");
+{
+    Log::info("Attempting to save subfamilia with id: {$this->subfamiliaId}");
 
-        $this->validate([
-            'descripcion' => 'required|string|max:255',
-        ]);
+    $this->validate([
+        'descripcion' => 'required|string|max:255',
+    ]);
 
-        try {
-            $subfamilia = SubFamilia::findOrFail($this->subfamiliaId);
-            $subfamilia->desripcion = $this->descripcion;
-            $subfamilia->id_familias = $this->idFamilia;
-            $subfamilia->save();
+    DB::transaction(function () {
+        // Bloquear la fila para evitar concurrencia
+        $subfamilia = SubFamilia::lockForUpdate()->findOrFail($this->subfamiliaId);
 
-            Log::info("Successfully saved subfamilia: ", $subfamilia->toArray());
+        $subfamilia->desripcion = $this->descripcion;
+        $subfamilia->id_familias = $this->idFamilia;
+        $subfamilia->save();
 
-            session()->flash('message', 'Subfamilia actualizada exitosamente.');
-            $this->dispatch('subfamiliaUpdated');
-        } catch (\Exception $e) {
-            Log::error("Error saving subfamilia: ", ['error' => $e->getMessage()]);
-            session()->flash('error', 'Ocurrió un error al actualizar la subfamilia.');
-        }
-    }
+        Log::info("Successfully saved subfamilia: ", $subfamilia->toArray());
+
+        session()->flash('message', 'Subfamilia actualizada exitosamente.');
+        $this->dispatch('subfamiliaUpdated');
+    });
+}
+
 
 
     public function render()
