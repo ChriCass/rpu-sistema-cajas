@@ -7,6 +7,8 @@ use App\Models\TipoDeCaja;
 use App\Models\Mes;
 use App\Models\Apertura;
 use Livewire\Attributes\On;
+use DateTime;
+use Illuminate\Support\Facades\Log;
 class DetalleApertura extends Component
 {
     public $aperturaId;
@@ -30,8 +32,8 @@ class DetalleApertura extends Component
         $this->año = $this->apertura->año;
         $this->mes = $this->apertura->id_mes;
         $this->numero = $this->apertura->numero;
-        $this->fecha = $this->apertura->fecha;
-
+        $this->fecha = (new DateTime($this->apertura->fecha))->format('d/m/Y');
+        
         $this->tipoCajas = TipoDeCaja::all()->map(function ($tipoCaja) {
             return ['id' => $tipoCaja->id, 'descripcion' => $tipoCaja->descripcion];
         })->toArray();
@@ -45,6 +47,7 @@ class DetalleApertura extends Component
             return ['key' => $año, 'year' => $año];
         }, $años);
     }
+ 
 
     #[On('monto-inicial')]
     public function recibirMontoInicial($montoInicial)
@@ -62,7 +65,7 @@ class DetalleApertura extends Component
     
 
     public function render()
-    {
+    {      
         return view('livewire.detalle-apertura', [
             'montoInicial' => $this->montoInicial,
             'totalCalculado' => $this->totalCalculado,

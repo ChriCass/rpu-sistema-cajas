@@ -9,7 +9,7 @@
         <x-card title="VaucherDePago">
           <div class="flex flex-wrap -mx-2 mt-4">
             <div class="w-full md:w-4/12 px-2">
-              <x-datetime-picker readonly label="Fecha:" placeholder="Selecciona Fecha" without-time value="" />
+              <x-input readonly label="Fecha:" wire:model="fechaApertura" />
             </div>
             <div class="w-full md:w-4/12 px-2">
               <x-select readonly label="Moneda:" placeholder="Selecciona..." :options="[]" option-label="descripcion" option-value="id" />

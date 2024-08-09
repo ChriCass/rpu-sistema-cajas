@@ -17,8 +17,8 @@
               <x-maskable readonly wire:model="numero" label="N:" mask="#" />
           </div>
           <div class="w-full sm:w-2/12 px-2">
-              <x-datetime-picker readonly wire:model="fecha" label="Fecha:" placeholder="Nueva Fecha" without-time
-                  :min="now()->subDays(7)->hours(12)->minutes(30)" :max="now()->addDays(7)->hours(12)->minutes(30)" />
+              <x-input readonly wire:model="fecha" label="Fecha:"   without-time
+          />
           </div>
       </div>
 
