@@ -34,9 +34,14 @@ class MovimientoDeCaja extends Model
         return $this->belongsTo(Cuenta::class, 'id_cuentas');
     }
 
-    public function documento()
+    public function CompraDocumento()
     {
-        return $this->belongsTo(Documento::class, 'id_documentos');
+        return $this->belongsTo(CompraDocumento::class, 'id_documentos');
+    }
+
+    public function VentaDocumento()
+    {
+        return $this->belongsTo(VentaDocumento::class, 'id_documentos');
     }
 
     public function apertura()

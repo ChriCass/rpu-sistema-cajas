@@ -24,7 +24,7 @@ class Cuenta extends Model
     // Permitir la asignación masiva en estos campos
     protected $fillable = [
         'id',
-        'Descripcion',
+        'descripcion',
         'id_tCuenta',
     ];
 

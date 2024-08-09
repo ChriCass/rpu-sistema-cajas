@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Documento extends Model
+class VentaDocumento extends Model
 {
     use HasFactory;
 
-    protected $table = 'documentos';
+    protected $table = 'ventas_documentos';
 
     // Indicar que no se manejen automáticamente las marcas de tiempo
     public $timestamps = false;
