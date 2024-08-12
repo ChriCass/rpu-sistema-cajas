@@ -12,8 +12,8 @@
               <x-input readonly label="Fecha:" wire:model="fechaApertura" />
             </div>
             <div class="w-full md:w-4/12 px-2">
-              <x-select readonly label="Moneda:" placeholder="Selecciona..." :options="[]" option-label="descripcion" option-value="id" />
-            </div>
+              <x-input readonly label="Moneda:" wire:model="moneda" />
+          </div>
             <div class="w-full md:w-4/12 px-2 flex items-center justify-end">
               <x-button label="Nuevo" />
             </div>

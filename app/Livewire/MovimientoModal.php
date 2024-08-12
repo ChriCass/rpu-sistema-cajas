@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\TipoDeCaja;
 use App\Models\Mes;
 use App\Models\Apertura;
- 
+ use Illuminate\Support\Facades\DB;
 class MovimientoModal extends Component
 {     
     public $openModal = false;
@@ -37,56 +37,64 @@ class MovimientoModal extends Component
     ];
 
     public function insertNewApertura()
-    {
-        // Validar los datos
-        $this->validate();
-    
-        // Asegurarse de que la fecha esté en formato yyyy-mm-dd
-        try {
-            $this->nueva_fecha = date('Y-m-d', strtotime($this->nueva_fecha));
-        } catch (\Exception $e) {
-            session()->flash('error', 'Ocurrió un error al formatear la fecha.');
-            return;
-        }
-    
+{
+    // Validar los datos
+    $this->validate();
+
+    // Asegurarse de que la fecha esté en formato yyyy-mm-dd
+    try {
+        $this->nueva_fecha = date('Y-m-d', strtotime($this->nueva_fecha));
+    } catch (\Exception $e) {
+        session()->flash('error', 'Ocurrió un error al formatear la fecha.');
+        return;
+    }
+
+    DB::beginTransaction();
+
+    try {
         // Verificar si la apertura ya existe en la base de datos
-        $existingApertura = Apertura::where('id_tipo', $this->tipo_caja)
-                                    ->where('año', $this->nuevo_año)
-                                    ->where('id_mes', $this->nuevo_mes)
-                                    ->where('numero', $this->nuevo_numero)
-                                    ->where('fecha', $this->nueva_fecha)
-                                    ->first();
-    
+        $existingApertura = Apertura::lockForUpdate() // Bloqueo para evitar concurrencia
+            ->where('id_tipo', $this->tipo_caja)
+            ->where('año', $this->nuevo_año)
+            ->where('id_mes', $this->nuevo_mes)
+            ->where('numero', $this->nuevo_numero)
+            ->where('fecha', $this->nueva_fecha)
+            ->first();
+
         if ($existingApertura) {
             // Emitir mensaje de error si la apertura ya existe
             session()->flash('error', 'La apertura ya existe en la base de datos.');
+            DB::rollBack();
             return;
         }
-    
-        try {
-            // Crear una nueva apertura
-            Apertura::create([
-                'id_tipo' => $this->tipo_caja,
-                'numero' => $this->nuevo_numero,
-                'año' => $this->nuevo_año,
-                'id_mes' => $this->nuevo_mes,
-                'fecha' => $this->nueva_fecha,
-            ]);
-    
-            // Emitir el evento para refrescar la tabla
-            $this->dispatch('apertura-created');
-    
-            // Limpiar campos después de insertar
-            $this->reset(['tipo_caja', 'nuevo_numero', 'nuevo_año', 'nuevo_mes', 'nueva_fecha']);
-    
-            // Emitir un evento o mensaje de éxito
-            session()->flash('message', 'Apertura creada exitosamente.');
-    
-        } catch (\Exception $e) {
-            // Emitir mensaje de error en caso de excepción
-            session()->flash('error', 'Ocurrió un error al crear la apertura.');
-        }
+
+        // Crear una nueva apertura
+        Apertura::create([
+            'id_tipo' => $this->tipo_caja,
+            'numero' => $this->nuevo_numero,
+            'año' => $this->nuevo_año,
+            'id_mes' => $this->nuevo_mes,
+            'fecha' => $this->nueva_fecha,
+        ]);
+
+        // Confirmar la transacción
+        DB::commit();
+
+        // Emitir el evento para refrescar la tabla
+        $this->dispatch('apertura-created');
+
+        // Limpiar campos después de insertar
+        $this->reset(['tipo_caja', 'nuevo_numero', 'nuevo_año', 'nuevo_mes', 'nueva_fecha']);
+
+        // Emitir un evento o mensaje de éxito
+        session()->flash('message', 'Apertura creada exitosamente.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        // Emitir mensaje de error en caso de excepción
+        session()->flash('error', 'Ocurrió un error al crear la apertura.');
     }
+}
     
     
     public function mount()
