@@ -22,15 +22,25 @@
 
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full flex justify-end gap-5 px-2">
-                    <div class="space-x-2">
+                    <div class="space-x-2 mt-5">
                         <x-button label="Registro CXP" />
                         <x-button label="Ingreso" />
                         <x-button label="Gasto" />
                     </div>
-                    <div class="space-x-2 flex items-center">
-
-                        <x-input readonly label="Haber" wire:model="haber" />
-                    </div>
+                    <!-- Mostrar "Haber" cuando hay datos en el contenedor -->
+                    @if (!empty($contenedor))
+                        <div class="space-x-2 flex items-center">
+                                 <!-- Mostrar el campo "Debe" solo si hay una fila seleccionada -->
+                                 <div class="{{ $selectedIndex !== null ? 'block' : 'hidden' }}">
+                                    <x-input readonly label="Debe" wire:model="debe" />
+                                </div>
+                            <!-- Mostrar el campo "Haber" siempre -->
+                            <div class="block">
+                                <x-input readonly label="Haber" wire:model="haber" />
+                            </div>
+                       
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -69,8 +79,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($contenedor as $item)
-                            <tr>
+                        @foreach ($contenedor as $index => $item)
+                            <tr wire:click="selectDebe({{ $index }})"
+                                class="{{ $selectedIndex === $index ? 'bg-teal-500 text-white' : '' }}">
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['id_documentos'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['tdoc'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['id_entidades'] }}</td>
@@ -80,10 +91,10 @@
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['Descripcion'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['monto'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['monto'] }}</td> <!-- Debe -->
-
                             </tr>
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
 
