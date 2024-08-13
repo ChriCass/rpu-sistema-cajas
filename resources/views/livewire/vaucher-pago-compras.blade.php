@@ -23,7 +23,13 @@
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full flex justify-end gap-5 px-2">
                     <div class="space-x-2 mt-5">
-                        <x-button label="Registro CXP" />
+                        <x-button 
+                        label="Registro CXP" 
+                        wire:navigate 
+                        href="{{ route('apertura.edit.vaucherdepagos.registrocxp', ['aperturaId' => $aperturaId]) }}" 
+                    />
+                    
+
                         <x-button label="Ingreso" />
                         <x-button label="Gasto" />
                     </div>
