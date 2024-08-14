@@ -9,6 +9,9 @@ use App\Livewire\VaucherPagoVentas;
 use App\Livewire\CuadroAplicaciones;
 use App\Livewire\RegistroCxp;
 use App\Livewire\FormRegistroCxp;
+use App\Livewire\RegistroCxc;
+use App\Livewire\FormRegistroCxc;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -69,6 +72,8 @@ Route::middleware([
         Route::get('/vaucherdepagos/registrocxp', RegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp');
         Route::get('/vaucherdepagos/registrocxp/nuevo', FormRegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxp');
         Route::get('/vaucherdepagosventas', VaucherPagoVentas::class)->name('apertura.edit.vaucherdepagosventas');
+        Route::get('/vaucherdepagosventas/registrocxc', RegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxc');
+        Route::get('/vaucherdepagosventas/registrocxc/nuevo', FormRegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxc');
         Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones');
     });
    /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
