@@ -157,6 +157,7 @@ class CuadroDePendientesVentasModal extends Component
             session()->flash('warning', 'No se envió nada a la tabla.');
 
             Log::info("No se envió nada a la tabla", ["contenedor" => $this->contenedor]);
+            $this->dispatch('sendingContenedorVentas', $this->contenedor);
         }
     }
 
