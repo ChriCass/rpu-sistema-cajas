@@ -123,7 +123,7 @@
                 case 'Descripcion':
                     return 7;
                 default:
-                    return 1; // Default to ID column
+                    return 1; 
             }
         }
     });

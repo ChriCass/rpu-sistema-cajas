@@ -26,6 +26,7 @@ class TablaDetalleApertura extends Component
     public $textBox7;
     public $textBox8;
     public $textBox4;
+    public $rutaFormulario;
 
     public function mount($aperturaId)
     {
@@ -166,6 +167,46 @@ class TablaDetalleApertura extends Component
             session()->flash('error', 'No se encontró la cuenta con la descripción: ' . $this->comboBox5);
         }
     }
+
+    public function determinarFormulario($movimiento)
+    {
+        $params = ['aperturaId' => $this->aperturaId];
+    
+        // Log de los valores iniciales
+        Log::info('Iniciando determinación de ruta para el movimiento', [
+            'mov_id' => $movimiento->mov_id,
+            'familia' => $movimiento->familia,
+            'monto' => $movimiento->monto,
+            'aperturaId' => $this->aperturaId
+        ]);
+    
+        if ($movimiento->familia === 'MOVIMIENTOS') {
+            Log::info('Es movimiento', ['mov_id' => $movimiento->mov_id]);
+            if ($movimiento->monto < 0) {
+                $this->rutaFormulario = route('apertura.edit.editvaucherdepagos', $params);
+                Log::info('Ruta seleccionada: Editar Vaucher de Pago', ['ruta' => $this->rutaFormulario]);
+            } else {
+                $this->rutaFormulario = route('apertura.edit.editvaucherdepagosventas', $params);
+                Log::info('Ruta seleccionada: Editar Vaucher de Pago Ventas', ['ruta' => $this->rutaFormulario]);
+            }
+        } else {
+            Log::info('No es movimiento', ['mov_id' => $movimiento->mov_id]);
+            if ($movimiento->monto < 0) {
+                $this->rutaFormulario = route('apertura.edit.editregistodocumentosegreso', $params);
+                Log::info('Ruta seleccionada: Editar Registro Documentos Egreso', ['ruta' => $this->rutaFormulario]);
+            } else {
+                $this->rutaFormulario = route('apertura.edit.editregistodocumentosingreso', $params);
+                Log::info('Ruta seleccionada: Editar Registro Documentos Ingreso', ['ruta' => $this->rutaFormulario]);
+            }
+        }
+    
+        // Log final con la ruta generada
+        Log::info('Ruta final determinada para el movimiento', [
+            'mov_id' => $movimiento->mov_id,
+            'rutaFinal' => $this->rutaFormulario
+        ]);
+    }
+    
 
     public function render()
     {

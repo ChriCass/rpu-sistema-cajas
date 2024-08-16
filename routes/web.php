@@ -11,6 +11,13 @@ use App\Livewire\RegistroCxp;
 use App\Livewire\FormRegistroCxp;
 use App\Livewire\RegistroCxc;
 use App\Livewire\FormRegistroCxc;
+use App\Livewire\EditRegistroDocumentosEgreso;
+use App\Livewire\EditRegistroDocumentosIngreso;
+use App\Livewire\EditVaucherDePago;
+use App\Livewire\EditVaucherDePagoVentas;
+
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -67,14 +74,24 @@ Route::middleware([
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
         Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
+        Route::get('/registodocumentosingreso/edit', EditRegistroDocumentosIngreso::class)->name('apertura.edit.editregistodocumentosingreso');
         Route::get('/registodocumentosegreso', RegistroDocumentosEgreso::class)->name('apertura.edit.registodocumentosegreso');
+        Route::get('/registodocumentosegreso/edit', EditRegistroDocumentosEgreso::class)->name('apertura.edit.editregistodocumentosegreso');
         Route::get('/vaucherdepagos', VaucherPagoCompras::class)->name('apertura.edit.vaucherdepagos');
+        Route::get('/vaucherdepagos/edit', EditVaucherDePago::class)->name('apertura.edit.editvaucherdepagos');
         Route::get('/vaucherdepagos/registrocxp', RegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp');
         Route::get('/vaucherdepagos/registrocxp/nuevo', FormRegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxp');
         Route::get('/vaucherdepagosventas', VaucherPagoVentas::class)->name('apertura.edit.vaucherdepagosventas');
+        Route::get('/vaucherdepagosventas/edit', EditVaucherDePagoVentas::class)->name('apertura.edit.editvaucherdepagosventas');
         Route::get('/vaucherdepagosventas/registrocxc', RegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxc');
         Route::get('/vaucherdepagosventas/registrocxc/nuevo', FormRegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxc');
         Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones');
+
+
+
+
+
+
     });
    /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
     /// usar el aperturaController si hay futuros problemas en el manejo de layouts y uso de rutas con livewire

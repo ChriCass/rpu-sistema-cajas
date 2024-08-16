@@ -17,6 +17,7 @@
                     <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Numero</th>
                     <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Monto</th>
                     <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Glosa</th>
+                    <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Detalle</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +32,14 @@
                             <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->numero }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->monto }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->glosa }}</td>
+                            <td class="py-2 px-4 border-b border-gray-200">
+                                @php
+                                    $this->determinarFormulario($movimiento);
+                                @endphp
+                                <a href="{{ $this->rutaFormulario }}">
+                                    <x-button label="Detalle" />
+                                </a>
+                            </td>
                         </tr>
                     @endforeach
                 @else
@@ -39,6 +48,7 @@
                     </tr>
                 @endif
             </tbody>
+            
         </table>
     </div>
 </div>
