@@ -15,7 +15,7 @@ use App\Livewire\EditRegistroDocumentosEgreso;
 use App\Livewire\EditRegistroDocumentosIngreso;
 use App\Livewire\EditVaucherDePago;
 use App\Livewire\EditVaucherDePagoVentas;
-
+use App\Livewire\RegistroDeIngresoAvanz;
 
 
 
@@ -74,6 +74,7 @@ Route::middleware([
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
         Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
+        Route::get('/registodocumentosingreso/avanzado', RegistroDeIngresoAvanz::class)->name('apertura.edit.registodocumentosingreso.avanzado');
         Route::get('/registodocumentosingreso/edit', EditRegistroDocumentosIngreso::class)->name('apertura.edit.editregistodocumentosingreso');
         Route::get('/registodocumentosegreso', RegistroDocumentosEgreso::class)->name('apertura.edit.registodocumentosegreso');
         Route::get('/registodocumentosegreso/edit', EditRegistroDocumentosEgreso::class)->name('apertura.edit.editregistodocumentosegreso');

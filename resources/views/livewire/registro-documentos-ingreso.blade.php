@@ -8,6 +8,10 @@
     <div class="p-4">
         <x-card title="Registro de Documentos">
             <div class="flex flex-wrap -mx-2">
+                <div class="mx-5">
+                    <x-button   label="avanzado" info wire:navigate     href="{{ route('apertura.edit.registodocumentosingreso.avanzado', ['aperturaId' => $aperturaId]) }}"></x-button>
+                </div>
+               
                 <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
                     <div class="w-full md:w-3/12 px-2">
                         <x-select readonly label="Familia:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'GASTO']]"
@@ -23,7 +27,7 @@
                     </div>
                 </div>
                 <div class="w-full md:w-6/12 px-2">
-                     
+
                     <div class="flex flex-wrap -mx-2 mt-4">
                         <div class="w-full md:w-2/12 px-2">
                             <x-maskable readonly label="T. Doc:" mask="#" value="02" />
@@ -51,15 +55,20 @@
                             <x-select readonly label="Moneda:" :options="[['id' => 1, 'descripcion' => 'PEN']]" option-label="descripcion"
                                 option-value="id" />
                         </div>
-                        <div class="w-full md:w-4/12 px-2">
+                    
+                    </div>
+
+                    <div class="flex flex-wrap justify-between -mx-2 mt-4">
+                        <div class="w-full md:w-8/12 px-2">
                             <x-input readonly label="Entidad:" value="PINEDA GUZMAN RICARDO NOE" />
                         </div>
-                    </div>
-                    <div class="flex flex-wrap -mx-2 mt-4">
-                        <div class="w-full md:w-2/12 px-2">
+                        <div class="w-full md:w-4/12 px-2">
                             <x-select readonly label="Tasa Impositiva:" :options="[['id' => 1, 'descripcion' => 'No Gravado']]" option-label="descripcion"
                                 option-value="id" />
                         </div>
+                    </div>
+                    <div class="flex flex-wrap justify-between -mx-2 mt-4">
+                   
                         <div class="w-full md:w-3/12 px-2">
                             <x-datetime-picker readonly label="Fec Emi:" placeholder="Nueva Fecha" without-time
                                 value="2024-05-18" />
@@ -72,7 +81,7 @@
                 </div>
                 <div class="w-full md:w-6/12 px-2">
                     <div class="flex flex-wrap -mx-2 mt-4">
-                        <fieldset class="border border-gray-300 p-2 rounded-md w-full">
+                        <fieldset class="border p-10 border-gray-300 p-2 rounded-md w-full">
                             <legend class="text-sm font-medium text-gray-700">T. Referencia</legend>
                             <div class="flex flex-wrap">
                                 <div class="w-full md:w-6/12 px-2">
