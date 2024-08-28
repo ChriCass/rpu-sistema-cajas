@@ -85,7 +85,6 @@ class TablaDetalleApertura extends Component
 
             $montoInicial = $montoInicialQuery->first();
 
-
             if ($montoInicial) {
                 $this->textBox8 = number_format($montoInicial->monto, 2, '.', '');
             } else {
@@ -95,59 +94,42 @@ class TablaDetalleApertura extends Component
 
             Log::info('Monto inicial calculado', ['montoInicial' => $this->textBox8]);
 
-            // Definir y ejecutar la consulta SQL crudo
+            // Nueva consulta SQL cruda proporcionada
             $sql = "
                 SELECT 
                     IF(CO2.id_documentos IS NULL, CO2.mov, CO2.id_documentos) AS mov_id,
-                    IF(familias.descripcion IS NULL, 'MOVIMIENTOS', familias.descripcion) AS familia,
-                    IF(subfamilias.desripcion IS NULL, '', subfamilias.desripcion) AS subfamilia,
-                    IF(CO2.descripcion IS NULL, '', CO2.descripcion) AS detalle,
+                    IF(entidades.id IS NULL, 'MOVIMIENTOS', entidades.id) AS entidad,
                     IF(entidades.descripcion IS NULL, '', entidades.descripcion) AS entidad,
-                    CO2.numero,
-                    CO2.monto,
+                    CO2.numero, 
+                    CO2.monto, 
                     CO2.glosa
                 FROM (
                     SELECT 
-                        CO1.mov,
-                        CO1.id_documentos,
-                        detalle.id_familias,
-                        detalle.id_subfamilia,
-                        detalle.descripcion,
-                        CO1.id_entidades,
-                        CO1.numero,
-                        CO1.monto,
-                        CO1.glosa
-                    FROM (
-                        SELECT 
-                            movimientosdecaja.mov,
-                            movimientosdecaja.id_documentos,
-                            IF(movimientosdecaja.id_dh = '1', ventas_documentos.id_detalle, INN1.id_detalle) AS id_detalle,
-                            IF(movimientosdecaja.id_dh = '1', ventas_documentos.id_entidades, INN1.id_entidades) AS id_entidades,
-                            IF(movimientosdecaja.id_dh = '1', CONCAT(ventas_documentos.serie, '-', ventas_documentos.numero), CONCAT(INN1.serie, '-', INN1.numero)) AS numero,
-                            IF(movimientosdecaja.id_dh = '1', movimientosdecaja.monto, movimientosdecaja.monto * -1) AS monto,
-                            movimientosdecaja.glosa
-                        FROM 
-                            movimientosdecaja
-                        LEFT JOIN 
-                            ventas_documentos ON movimientosdecaja.id_documentos = ventas_documentos.id
-                        LEFT JOIN 
-                            (SELECT * FROM compras_documentos) INN1 ON movimientosdecaja.id_documentos = INN1.id
-                        WHERE 
-                            movimientosdecaja.id_cuentas = ? 
-                            AND movimientosdecaja.id_apertura = ?
-                    ) CO1
+                        movimientosdecaja.mov,
+                        movimientosdecaja.id_documentos,
+                        documentos.id_entidades AS id_entidades,
+                        CONCAT(documentos.serie, '-', documentos.numero) AS numero,
+                        IF(movimientosdecaja.id_dh = '1', movimientosdecaja.monto, movimientosdecaja.monto * -1) AS monto,
+                        movimientosdecaja.glosa 
+                    FROM 
+                        movimientosdecaja 
                     LEFT JOIN 
-                        detalle ON CO1.id_detalle = detalle.id
+                        documentos ON movimientosdecaja.id_documentos = documentos.id 
+                    WHERE 
+                        movimientosdecaja.id_cuentas = ? 
+                        AND movimientosdecaja.id_apertura = ?
                 ) CO2
                 LEFT JOIN 
-                    familias ON CO2.id_familias = familias.id
-                LEFT JOIN 
-                    subfamilias ON CONCAT(CO2.id_familias, CO2.id_subfamilia) = CONCAT(subfamilias.id_familias, subfamilias.id)
-                LEFT JOIN 
-                    entidades ON CO2.id_entidades = entidades.id
+                    entidades ON CO2.id_entidades = entidades.id 
                 ORDER BY 
                     CO2.mov
             ";
+
+             // Log de caja y aperturaId antes de enviar la consulta SQL
+        Log::info('Preparando consulta SQL', [
+            'caja' => $this->caja,
+            'aperturaId' => $this->aperturaId
+        ]);
 
             // Ejecutar la consulta utilizando SQL crudo y convertir el resultado en una colección
             $this->movimientos = collect(DB::select($sql, [$this->caja, $this->aperturaId]));
@@ -167,6 +149,9 @@ class TablaDetalleApertura extends Component
             session()->flash('error', 'No se encontró la cuenta con la descripción: ' . $this->comboBox5);
         }
     }
+
+
+/* 
 
     public function determinarFormulario($movimiento)
     {
@@ -206,7 +191,7 @@ class TablaDetalleApertura extends Component
             'rutaFinal' => $this->rutaFormulario
         ]);
     }
-    
+    */
 
     public function render()
     {

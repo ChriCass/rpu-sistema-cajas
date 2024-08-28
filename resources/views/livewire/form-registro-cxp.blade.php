@@ -1,6 +1,5 @@
 <div>
     <x-slot name="header">
-
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Formulario de Registro CXP
         </h2>
@@ -12,68 +11,92 @@
             <div class="flex flex-wrap -mx-2">
                 <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
                     <div class="w-full md:w-3/12 px-2">
-                        <x-select readonly label="Familia:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'GASTO']]"
-                            option-label="descripcion" option-value="id" />
+                        <x-select 
+                            wire:model.live="selectedFamilia" 
+                            placeholder="Seleccione Familia" 
+                            label="Familia:" 
+                            :options="$familias" 
+                            option-value="id" 
+                            option-label="descripcion" 
+                        />
                     </div>
                     <div class="w-full md:w-3/12 px-2">
-                        <x-select readonly label="Sub-Familia:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'OTROS']]"
-                            option-label="descripcion" option-value="id" />
+                        <x-select 
+                            wire:model.live="selectedSubfamilia" 
+                            placeholder="Seleccione Subfamilia" 
+                            label="Subfamilia:" 
+                            :options="$subfamilias" 
+                            option-value="id" 
+                            option-label="desripcion" 
+                            :disabled="!$selectedFamilia"
+                        />
                     </div>
                     <div class="w-full md:w-3/12 px-2">
-                        <x-select readonly label="Detalle:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'OTROS']]"
-                            option-label="descripcion" option-value="id" />
+                        <x-select 
+                            wire:model.live="selectedDetalle" 
+                            placeholder="Seleccione Detalle" 
+                            label="Detalle:" 
+                            :options="$detalles" 
+                            option-value="id" 
+                            option-label="descripcion" 
+                            :disabled="!$selectedSubfamilia"
+                        />
                     </div>
                 </div>
                 <div class="w-full md:w-6/12 px-2">
 
                     <div class="flex flex-wrap -mx-2 mt-4">
                         <div class="w-full md:w-2/12 px-2">
-                            <x-maskable readonly label="T. Doc:" mask="#" value="02" />
+                            <x-maskable wire:model.live="tipoDocumento" label="T. Doc:" mask="#"  />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-input readonly label="Recibo por Honorarios" value="Recibo por Honorarios" />
+                            <x-input wire:model.live="numeroDocumento" label="# doc" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
                             <div class="flex items-center">
-                                <x-input readonly label="Serie" value="E001" />
+                                <x-input wire:model.live="serie" label="Serie" />
                                 <span class="mx-2">-</span>
-                                <x-input readonly label="Numero" value="354" />
+                                <x-input wire:model.live="numero" label="Número" />
                             </div>
                         </div>
                     </div>
                     <div class="flex flex-wrap -mx-2 mt-4">
                         <div class="w-full md:w-2/12 px-2">
-                            <x-select readonly label="Tip Doc Iden:" :options="[['id' => 1, 'descripcion' => '6']]" option-label="descripcion"
-                                option-value="id" />
+                            <x-select wire:model.live="selectedTipoDocumento" placeholder="selecc." label="Tip Doc Iden:" :options="$documentos" option-value="id" option-label="abreviado" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-input readonly label="RUC:" value="10706743788" />
+                            <label>{{ $labelDoc }}:</label> 
+                            <x-input wire:model.live="documentoIdentidad" />
                         </div>
                         <div class="w-full md:w-2/12 px-2">
-                            <x-select readonly label="Moneda:" :options="[['id' => 1, 'descripcion' => 'PEN']]" option-label="descripcion"
-                                option-value="id" />
+                            <x-select wire:model.live="selectedMoneda" placeholder="selecc." label="Moneda:" :options="$monedas" option-value="id" option-label="id"/>
                         </div>
                     
                     </div>
 
                     <div class="flex flex-wrap justify-between -mx-2 mt-4">
                         <div class="w-full md:w-8/12 px-2">
-                            <x-input readonly label="Entidad:" value="PINEDA GUZMAN RICARDO NOE" />
+                            <x-input wire:model.live="entidad" label="Entidad:" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-select readonly label="Tasa Impositiva:" :options="[['id' => 1, 'descripcion' => 'No Gravado']]" option-label="descripcion"
-                                option-value="id" />
+                            <x-select 
+                                wire:model.live="selectedTasaIgv"
+                                placeholder="selecc." 
+                                label="Tasa Impositiva:" 
+                                :options="$igvs" 
+                                option-value="id" 
+                                option-label="tasa"
+                            />
                         </div>
+                        
                     </div>
                     <div class="flex flex-wrap justify-between -mx-2 mt-4">
                    
                         <div class="w-full md:w-3/12 px-2">
-                            <x-datetime-picker readonly label="Fec Emi:" placeholder="Nueva Fecha" without-time
-                                value="2024-05-18" />
+                            <x-datetime-picker wire:model.live="fechaEmi" label="Fec Emi:" placeholder="Nueva Fecha" without-time />
                         </div>
                         <div class="w-full md:w-3/12 px-2">
-                            <x-datetime-picker readonly label="Fec Ven:" placeholder="Nueva Fecha" without-time
-                                value="2024-05-20" />
+                            <x-datetime-picker wire:model.live="fechaVen" label="Fec Ven:" placeholder="Nueva Fecha" without-time />
                         </div>
                     </div>
                 </div>
@@ -83,10 +106,10 @@
                             <legend class="text-sm font-medium text-gray-700">T. Referencia</legend>
                             <div class="flex flex-wrap">
                                 <div class="w-full md:w-6/12 px-2">
-                                    <x-input readonly label="T. Doc:" value="" />
+                                    <x-input   readonly placeholder="Seleccione Tipo de Documento" label="T. Doc:"  />
                                 </div>
                                 <div class="w-full md:w-6/12 px-2">
-                                    <x-input readonly label="Orden Numero:" value="" />
+                                    <x-input   readonly label="Orden Número:" />
                                 </div>
                             </div>
                         </fieldset>
@@ -95,35 +118,71 @@
             </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full px-2">
-                    <x-input readonly label="Observaciones:" value="VIATICOS CONTADOR_RICARDO" />
+                    <x-input wire:model.live="observaciones" label="Observaciones:" />
                 </div>
             </div>
             <div class="flex flex-wrap justify-end -mx-2 mt-4">
+                <div class="w-full md:w-3/12 px-2 border">
+                    @if(empty($data))
+                        <p>Nada que mostrar</p>
+                    @else 
+                        <p>Mostrando:</p>
+                        <pre>{{ print_r($data, true) }}</pre>
+                    @endif
+                </div>
+                
                 <div class="w-full md:w-3/12 px-2">
                     <div class="flex flex-col space-y-2">
-                        <x-input readonly label="Base Imponible:" value="0" />
-                        <x-input readonly label="IGV:" value="0" />
-                        <x-input readonly label="Otros Tributos:" value="0" />
-                        <x-input readonly label="No Gravado:" value="120" />
-                        <x-input readonly label="Precio:" value="120" />
+                        <!-- Base Imponible -->
+                        <x-input 
+                            label="Base Imponible:" 
+                            wire:model.live="baseImponible" 
+                        />
+                    
+                        <!-- IGV -->
+                        <x-input 
+                            label="IGV:" 
+                            wire:model.live="igv"
+                            :value="$igv !== null ? $igv : ''"
+                        />
+                    
+                        <!-- Otros Tributos -->
+                        <x-input 
+                            label="Otros Tributos:" 
+                            wire:model.live="otroTributo"
+                        />
+                    
+                        <!-- No Gravado -->
+                        <x-input 
+                            label="No Gravado:" 
+                            wire:model.live="noGravadas"
+                        />
+                    
+                        <!-- Precio (Total) -->
+                        <x-input 
+                            label="Precio:" 
+                            wire:model.live="total"
+                            :value="$total !== null ? $total : ''"
+                        />
                     </div>
+                    
                 </div>
             </div>
 
             <div class="flex justify-between mt-4 space-x-2">
                 <div class="flex flex-wrap  ">
                     <div class="w-full md:w-3/12 flex flex-col justify-center items-center">
-                        <x-checkbox id="left-label" left-label="Detraccion" wire:model="model1" value="left-label" />
+                        <x-checkbox id="left-label" left-label="Detracción" wire:model="model1" value="left-label" />
                     </div>
                     
                     <div class="w-full md:w-2/12">
-                        <x-input label="Porcentaje" suffix="%" />
+                        <x-input wire:model.live="porcentajeDetraccion" label="Porcentaje" suffix="%" />
                     </div>
                     <div class="w-full md:w-3/12 mx-5">
-                        <x-input label="Monto de detraccion" />
+                        <x-input wire:model.live="montoDetraccion" readonly label="Monto de detracción" />
                     </div>
                     <div class="w-full md:w-2/12">
-                        <x-input label="Monto neto" />
+                        <x-input wire:model.live="montoNeto" readonly label="Monto neto" />
                     </div>
                 </div>
                 
@@ -131,7 +190,8 @@
                     @livewire('cuadro-de-ordenes-modal')
                     <div><x-button label="Cancelar" outline secondary wire:navigate href="{{ route('apertura.edit.vaucherdepagos.registrocxp', ['aperturaId' => $aperturaId]) }}"   /></div>
                     <div>
-                        <x-button label="Aceptar" primary class="flex-none" />
+                        <!-- Botón que dispara la función para guardar el documento -->
+                        <x-button label="Aceptar" primary class="flex-none" wire:click="save" />
                     </div>
                     
                 </div>
