@@ -7,7 +7,12 @@ use Livewire\Attributes\On;
 class AplicacionDetail extends Component
 {
     public $aplicacionesId;
+    public $showFormEdit = false;
 
+    public function toggleEdit()
+    {
+        $this->showFormEdit = !$this->showFormEdit;
+    }
     public function mount($aplicacionesId)
     {
         $this->aplicacionesId = $aplicacionesId;

@@ -1,5 +1,5 @@
 <div>
-    <div class="p-4 bg-white rounded shadow-md">
+  
         <div class="flex items-center space-x-4 mb-4">
             <!-- Campo Fecha -->
             <div>
@@ -15,7 +15,7 @@
             </div>
             <!-- Campo Voucher -->
             <div>
-                <x-input label="vaucher" wire:model='aplicacionesId' readonly></x-input>
+                <x-input label="voucher" wire:model='aplicacionesId' readonly></x-input>
             </div>
         </div>
     
@@ -58,5 +58,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
+
+   
 </div>

@@ -97,6 +97,11 @@ class EditAplicacionDetail extends Component
             Log::warning("No se encontraron detalles para la aplicación con mov igual a {$this->aplicacionesId}");
         }
     }
+    public function editar()
+{
+    $this->dispatch('mostrar-editar');
+}
+
 
     public function render()
     {
