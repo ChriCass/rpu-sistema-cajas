@@ -12,20 +12,20 @@
                 href="{{ route('apertura.edit.vaucherdepagos', ['aperturaId' => $aperturaId]) }}" />
             <div class="flex   flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select readonly label="Mes:" placeholder="Selecciona Mes" :options="[]"
+                    <x-select   label="Mes:" placeholder="Selecciona Mes" :options="$meses"
                         option-label="descripcion" option-value="id" />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select readonly label="T. Doc:" placeholder="Selecciona Documento" :options="[]"
+                    <x-select  label="T. Doc:" placeholder="Selecciona Documento" :options="$comprobantes"
                         option-label="descripcion" option-value="id" />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select readonly label="Moneda:" placeholder="Selecciona Moneda" :options="[]"
+                    <x-select   label="Moneda:" placeholder="Selecciona Moneda" :options="$monedas"
                         option-label="descripcion" option-value="id" />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select readonly label="Tasa:" placeholder="Selecciona Tasa" :options="[]"
-                        option-label="descripcion" option-value="id" />
+                    <x-select  label="Tasa:" placeholder="Selecciona Tasa" :options="$tasas"
+                        option-label="tasa" option-value="id" />
                 </div>
                 <div class="w-full md:w-2/12 px-2 flex items-center justify-end">
                     <button    wire:navigate 
@@ -37,8 +37,8 @@
             </div>
             <div class="flex flex-wrap  -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select readonly label="Usuarios:" placeholder="Selecciona Usuario" :options="[]"
-                        option-label="descripcion" option-value="id" />
+                    <x-select  label="Usuarios:" placeholder="Selecciona Usuario" :options="$usuarios"
+                        option-label="name" option-value="id" />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
                     <x-input readonly label="" placeholder="" value="" />

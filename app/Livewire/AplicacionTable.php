@@ -2,68 +2,40 @@
 
 namespace App\Livewire;
 
-use Rappasoft\LaravelLivewireTables\DataTableComponent;
-use Rappasoft\LaravelLivewireTables\Views\Column;
-use App\Models\MovimientoDeCajaCustom;
-use Illuminate\Database\Eloquent\Builder;
-use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
-use App\Models\Mes;
-class AplicacionTable extends DataTableComponent
-{
-    protected $model = MovimientoDeCajaCustom::class;
+use Livewire\Component;
+use App\Models\MovimientoDeCaja;
+use Illuminate\Support\Facades\Log;
+class AplicacionTable extends Component
+{   
 
-    public function configure(): void
+    public $aplicaciones;
+
+    public function mount()
     {
-        $this->setPrimaryKey('id_representativo');
-        $this->setSearchDisabled(); // Desactivar búsqueda global
-        $this->setColumnSelectDisabled(); // Desactivar selección de columnas
+        $this->aplicaciones = MovimientoDeCaja::selectRaw(
+                "'APLICACIONES' as apl, DATE_FORMAT(fec, '%d/%m/%Y') as fec, mov, SUM(CASE WHEN id_dh = '1' THEN monto ELSE 0 END) as debe, SUM(CASE WHEN id_dh = '2' THEN monto ELSE 0 END) as haber, SUM(CASE WHEN montodo IS NULL THEN ' ' ELSE montodo END) as do"
+            )
+            ->leftJoin('cuentas', 'movimientosdecaja.id_cuentas', '=', 'cuentas.id')
+            ->where('id_libro', '4')
+            ->groupBy('apl', 'fec', 'mov')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'apl' => $item->apl,
+                    'fec' => $item->fec,
+                    'mov' => $item->mov,
+                    'monto' => ($item->debe + $item->haber) / 2,
+                    'monto_do' => $item->do,
+                ];
+            });
     }
 
-    public function filters(): array
+   
+    
+    public function render()
     {
-        return [
-            SelectFilter::make('Mes')
-                ->options(
-                    Mes::pluck('descripcion', 'id')->toArray()
-                )
-                ->filter(function (Builder $builder, string $value) {
-                    if ($value !== '') {
-                        $builder->whereRaw('MONTH(STR_TO_DATE(fec, "%d/%m/%Y")) = ?', [$value]);
-                    }
-                }),
-                SelectFilter::make('Año')
-                ->options([
-                    '' => 'Todos',
-                    '2024' => '2024',
-                    '2025' => '2025',
-                    '2026' => '2026',
-                ])
-                ->filter(function (Builder $builder, string $value) {
-                    if ($value !== '') {
-                        $builder->whereRaw('YEAR(STR_TO_DATE(fec, "%d/%m/%Y")) = ?', [$value]);
-                    }
-                }),
-        ];
-    }
-    public function query(): Builder
-    {
-        return MovimientoDeCajaCustom::query();
-    }
-
-    public function columns(): array
-    {
-        return [
-            Column::make("Id Representativo", "id_representativo")
-                ->sortable(),
-            Column::make("Aplicaciones", "apl")
-                ->sortable(),
-            Column::make("Fecha", "fec")
-                ->sortable(),
-            Column::make("Movimiento", "mov")
-                ->sortable(),
-            Column::make("Promedio", "promedio")
-                ->sortable(),
-       
-        ];
+        return view('livewire.aplicacion-table', [
+            'aplicaciones' => $this->aplicaciones
+        ]);
     }
 }

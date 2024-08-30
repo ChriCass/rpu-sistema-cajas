@@ -16,7 +16,7 @@ use App\Livewire\EditRegistroDocumentosIngreso;
 use App\Livewire\EditVaucherDePago;
 use App\Livewire\EditVaucherDePagoVentas;
 use App\Livewire\RegistroDeIngresoAvanz;
-
+use App\Livewire\AplicacionDetail;
 
 
 /*
@@ -88,12 +88,12 @@ Route::middleware([
         Route::get('/vaucherdepagosventas/registrocxc/nuevo', FormRegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxc');
         Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones');
 
-
-
-
-
-
     });
    /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
     /// usar el aperturaController si hay futuros problemas en el manejo de layouts y uso de rutas con livewire
+
+
+    Route::prefix('aplicaciones/{aplicacionesId}')->group(function (){
+        Route::get('/', AplicacionDetail::class)->name('aplicacion.show');
+    });
 });
