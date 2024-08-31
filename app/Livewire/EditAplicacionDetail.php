@@ -90,17 +90,14 @@ class EditAplicacionDetail extends Component
         ->where('movimientosdecaja.mov', $this->aplicacionesId)
         ->where('id_libro', '4')
         ->get();
-
+        $this->dispatch('sendDetallesToParent', $this->detalles->toArray());
         if ($this->detalles->isNotEmpty()) {
             Log::info("Detalles encontrados: ", $this->detalles->toArray());
         } else {
             Log::warning("No se encontraron detalles para la aplicación con mov igual a {$this->aplicacionesId}");
         }
     }
-    public function editar()
-{
-    $this->dispatch('mostrar-editar');
-}
+    
 
 
     public function render()

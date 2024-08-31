@@ -60,37 +60,28 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach ($detalles as $detalle)
                     <tr>
-                        <td class="px-4 py-2 border-b border-gray-300">39</td>
-                        <td class="px-4 py-2 border-b border-gray-300">Voucher de Tra</td>
-                        <td class="px-4 py-2 border-b border-gray-300">20606566558</td>
-                        <td class="px-4 py-2 border-b border-gray-300">TECNICOS MECANICOS TAMB</td>
-                        <td class="px-4 py-2 border-b border-gray-300">0000-4</td>
-                        <td class="px-4 py-2 border-b border-gray-300">PEN</td>
-                        <td class="px-4 py-2 border-b border-gray-300">TRANSFERENCI</td>
-                        <td class="px-4 py-2 border-b border-gray-300">6160.7</td>
-                        <td class="px-4 py-2 border-b border-gray-300">6160.7</td>
-                        <td class="px-4 py-2 border-b border-gray-300">6160.7</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['tdoc'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id_entidades'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['entidades'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['num'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id_t04tipmon'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['cuenta'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['monto'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['montodebe'] }}</td>
+                        <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['montohaber'] }}</td>
                     </tr>
-                    <tr>
-                        <td class="px-4 py-2 border-b border-gray-300">340</td>
-                        <td class="px-4 py-2 border-b border-gray-300">Voucher de Tra</td>
-                        <td class="px-4 py-2 border-b border-gray-300">20606566558</td>
-                        <td class="px-4 py-2 border-b border-gray-300">TECNICOS MECANICOS TAMB</td>
-                        <td class="px-4 py-2 border-b border-gray-300">0000-3</td>
-                        <td class="px-4 py-2 border-b border-gray-300">PEN</td>
-                        <td class="px-4 py-2 border-b border-gray-300">TRANSFERENCI</td>
-                        <td class="px-4 py-2 border-b border-gray-300">6160.7</td>
-                        <td class="px-4 py-2 border-b border-gray-300">6160.7</td>
-                        <td class="px-4 py-2 border-b border-gray-300">6160.7</td>
-                    </tr>
+                    @endforeach
                 </tbody>
+                
             </table>
         </div>
 
         <!-- Totales y Botones de acción -->
         <div class="flex justify-between items-center mt-4">
-            <div>
+            <div class="flex gap-3">
                 <x-input readonly value="0" />
                 <x-input readonly value="6160.7" />
                 <x-input readonly value="6160.7" />
