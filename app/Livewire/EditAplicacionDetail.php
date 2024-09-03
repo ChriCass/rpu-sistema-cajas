@@ -51,7 +51,7 @@ class EditAplicacionDetail extends Component
             // Convertir la fecha a un formato adecuado sin usar Carbon
             $date = \DateTime::createFromFormat('d/m/Y', $this->aplicacion['fec']);
             $this->fecha = $date ? $date->format('Y-m-d') : null;
-    
+            $this->dispatch('sendingFecha', $this->fecha);
             Log::info("Aplicación encontrada: ", $this->aplicacion);
         } else {
             Log::warning("No se encontró la aplicación con mov igual a {$this->aplicacionesId}");
@@ -73,8 +73,8 @@ class EditAplicacionDetail extends Component
             END AS monto,
             CASE WHEN id_dh = '1' THEN monto END AS montodebe,
             CASE WHEN id_dh = '2' THEN monto END AS montohaber,
-            CASE WHEN id_dh = '1' THEN montodo END AS montododebe,
-            CASE WHEN id_dh = '2' THEN montodo END AS montodohaber
+            CASE WHEN id_dh = '1' THEN montodo END AS montododebe$,
+            CASE WHEN id_dh = '2' THEN montodo END AS montodohaber$
         ")
         ->leftJoin('cuentas', 'movimientosdecaja.id_cuentas', '=', 'cuentas.id')
         ->leftJoin('ventas_documentos', 'movimientosdecaja.id_documentos', '=', 'ventas_documentos.id')

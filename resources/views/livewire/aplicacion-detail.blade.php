@@ -24,7 +24,7 @@
 
     @if($showFormEdit && $detallesRecibidos)
     <div class="p-4">
-        @livewire('form-edit-aplicacion-detail', ['detalles' => $detalles])
+        @livewire('form-edit-aplicacion-detail', ['detalles' => $detalles, 'fecha' => $fecha, 'aplicacionesId' => $aplicacionesId])
     </div>
 @endif
 

@@ -11,26 +11,26 @@
                     name="fecha" 
                     wire:model.live="fecha" 
                     class="mt-1 block w-full pl-3 pr-3 py-2 border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md" 
-                    value="2024-05-27"
+             
                 />
                     <!-- Campo Moneda -->
             <div>
-                <label for="moneda" class="block text-sm font-medium text-gray-700">Moneda:</label>
-                <select 
-                    id="moneda" 
-                    name="moneda" 
-                    wire:model="moneda" 
-                    class="mt-1 block w-full pl-3 pr-3 py-2 border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md">
-                    <option value="PEN">PEN</option>
-                    <!-- Otras opciones de moneda -->
-                </select>
+                <x-select
+                label="Moneda"
+                placeholder="Selecciona una moneda"
+                :options="$monedas"
+                option-label="id"
+                option-value="id"
+                wire:model="moneda"
+            />
+                 
             </div>
             </div>
         
 
             <!-- Botón Nuevo -->
             <div class="ml-auto">
-                <x-button label="Nuevo" positive />
+               @livewire('aplicacion-detail-modal', [ 'detalles' => $detalles, 'fecha' => $fecha,'aplicacionesId' => $aplicacionesId, 'moneda' => $moneda])
             </div>
         </div>
 
@@ -60,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($detalles as $detalle)
+                    @foreach ($contenedor as $detalle)
                     <tr>
                         <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id'] }}</td>
                         <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['tdoc'] }}</td>

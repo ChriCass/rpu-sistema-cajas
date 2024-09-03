@@ -12,6 +12,7 @@ class AplicacionDetail extends Component
     public $showFormEdit = false;
     public $detalles = [];
     public $detallesRecibidos = false; // Nueva variable para confirmar que se han recibido los detalles
+    public $fecha;
 
     public function toggleEdit()
     {
@@ -42,6 +43,18 @@ class AplicacionDetail extends Component
         // Log para confirmar que los detalles han sido asignados
         Log::info("Detalles asignados en receiveDetalles: ", $this->detalles);
     }
+
+    #[On('sendingFecha')]
+    public function receiveFecha($fecha)
+    {
+        // Log antes de asignar los detalles
+
+        $this->fecha = $fecha;
+        $this->detallesRecibidos = true; // Confirmamos que hemos recibido los detalles
+
+ 
+    }
+
 
 
     public function render()
