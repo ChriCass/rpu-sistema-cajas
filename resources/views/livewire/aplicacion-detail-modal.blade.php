@@ -17,18 +17,21 @@
                         {{ session('error') }}
                     </x-alert>
                 @endif
-
+                <div class="flex justify-end mt-4 space-x-2">
+                    <x-button outline secondary label="Cancelar" wire:click="$set('openModal', false)" />
+                    <x-button label="Aceptar" wire:click="sendingData" primary />
+                </div>
                 <div class="flex flex-wrap -mx-2 mt-4">
                     <div class="w-full  px-2 flex flex-wrap gap-3">
                         <div class="w-3/12">
-                            <select wire:model="filterColumn" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                            <select wire:model.live="filterColumn" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
                                 <option value="id_entidades">Entidades</option>
                                 <option value="RZ">Descripción</option>
                                 <option value="Descripcion">Cuenta</option>
                             </select>
                         </div>
                         <div class="w-7/12">
-                            <input wire:model="searchTerm" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Buscar..." />
+                            <input wire:model.live="searchTerm" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Buscar..." />
                         </div>
                         
                     </div>
@@ -82,10 +85,7 @@
                     </table>
                 </div>
 
-                <div class="flex justify-end mt-4 space-x-2">
-                    <x-button flat label="Cancelar" wire:click="$set('openModal', false)" />
-                    <x-button label="Aceptar" wire:click="sendingData" primary />
-                </div>
+              
             </div>
         </x-card>
     </x-modal>

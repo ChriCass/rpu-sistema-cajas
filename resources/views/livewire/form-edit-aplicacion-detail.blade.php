@@ -35,11 +35,18 @@
         </div>
 
         <!-- Botones de acción -->
-        <div class="flex space-x-2 mb-4">
-            <x-button label="Ingreso" primary />
-            <x-button label="Gasto" secondary />
+        <div class="flex space-x-2 justify-between mb-4">
+            <div>
+                <x-button label="Ingreso" primary />
+                <x-button label="Gasto" secondary />
+            </div>
+
             <!-- Input de búsqueda -->
-            <x-input placeholder="Buscar..." class="w-full" />
+            <div class="flex gap-3">
+                 
+                <x-input label="debe" readonly wire:model='TotalDebe' />
+                <x-input label="haber" readonly wire:model='TotalHaber'  />
+            </div>
         </div>
 
         <!-- Tabla -->
@@ -80,14 +87,10 @@
         </div>
 
         <!-- Totales y Botones de acción -->
-        <div class="flex justify-between items-center mt-4">
-            <div class="flex gap-3">
-                <x-input readonly value="0" />
-                <x-input readonly value="6160.7" />
-                <x-input readonly value="6160.7" />
-            </div>
+        <div class="flex justify-end items-center mt-4">
+       
             <div class="flex space-x-2">
-                <x-button label="Cancelar" class="bg-gray-300 hover:bg-gray-400 text-gray-700" />
+                <x-button label="Cancelar" outline secondary />
                 <x-button label="Aceptar" class="bg-teal-500 hover:bg-teal-600 text-white" />
             </div>
         </div>
