@@ -13,19 +13,44 @@
                 </div>
                
                 <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
+                    <!-- Select Familia -->
                     <div class="w-full md:w-3/12 px-2">
-                        <x-select readonly label="Familia:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'GASTO']]"
-                            option-label="descripcion" option-value="id" />
+                        <x-select 
+                            label="Familia:" 
+                            placeholder="Selecciona..." 
+                            wire:model.live="familiaId" 
+                            :options="$familias" 
+                            option-label="descripcion" 
+                            option-value="id" 
+                        />
                     </div>
+                    
+                    <!-- Select Sub-Familia -->
                     <div class="w-full md:w-3/12 px-2">
-                        <x-select readonly label="Sub-Familia:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'OTROS']]"
-                            option-label="descripcion" option-value="id" />
+                        <x-select 
+                            label="Sub-Familia:" 
+                            placeholder="Selecciona..." 
+                            wire:model.live="subfamiliaId" 
+                            :options="$subfamilias" 
+                            option-label="desripcion" 
+                            option-value="id" 
+                        />
                     </div>
+                    
+                    <!-- Select Detalle -->
                     <div class="w-full md:w-3/12 px-2">
-                        <x-select readonly label="Detalle:" placeholder="Selecciona..." :options="[['id' => 1, 'descripcion' => 'OTROS']]"
-                            option-label="descripcion" option-value="id" />
+                        <x-select 
+                            label="Detalle:" 
+                            placeholder="Selecciona..." 
+                            wire:model.live="detalleId" 
+                            :options="$detalles" 
+                            option-label="descripcion" 
+                            option-value="id" 
+                        />
                     </div>
                 </div>
+                
+                
                 <div class="w-full md:w-6/12 px-2">
 
                     <div class="flex flex-wrap -mx-2 mt-4">
