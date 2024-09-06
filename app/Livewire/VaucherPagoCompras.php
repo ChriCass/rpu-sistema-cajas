@@ -16,8 +16,9 @@ class VaucherPagoCompras extends Component
     public $contenedor = []; // Variable para almacenar los datos recibidos
     public $debe = 0.0; // Variable para almacenar el total del debe
     public $haber = 0.0; // Variable para almacenar el total del haber
+    public $balance = 0.0; // Nueva variable para el balance
     public $selectedIndex = null;
-    
+
     public function mount($aperturaId)
     {
         $this->aperturaId = $aperturaId;
@@ -42,37 +43,47 @@ class VaucherPagoCompras extends Component
     }
     
     public function calculateDebeHaber()
-{
-    $this->debe = 0.0;
-    $this->haber = 0.0;
+    {
+        $this->debe = 0.0;
+        $this->haber = 0.0;
 
-    // Verificar si el contenedor no está vacío
-    if (!empty($this->contenedor)) {
-        // Asignar directamente el "Debe" al monto del primer elemento del contenedor
-        if (isset($this->contenedor[0]['monto'])) {
-            $this->debe = $this->contenedor[0]['monto'];
-            Log::info('Asignando Debe', ['debe' => $this->debe]);
-        }
+        // Verificar si el contenedor no está vacío
+        if (!empty($this->contenedor)) {
+            // Asignar directamente el "Debe" al monto del primer elemento del contenedor
+            if (isset($this->contenedor[0]['monto'])) {
+                $this->debe = $this->contenedor[0]['monto'];
+                Log::info('Asignando Debe', ['debe' => $this->debe]);
+            }
 
-        // El "Haber" se calcula en base a si hay más de un elemento en el contenedor
-        if (count($this->contenedor) > 1) {
-            foreach ($this->contenedor as $item) {
-                if (isset($item['monto'])) {
-                    $this->haber += $item['monto'];
-                    Log::info('Sumando al Haber', ['monto' => $item['monto'], 'haber_actual' => $this->haber]);
+            // El "Haber" se calcula en base a si hay más de un elemento en el contenedor
+            if (count($this->contenedor) > 1) {
+                foreach ($this->contenedor as $item) {
+                    if (isset($item['monto'])) {
+                        $this->haber += $item['monto'];
+                        Log::info('Sumando al Haber', ['monto' => $item['monto'], 'haber_actual' => $this->haber]);
+                    }
                 }
+            } else {
+                // Si hay un solo elemento, el "Haber" será igual al monto de ese único elemento
+                $this->haber = $this->debe;
+                Log::info('Asignando Haber igual al Debe por único elemento', ['haber_actual' => $this->haber]);
             }
         } else {
-            // Si hay un solo elemento, el "Haber" será igual al monto de ese único elemento
-            $this->haber = $this->debe;
-            Log::info('Asignando Haber igual al Debe por único elemento', ['haber_actual' => $this->haber]);
+            Log::info('El contenedor está vacío, no se realiza cálculo de Debe y Haber');
         }
-    } else {
-        Log::info('El contenedor está vacío, no se realiza cálculo de Debe y Haber');
+
+        // Calcular el balance una vez que se hayan calculado Debe y Haber
+        $this->calculateBalance();
+
+        Log::info('Cálculo finalizado', ['debe' => $this->debe, 'haber' => $this->haber]);
     }
 
-    Log::info('Cálculo finalizado', ['debe' => $this->debe, 'haber' => $this->haber]);
-}
+    // Nueva función para calcular el balance
+    public function calculateBalance()
+    {
+        $this->balance = $this->debe - $this->haber;
+        Log::info('Balance calculado', ['balance' => $this->balance]);
+    }
 
     public function selectDebe($index)
     {
@@ -87,6 +98,9 @@ class VaucherPagoCompras extends Component
             $this->debe = $this->contenedor[$index]['monto'];
             Log::info('Fila seleccionada', ['index' => $index, 'debe' => $this->debe]);
         }
+
+        // Recalcular el balance cada vez que se selecciona una nueva fila
+        $this->calculateBalance();
     }
 
     public function render()
