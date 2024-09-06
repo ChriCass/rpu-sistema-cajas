@@ -7,6 +7,34 @@
 
     <div class="p-4">
         <x-card title="Vaucher De Pago">
+            <div>
+                {{-- Alerta de éxito --}}
+                @if(session()->has('message'))
+                    <x-alert title="¡Transacción Exitosa!" positive padding="none">
+                        <x-slot name="slot">
+                            {{ session('message') }} — <b>¡verifícalo!</b>
+                        </x-slot>
+                    </x-alert>
+                @endif
+            
+                {{-- Alerta de error --}}
+                @if(session()->has('error'))
+                    <x-alert title="¡Error en la transacción!" negative padding="small">
+                        <x-slot name="slot">
+                            {{ session('error') }} — <b>¡revisa los datos!</b>
+                        </x-slot>
+                    </x-alert>
+                @endif
+            
+                {{-- Alerta de advertencia --}}
+                @if(session()->has('warning'))
+                    <x-alert title="¡Advertencia!" warning padding="medium">
+                        <x-slot name="slot">
+                            {{ session('warning') }} 
+                        </x-slot>
+                    </x-alert>
+                @endif
+            </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-4/12 px-2">
                     <x-input readonly label="Fecha:" wire:model="fechaApertura" />
@@ -119,7 +147,7 @@
 
             <div class="flex justify-end mt-4 space-x-2">
                 <x-button label="Cancelar" wire:click="$dispatch('mostrarComponente', {componente: 'cancelar'})" outline secondary />
-                <x-button label="Aceptar" primary />
+                <x-button label="Aceptar" wire:click='submit' primary />
             </div>
         </x-card>
     </div>
