@@ -45,162 +45,41 @@ class AplicacionDetailModal extends Component
     {
         $query = "
             SELECT 
-                id_documentos, 
-                tdoc, 
-                id_entidades, 
-                RZ, 
-                Num, 
-                Mon, 
-                Descripcion, 
-                monto 
-            FROM (
-                SELECT 
-                    id_documentos, 
-                    fechaEmi, 
-                    tabla10_tipodecomprobantedepagoodocumento.descripcion AS tdoc, 
-                    id_entidades, 
-                    RZ, 
-                    Num, 
-                    Mon, 
-                    CON4.Descripcion, 
-                    IF(Mon = 'PEN', monto, montodo) AS monto 
-                FROM (
-                    SELECT 
-                        id_documentos, 
-                        fechaEmi, 
-                        id_t10tdoc, 
-                        id_entidades, 
-                        entidades.descripcion AS RZ, 
-                        Num, 
-                        IF(CON3.Descripcion = 'DETRACCIONES POR COBRAR', 'PEN', id_t04tipmon) AS Mon, 
-                        CON3.Descripcion, 
-                        monto, 
-                        montodo 
-                    FROM (
-                        SELECT 
-                            id_documentos, 
-                            fechaEmi, 
-                            id_t10tdoc, 
-                            id_entidades, 
-                            CONCAT(serie, '-', numero) AS Num, 
-                            id_t04tipmon, 
-                            cuentas.Descripcion, 
-                            monto, 
-                            montodo 
-                        FROM (
-                            SELECT 
-                                id_documentos, 
-                                id_cuentas, 
-                                SUM(monto) AS monto, 
-                                SUM(montodo) AS montodo 
-                            FROM (
-                                SELECT 
-                                    id_documentos, 
-                                    id_cuentas, 
-                                    IF(id_dh = '1', monto, monto * -1) AS monto, 
-                                    IF(id_dh = '1', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo 
-                                FROM 
-                                    movimientosdecaja 
-                                WHERE 
-                                    id_cuentas IN ('1', '2') 
-                                    AND CONCAT(id_libro, mov) <> ?
-                            ) CON1 
-                            GROUP BY 
-                                id_documentos, 
-                                id_cuentas 
-                            HAVING 
-                                SUM(monto) <> 0
-                        ) CON2 
-                        LEFT JOIN ventas_documentos ON CON2.id_documentos = ventas_documentos.id 
-                        LEFT JOIN cuentas ON CON2.id_cuentas = cuentas.id
-                    ) CON3 
-                    LEFT JOIN entidades ON CON3.id_entidades = entidades.id
-                ) CON4 
-                LEFT JOIN tabla10_tipodecomprobantedepagoodocumento ON CON4.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id
-
-                UNION ALL
-
-                SELECT 
-                    id_documentos, 
-                    fechaEmi, 
-                    tabla10_tipodecomprobantedepagoodocumento.descripcion, 
-                    id_entidades, 
-                    RZ, 
-                    Num, 
-                    Mon, 
-                    CON4.Descripcion, 
-                    IF(Mon = 'PEN', monto, montodo) AS monto 
-                FROM (
-                    SELECT 
-                        id_documentos, 
-                        fechaEmi, 
-                        id_t10tdoc, 
-                        id_entidades, 
-                        entidades.descripcion AS RZ, 
-                        Num, 
-                        IF(CON3.Descripcion = 'DETRACCIONES POR PAGAR', 'PEN', id_t04tipmon) AS Mon, 
-                        CON3.Descripcion, 
-                        monto, 
-                        montodo 
-                    FROM (
-                        SELECT 
-                            id_documentos, 
-                            fechaEmi, 
-                            id_t10tdoc, 
-                            id_entidades, 
-                            CONCAT(serie, '-', numero) AS Num, 
-                            id_t04tipmon, 
-                            cuentas.Descripcion, 
-                            monto, 
-                            montodo 
-                        FROM (
-                            SELECT 
-                                id_documentos, 
-                                id_cuentas, 
-                                SUM(monto) AS monto, 
-                                SUM(montodo) AS montodo 
-                            FROM (
-                                SELECT 
-                                    id_documentos, 
-                                    id_cuentas, 
-                                    IF(id_dh = '2', monto, monto * -1) AS monto, 
-                                    IF(id_dh = '2', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo 
-                                FROM 
-                                    movimientosdecaja 
-                                WHERE 
-                                    id_cuentas IN ('3', '4') 
-                                    AND CONCAT(id_libro, mov) <> ?
-                            ) CON1 
-                            GROUP BY 
-                                id_documentos, 
-                                id_cuentas 
-                            HAVING 
-                                ROUND(SUM(monto), 2) <> 0
-                        ) CON2 
-                        LEFT JOIN compras_documentos ON CON2.id_documentos = compras_documentos.id 
-                        LEFT JOIN cuentas ON CON2.id_cuentas = cuentas.id
-                    ) CON3 
-                    LEFT JOIN entidades ON CON3.id_entidades = entidades.id
-                ) CON4 
-                LEFT JOIN tabla10_tipodecomprobantedepagoodocumento ON CON4.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id
-            ) CON5
+                documentos.id AS id_documentos, 
+                d_tipomovimientos.descripcionl AS tdoc, 
+                documentos.id_entidades, 
+                entidades.descripcion AS RZ, 
+                CONCAT(documentos.serie, '-', documentos.numero) AS Num, 
+                documentos.id_t04tipmon AS Mon, 
+                cuentas.Descripcion, 
+                IF(documentos.id_t04tipmon = 'PEN', d_detalledocumentos.total, d_detalledocumentos.total) AS monto
+            FROM 
+                documentos
+            LEFT JOIN 
+                d_tipomovimientos ON documentos.id_tipmov = d_tipomovimientos.id
+            LEFT JOIN 
+                entidades ON documentos.id_entidades = entidades.id
+            LEFT JOIN 
+                d_detalledocumentos ON documentos.id = d_detalledocumentos.id_referencia
+            LEFT JOIN 
+                cuentas ON d_detalledocumentos.id_producto = cuentas.id
             WHERE 
-                fechaEmi <= ? 
-                AND Mon = ? 
-                AND monto <> 0
+                documentos.fechaEmi <= ?
+                AND documentos.id_t04tipmon = ?
+                AND d_detalledocumentos.total <> 0
                 AND {$this->filterColumn} LIKE ?
             ORDER BY 
-                CAST(id_documentos AS UNSIGNED) ASC
+                CAST(documentos.id AS UNSIGNED) ASC
         ";
-
+    
+        // Actualización de los parámetros de consulta
         $this->aplicaciones = DB::select($query, [
-            $this->aplicacionesId,
-            $this->aplicacionesId,
             $this->fecha,
             $this->moneda,
             '%' . $this->searchTerm . '%',
         ]);
     }
+    
 
     public function toggleSelection($idDocumento, $num, $descripcion)
 {

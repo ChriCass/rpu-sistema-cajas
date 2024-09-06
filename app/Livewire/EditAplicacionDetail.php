@@ -60,36 +60,30 @@ class EditAplicacionDetail extends Component
         Log::info("Iniciando consulta para obtener los detalles de la aplicación.");
 
         $this->detalles = MovimientoDeCaja::selectRaw("
-            COALESCE(ventas_documentos.id, compras_documentos.id) AS id,
-            tabla10_tipodecomprobantedepagoodocumento.descripcion as tdoc,
-            COALESCE(ventas_documentos.id_entidades, compras_documentos.id_entidades) AS id_entidades,
-            entidades.descripcion as entidades,
-            CONCAT(COALESCE(ventas_documentos.serie, compras_documentos.serie), '-', COALESCE(ventas_documentos.numero, compras_documentos.numero)) AS num,
-            COALESCE(ventas_documentos.id_t04tipmon, compras_documentos.id_t04tipmon) AS id_t04tipmon,
-            cuentas.Descripcion as cuenta,
-            CASE 
-                WHEN cuentas.Descripcion = 'DETRACCIONES POR COBRAR' THEN ventas_documentos.detraccion 
-                ELSE COALESCE(ventas_documentos.precio, compras_documentos.precio)
-            END AS monto,
-            CASE WHEN id_dh = '1' THEN monto END AS montodebe,
-            CASE WHEN id_dh = '2' THEN monto END AS montohaber,
-            CASE WHEN id_dh = '1' THEN montodo END AS montododebe$,
-            CASE WHEN id_dh = '2' THEN montodo END AS montodohaber$
-        ")
-        ->leftJoin('cuentas', 'movimientosdecaja.id_cuentas', '=', 'cuentas.id')
-        ->leftJoin('ventas_documentos', 'movimientosdecaja.id_documentos', '=', 'ventas_documentos.id')
-        ->leftJoin('compras_documentos', 'movimientosdecaja.id_documentos', '=', 'compras_documentos.id')
-        ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', function($join) {
-            $join->on('ventas_documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
-                 ->orOn('compras_documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id');
-        })
-        ->leftJoin('entidades', function($join) {
-            $join->on('ventas_documentos.id_entidades', '=', 'entidades.id')
-                 ->orOn('compras_documentos.id_entidades', '=', 'entidades.id');
-        })
-        ->where('movimientosdecaja.mov', $this->aplicacionesId)
-        ->where('id_libro', '4')
-        ->get();
+        documentos.id AS id,
+        tabla10_tipodecomprobantedepagoodocumento.descripcion as tdoc,
+        documentos.id_entidades AS id_entidades,
+        entidades.descripcion as entidades,
+        CONCAT(documentos.serie, '-', documentos.numero) AS num,
+        documentos.id_t04tipmon AS id_t04tipmon,
+        cuentas.Descripcion as cuenta,
+        CASE 
+            WHEN cuentas.Descripcion = 'DETRACCIONES POR COBRAR' THEN documentos.detraccion 
+            ELSE documentos.precio
+        END AS monto,
+        CASE WHEN id_dh = '1' THEN monto END AS montodebe,
+        CASE WHEN id_dh = '2' THEN monto END AS montohaber,
+        CASE WHEN id_dh = '1' THEN montodo END AS montododebe$,
+        CASE WHEN id_dh = '2' THEN montodo END AS montohaber$
+    ")
+    ->leftJoin('cuentas', 'movimientosdecaja.id_cuentas', '=', 'cuentas.id')
+    ->leftJoin('documentos', 'movimientosdecaja.id_documentos', '=', 'documentos.id')
+    ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
+    ->leftJoin('entidades', 'documentos.id_entidades', '=', 'entidades.id')
+    ->where('movimientosdecaja.mov', $this->aplicacionesId)
+    ->where('id_libro', '4')
+    ->get();
+    
         $this->dispatch('sendDetallesToParent', $this->detalles->toArray());
         if ($this->detalles->isNotEmpty()) {
             Log::info("Detalles encontrados: ", $this->detalles->toArray());

@@ -10,11 +10,11 @@
         <div class="w-full w-6/12 px-4 mb-4">
           @livewire('aplicacion-table')
         </div>
-        <div class="w-full px-4 mb-4">
-          <div class="flex justify-center">
+        <div class="w-full   px-4 mb-4">
+         
+            @livewire('vaucher-de-aplicaciones') 
+            
        
-            @livewire('aplicacion-modal')
-          </div>
         </div>
       </div>
     </div>

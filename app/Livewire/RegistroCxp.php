@@ -35,6 +35,6 @@ class RegistroCxp extends Component
     
     public function render()
     {
-        return view('livewire.registro-cxp')->layout('layouts.app');
+        return view('livewire.registro-cxp');
     }
 }

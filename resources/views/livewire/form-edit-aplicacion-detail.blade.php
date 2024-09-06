@@ -1,5 +1,37 @@
 <div>
+
+    
     <div class="p-4 bg-white rounded shadow-md">
+        <div>
+            {{-- Alerta de éxito --}}
+            @if(session()->has('message'))
+                <x-alert title="¡Transacción Exitosa!" positive padding="none">
+                    <x-slot name="slot">
+                        {{ session('message') }} — <b>¡verifícalo!</b>
+                    </x-slot>
+                </x-alert>
+            @endif
+        
+            {{-- Alerta de error --}}
+            @if(session()->has('error'))
+                <x-alert title="¡Error en la transacción!" negative padding="small">
+                    <x-slot name="slot">
+                        {{ session('error') }} — <b>¡revisa los datos!</b>
+                    </x-slot>
+                </x-alert>
+            @endif
+        
+            {{-- Alerta de advertencia --}}
+            @if(session()->has('warning'))
+                <x-alert title="¡Advertencia!" warning padding="medium">
+                    <x-slot name="slot">
+                        {{ session('warning') }} 
+                    </x-slot>
+                </x-alert>
+            @endif
+        </div>
+        
+        
         <!-- Filtros de Fecha y Moneda -->
         <div class="flex items-center justify-between space-x-4 mb-4">
             <!-- Campo Fecha -->
@@ -40,12 +72,26 @@
                 <x-button label="Ingreso" primary />
                 <x-button label="Gasto" secondary />
             </div>
-
+            <div>
+                @if($balance < 0)
+                    <x-alert class="font-bold"
+                        title="Balance: {{ $balance }}" 
+                        negative 
+                    />
+                @else
+                    <x-alert 
+                        title="Balance: {{ $balance }}" 
+                        info 
+                    />
+                @endif
+            </div>
+            
             <!-- Input de búsqueda -->
             <div class="flex gap-3">
                  
                 <x-input label="debe" readonly wire:model='TotalDebe' />
                 <x-input label="haber" readonly wire:model='TotalHaber'  />
+          
             </div>
         </div>
 
@@ -91,7 +137,7 @@
        
             <div class="flex space-x-2">
                 <x-button label="Cancelar" outline secondary />
-                <x-button label="Aceptar" class="bg-teal-500 hover:bg-teal-600 text-white" />
+                <x-button label="Aceptar" wire:click='submit' class="bg-teal-500 hover:bg-teal-600 text-white" />
             </div>
         </div>
     </div>

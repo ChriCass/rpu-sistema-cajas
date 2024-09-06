@@ -21,9 +21,21 @@
         <div class="flex flex-wrap -mx-2 mt-4">
           <div class="w-full flex justify-end gap-5 px-2">
             <div class="space-x-2">
-              <x-button label="Registro CXC" />
-              <x-button label="Ingreso" />
-              <x-button label="Gasto" />
+              <x-button 
+              label="Registro CXC" 
+              wire:click="$dispatch('mostrarComponente', { componente: 'registroCXC' })" 
+          />
+          
+          <x-button 
+              label="Ingreso" 
+              wire:click="$dispatch('mostrarComponente', { componente: 'ingreso' })" 
+          />
+          
+          <x-button 
+              label="Gasto" 
+              wire:click="$dispatch('mostrarComponente', { componente: 'gasto' })" 
+          />
+          
             </div>
 
             @if (!empty($contenedor))

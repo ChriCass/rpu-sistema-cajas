@@ -23,18 +23,14 @@
       </div>
 
       <div class="flex justify-between flex-wrap gap-3 mt-4 -mx-2">
-          <div>
-              <x-button primary label="Ingreso" wire:navigate
-                  href="{{ route('apertura.edit.registodocumentosingreso', ['aperturaId' => $aperturaId]) }}" />
-              <x-button primary label="Salida" wire:navigate
-                  href="{{ route('apertura.edit.registodocumentosegreso', ['aperturaId' => $aperturaId]) }}" />
-              <x-button primary label="CXP" wire:navigate
-                  href="{{ route('apertura.edit.vaucherdepagos', ['aperturaId' => $aperturaId]) }}" />
-              <x-button primary label="CXC" wire:navigate
-                  href="{{ route('apertura.edit.vaucherdepagosventas', ['aperturaId' => $aperturaId]) }}" />
-              <x-button primary label="Aplicaciones" wire:navigate
-                  href="{{ route('apertura.edit.cuadroaplicaciones', ['aperturaId' => $aperturaId]) }}" />
-          </div>
+        <div>
+            <x-button primary label="Ingreso" wire:click="$dispatch('mostrarComponente', { componente: 'ingreso' })" />
+            <x-button primary label="Salida" wire:click="$dispatch('mostrarComponente', { componente: 'salida' })" />
+            <x-button primary label="CXP" wire:click="$dispatch('mostrarComponente', { componente: 'cxp' })" />
+            <x-button primary label="CXC" wire:click="$dispatch('mostrarComponente', { componente: 'cxc' })" />
+            <x-button primary label="Aplicaciones" wire:click="$dispatch('mostrarComponente', { componente: 'aplicaciones' })" />
+        </div>
+        
           <div class="flex flex-wrap justify-start">
               <x-input wire:model="montoInicial" readonly label="Monto Inicial:" mask="currency" />
           </div>

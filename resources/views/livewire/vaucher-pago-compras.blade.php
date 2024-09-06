@@ -23,15 +23,21 @@
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full flex justify-end gap-5 px-2">
                     <div class="space-x-2 mt-5">
+                        <!-- Aquí cambiamos wire:navigate por dispatch -->
                         <x-button 
-                        label="Registro CXP" 
-                        wire:navigate 
-                        href="{{ route('apertura.edit.vaucherdepagos.registrocxp', ['aperturaId' => $aperturaId]) }}" 
-                    />
-                    
+                            label="Registro CXP" 
+                            wire:click="$dispatch('mostrarComponente', {componente: 'registroCXP'})" 
+                        />
 
-                        <x-button label="Ingreso" />
-                        <x-button label="Gasto" />
+                        <x-button 
+                            label="Ingreso" 
+                            wire:click="$dispatch('mostrarComponente', {componente: 'ingreso'})" 
+                        />
+
+                        <x-button 
+                            label="Gasto" 
+                            wire:click="$dispatch('mostrarComponente', {componente: 'gasto'})" 
+                        />
                     </div>
                     <!-- Mostrar "Haber" cuando hay datos en el contenedor -->
                     @if (!empty($contenedor))
@@ -105,8 +111,7 @@
             </div>
 
             <div class="flex justify-end mt-4 space-x-2">
-                <x-button label="Cancelar" wire:navigate outline secondary
-                    href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" />
+                <x-button label="Cancelar" wire:click="$dispatch('mostrarComponente', {componente: 'cancelar'})" outline secondary />
                 <x-button label="Aceptar" primary />
             </div>
         </x-card>

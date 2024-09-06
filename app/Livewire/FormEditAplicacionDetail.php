@@ -6,6 +6,10 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Log;
 use App\Models\TipoDeMoneda;
+use App\Models\MovimientoDeCaja;
+use App\Models\Cuenta;
+use Illuminate\Support\Facades\DB;
+
 
 class FormEditAplicacionDetail extends Component
 {
@@ -18,6 +22,7 @@ class FormEditAplicacionDetail extends Component
     public $contenedor = []; // Contenedor para acumular los detalles seleccionados
     public $TotalDebe = 0;   // Inicializar TotalDebe
     public $TotalHaber = 0;  // Inicializar TotalHaber
+    public $balance = 0;     // Inicializar el balance
 
     public function mount($detalles, $fecha, $aplicacionesId)
     {
@@ -53,7 +58,110 @@ class FormEditAplicacionDetail extends Component
                 break; // Si encontramos un valor en dólares, no necesitamos seguir buscando
             }
         }
+
+        // Calcular el balance inicial
+        $this->recalcularBalance();
     }
+
+    public function submit()
+    {
+        Log::info('Iniciando la función submit.');
+    
+        // Validar si falta la fecha
+        if (empty($this->fecha)) {
+            Log::error('Falta la fecha.');
+            session()->flash('error', 'Falta llenar campos.');
+            return;
+        }
+    
+        // Validar si el contenedor está vacío
+        if (count($this->contenedor) == 0) {
+            Log::error('El contenedor está vacío.');
+            session()->flash('error', 'Debe seleccionar al menos un ítem.');
+            return;
+        }
+    
+        // Validar si el balance no está cuadrado
+        if ($this->balance != 0) {
+            Log::error("El balance no cuadra. Balance actual: $this->balance");
+            session()->flash('error', 'El asiento no cuadra.');
+            return;
+        }
+    
+        // Verificar si se han añadido nuevos detalles
+        $nuevosDatos = false;
+        foreach ($this->contenedor as $detalle) {
+            if ($detalle['id'] === null) { // Si el detalle no tiene ID, es nuevo
+                $nuevosDatos = true;
+                break;
+            }
+        }
+    
+        // Si no se añadieron nuevos datos, mostrar alerta de advertencia
+        if (!$nuevosDatos) {
+            Log::info('No se han añadido nuevos datos.');
+            session()->flash('warning', 'No se ha modificado nada.');
+            return;
+        }
+    
+        Log::info('Validaciones completadas. Iniciando transacción.');
+    
+        DB::transaction(function () {
+            // Borrar transacciones previas usando Eloquent
+            Log::info('Eliminando transacciones previas para el libro 4, movimiento: ' . $this->aplicacionesId);
+            MovimientoDeCaja::where('id_libro', 4)
+                ->where('mov', $this->aplicacionesId)
+                ->delete();
+            Log::info('Transacciones anteriores eliminadas.');
+    
+            // Procesar las entradas de contenedor
+            foreach ($this->contenedor as $detalle) {
+                Log::info('Procesando detalle: ', $detalle);
+    
+                // Buscar la cuenta relacionada
+                $cuenta = Cuenta::where('Descripcion', $detalle['cuenta'])->first();
+                
+                if (!$cuenta) {
+                    Log::error('Cuenta no encontrada para: ' . $detalle['cuenta']);
+                    continue;
+                }
+    
+                $iddoc = $detalle['id'] ?? null;
+                $dh = $detalle['montodebe'] ? '1' : '2';
+                $monto = $detalle['montodebe'] ?? $detalle['montohaber'];
+    
+                Log::info("Insertando movimiento en la base de datos: 
+                    Libro: 4, 
+                    Movimiento: $this->aplicacionesId, 
+                    Fecha: $this->fecha, 
+                    Documento: $iddoc, 
+                    Cuenta: {$cuenta->id}, 
+                    Debe/Haber: $dh, 
+                    Monto: $monto");
+    
+                // Crear la nueva transacción
+                MovimientoDeCaja::create([
+                    'id_libro' => 4,
+                    'mov' => $this->aplicacionesId,
+                    'fec' => $this->fecha,
+                    'id_documentos' => $iddoc,
+                    'id_cuentas' => $cuenta->id,
+                    'id_dh' => $dh,
+                    'monto' => $monto,
+                    'montodo' => null,
+                ]);
+    
+                Log::info('Movimiento creado exitosamente.');
+            }
+        });
+    
+        session()->flash('message', 'Transacción exitosa.');
+        Log::info('Transacción finalizada exitosamente.', $this->contenedor);
+
+        $this->dispatch('refresh table');
+    }
+    
+
 
     #[On('sendingContenedorAplicaciones')]
     public function receivingContenedorAplicaciones($detallesSeleccionados)
@@ -95,8 +203,9 @@ class FormEditAplicacionDetail extends Component
             ];
         }
     
-        // Recalcular dinámicamente los totales cada vez que cambie el contenedor
+        // Recalcular dinámicamente los totales y el balance cada vez que cambie el contenedor
         $this->recalcularTotales();
+        $this->recalcularBalance();
     
         Log::info("Contenedor actualizado: ", $this->contenedor);
         Log::info("TotalDebe: $this->TotalDebe, TotalHaber: $this->TotalHaber");
@@ -118,9 +227,17 @@ class FormEditAplicacionDetail extends Component
                 $this->TotalHaber += $detalle['montohaber'];
             }
         }
-    
-        // Log para verificar los cálculos actualizados
+
         Log::info("TotalDebe actualizado: $this->TotalDebe, TotalHaber actualizado: $this->TotalHaber");
+    }
+
+    /**
+     * Función para recalcular el balance entre TotalDebe y TotalHaber.
+     */
+    private function recalcularBalance()
+    {
+        $this->balance = $this->TotalDebe - $this->TotalHaber; // Calcular el balance
+        Log::info("Balance actualizado: $this->balance");
     }
     
     public function render()
