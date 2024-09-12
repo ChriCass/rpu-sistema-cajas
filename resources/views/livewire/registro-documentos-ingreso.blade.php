@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="p-4">
-        <x-card title="Registro de Documentos">
+        <x-card title="Registro de Documentos ingreso">
             @if (session()->has('message'))
             <x-alert title="Felicidades!" positive>
                 {{ session('message') }}
