@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use App\Models\Detalle;
 use Livewire\Attributes\On;
+use App\Models\Producto;
+
+
 class DetalleModal extends Component
 {
     public $openModal = false;
@@ -96,6 +99,18 @@ class DetalleModal extends Component
                 'descripcion' => $this->nuevo_producto,
                 'id_cuenta' => $this->cuenta_id,
             ]);
+    
+            // Generar un código hexadecimal aleatorio de 6 dígitos
+            $codigoHex = strtoupper(str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT));
+    
+            // Insertar el nuevo producto en la tabla producto con la descripción "GENERAL"
+            Producto::create([
+                'id' => $codigoHex, // Código hexadecimal generado
+                'id_detalle' => $this->nuevo_id,
+                'descripcion' => 'GENERAL', // Descripción siempre es "GENERAL"
+            ]);
+    
+            Log::info('Producto insertado en la tabla producto', ['id' => $codigoHex, 'id_detalle' => $this->nuevo_id]);
     
             // Confirmar la transacción
             DB::commit();

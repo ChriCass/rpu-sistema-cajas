@@ -41,11 +41,11 @@ class Documento extends Model
         'observaciones',
         'serieMod',
         'numeroMod',
-        'id_Usuario',
+        'id_user',
         'fecha_Registro',
         'id_dest_tipcaja',
     ];
-
+    public $timestamps = false; // Deshabilitar timestamps
     // Relación con el modelo DDetalleDocumento (1 a muchos)
     public function detalles()
     {

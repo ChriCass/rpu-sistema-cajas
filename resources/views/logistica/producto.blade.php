@@ -10,21 +10,7 @@
             <div class="w-full sm:w-8/12 px-4 mb-4">
                 <div class="bg-white rounded-md p-4 shadow-lg">
         
-                        <table class="min-w-full bg-white">
-                            <thead>
-                                <tr>
-                                    <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Codigo</th>
-                                    <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Familia</th>
-                                    <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sub-Familia</th>
-                                    <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Detalle</th>
-                                    <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Descripcion</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                      
-                            </tbody>
-                            
-                        </table>
+                   @livewire('producto-table')
        
                 </div>
             </div>
