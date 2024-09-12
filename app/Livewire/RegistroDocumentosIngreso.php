@@ -62,7 +62,7 @@ class RegistroDocumentosIngreso extends Component
 
     public $apertura;
 
-    public $basImp = 0;
+    public $basImp;
     public $igv = 0;
     public $otrosTributos = 0;
     public $noGravado = 0;
@@ -95,14 +95,9 @@ public function calculateIgv()
 // Function to calculate the total price dynamically
 public function calculatePrecio()
 {
-    // Ensure all fields are initialized as numeric to avoid errors
-    $this->basImp = $this->basImp ?: 0;
-    $this->igv = $this->igv ?: 0;
-    $this->otrosTributos = $this->otrosTributos ?: 0;
-    $this->noGravado = $this->noGravado ?: 0;
-
-    // Calculate the total price as the sum of all relevant fields
-    $this->precio = round($this->basImp + $this->igv + $this->otrosTributos + $this->noGravado, 2);
+    if (is_numeric($this->basImp) && is_numeric($this->igv) && is_numeric($this->otrosTributos) && is_numeric($this->noGravado)) {
+        $this->precio = round($this->basImp + $this->igv + $this->otrosTributos + $this->noGravado, 2);
+    }
 }
 
 // Livewire hooks for triggering the functions when fields are updated

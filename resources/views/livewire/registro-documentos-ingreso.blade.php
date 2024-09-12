@@ -161,7 +161,7 @@
                 </div>
                 <div class="w-full md:w-3/12 px-2">
                     <div class="flex flex-col space-y-2">
-                        <x-input label="Base Imponible:" wire:model.live="basImp"   />
+                        <x-input   label="Base Imponible:" wire:model.live="basImp"   />
                         <x-input   label="IGV:" wire:model.live='igv'/>
                         <x-input   label="Otros Tributos:"   />
                         <x-input   label="No Gravado:" wire:model.live='noGravado'  />
