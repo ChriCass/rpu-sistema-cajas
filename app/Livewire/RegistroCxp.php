@@ -18,11 +18,16 @@ class RegistroCxp extends Component
     public $monedas;
     public $tasas;
     public $usuarios;
+    public $mostrarRegistroDocumentos = false;
 
-    public function mount($aperturaId)
+
+    public function mostrarRegistro(){
+        $this->dispatch('mostrarDocumentosCxp');
+    }
+    public function mount()
     {   
         $this->meses = Mes::all();
-        $this->aperturaId = $aperturaId;
+       
     
         // Recuperar los comprobantes, garantizando que todos tengan descripción
         $this->comprobantes = TipoDeComprobanteDePagoODocumento::whereNotIn('id', ['70', '71', '72', '73', '80'])

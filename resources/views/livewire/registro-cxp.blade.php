@@ -8,8 +8,7 @@
 
     <div class="p-4">
         <x-card title="CuadroDeDocumentos">
-            <x-button icon="arrow-left" outline secondary label="Regresar" wire:navigate
-                href="{{ route('apertura.edit.vaucherdepagos', ['aperturaId' => $aperturaId]) }}" />
+           
             <div class="flex   flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
                     <x-select   label="Mes:" placeholder="Selecciona Mes" :options="$meses"
@@ -28,8 +27,8 @@
                         option-label="tasa" option-value="id" />
                 </div>
                 <div class="w-full md:w-2/12 px-2 flex items-center justify-end">
-                    <button    wire:navigate 
-    href="{{ route('apertura.edit.vaucherdepagos.registrocxp.formregistrocxp', ['aperturaId' => $aperturaId]) }}" class="bg-teal-500 hover:bg-teal-700 mt-5 text-white py-3 px-6 rounded">
+                    <button    wire:click='mostrarRegistro'
+      class="bg-teal-500 hover:bg-teal-700 mt-5 text-white py-3 px-6 rounded">
                         Nuevo
                     </button>
 
