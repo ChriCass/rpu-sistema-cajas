@@ -96,7 +96,7 @@ class DetalleModal extends Component
                 'descripcion' => $this->nuevo_producto,
                 'id_cuenta' => $this->cuenta_id,
             ]);
-    
+        ////////////////////////////////
             // Confirmar la transacción
             DB::commit();
     

@@ -55,29 +55,54 @@
 
                     <div class="flex flex-wrap -mx-2 mt-4">
                         <div class="w-full md:w-2/12 px-2">
-                            <x-maskable readonly label="T. Doc:" mask="#" value="02" />
+                            <!-- Abelardo = Cambie el Maskable por un Imput con el objetivo de que capte el enveto del teclado -->
+                            <x-input label="T. Doc:" 
+                                wire:model.live="TDocId" 
+                                wire:keydown.enter="EnterTDocId"
+                                type="text"
+                                inputmode="numeric"
+                                maxlength="2"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2)"  
+                                 />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-input readonly label="Recibo por Honorarios" value="Recibo por Honorarios" />
+                            <!-- Abelardo = Le paso la variable TDcocDesc para que se muestre el nombre del documento al presionar enter -->
+                            <x-input readonly label="Descripcion de Documento" wire:model.live="TDocDesc" />
+                            <!-- Abelardo = En base al numero de la validacion se muestra el mensaje de error -->
+                            @if ($valTdoc == 1)
+                                <x-alert title="EL codigo no es valido" negative style="padding: 1px; margin-top: 6px"/>
+                            @endif
                         </div>
                         <div class="w-full md:w-4/12 px-2">
                             <div class="flex items-center">
-                                <x-input readonly label="Serie" value="E001" />
-                                <span class="mx-2">-</span>
-                                <x-input readonly label="Numero" value="354" />
+                                <!-- Abelardo = Las series tienen que ser en mayuscula -->
+                                <x-input  label="Serie"
+                                        type="text"
+                                        maxlength="4"
+                                        oninput="this.value = this.value.toUpperCase()"
+                                        />
+                                <span class="mx-3"> </span>
+                                <!-- Abelardo = Solo acepta numeros -->
+                                <x-input  label="Numero" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
                             </div>
                         </div>
                     </div>
                     <div class="flex flex-wrap -mx-2 mt-4">
                         <div class="w-full md:w-2/12 px-2">
-                            <x-select readonly label="Tip Doc Iden:" :options="[['id' => 1, 'descripcion' => '6']]" option-label="descripcion"
-                                option-value="id" />
+                            <!-- Abelardo = Aqui van los tipos de documentos de identidad -->
+                            <x-select label="Tip Doc Iden:" :options="[['id' => '1', 'descripcion' => '1'],['id' => '6', 'descripcion' => '6']]" option-label="descripcion"
+                                option-value="id" wire:model.live="docIdenId" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-input readonly label="RUC:" value="10706743788" />
+                            <!-- Abelardo = Se tiene que validar el Ruc o DNI -->
+                            <x-input label="{{ $descIdenId }}" wire:model.live="rucId" wire:keydown.enter="EnterRuc" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{$lenIdenId}})"/>
                         </div>
                         <div class="w-full md:w-2/12 px-2">
-                            <x-select readonly label="Moneda:" :options="[['id' => 1, 'descripcion' => 'PEN']]" option-label="descripcion"
+                            <!-- Abelardo = Se modifico las monedas -->
+                            <x-select label="Moneda:"
+                                placeholder="Selecciona..."
+                                :options="[['id' => 'PEN', 'descripcion' => 'PEN'],['id' => 'USD', 'descripcion' => 'USD']]" 
+                                option-label="descripcion"
                                 option-value="id" />
                         </div>
                     
@@ -85,22 +110,35 @@
 
                     <div class="flex flex-wrap justify-between -mx-2 mt-4">
                         <div class="w-full md:w-8/12 px-2">
-                            <x-input readonly label="Entidad:" value="PINEDA GUZMAN RICARDO NOE" />
+                            <!-- Abelardo = Validacion de errores en base al ruc -->
+                            <x-input readonly label="Entidad:" wire:model.live="dosIdenDesc" />
+                            @if ($valDocIden == 1)
+                                <x-alert title="{{ $ErrorDocIden }}" negative style="padding: 1px; margin-top: 6px"/>
+                            @endif
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-select readonly label="Tasa Impositiva:" :options="[['id' => 1, 'descripcion' => 'No Gravado']]" option-label="descripcion"
+                            <!-- Abelardo = Se modifico los tipos gravados -->
+                            <x-select 
+                                placeholder="Selecciona..."
+                                label="Tasa Impositiva:" 
+                                :options="[['id' => 0, 'descripcion' => 'No Gravado'],['id' => 1, 'descripcion' => '18%'],['id' => 2, 'descripcion' => '10%']]" option-label="descripcion"
+                                wire:model.live="idTipGrav"
                                 option-value="id" />
+                            @if ($valGrav == 1)
+                                <x-alert title="Elige un Tip. Gravado" negative class=" mt-2"/>
+                            @endif
                         </div>
                     </div>
                     <div class="flex flex-wrap justify-between -mx-2 mt-4">
-                   
+                        <!-- Abelardo = Se activo las fecha -->
                         <div class="w-full md:w-3/12 px-2">
-                            <x-datetime-picker readonly label="Fec Emi:" placeholder="Nueva Fecha" without-time
-                                value="2024-05-18" />
+                            <x-datetime-picker label="Fec Emi:" placeholder="Nueva Fecha" without-time
+                                />
                         </div>
+                        <!-- Abelardo = Se activo las fecha -->
                         <div class="w-full md:w-3/12 px-2">
-                            <x-datetime-picker readonly label="Fec Ven:" placeholder="Nueva Fecha" without-time
-                                value="2024-05-20" />
+                            <x-datetime-picker label="Fec Ven:" placeholder="Nueva Fecha" without-time
+                                 />
                         </div>
                     </div>
                 </div>
@@ -122,24 +160,26 @@
             </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full px-2">
-                    <x-input readonly label="Observaciones:" value="VIATICOS CONTADOR_RICARDO" />
+                    <!-- Abelardo = Se activo las Observaciones -->
+                    <x-input label="Observaciones:" />
                 </div>
             </div>
             <div class="flex flex-wrap justify-end -mx-2 mt-4">
                 <div class="w-full md:w-3/12 px-2">
                     <div class="flex flex-col space-y-2">
-                        <x-input readonly label="Base Imponible:" value="0" />
-                        <x-input readonly label="IGV:" value="0" />
-                        <x-input readonly label="Otros Tributos:" value="0" />
-                        <x-input readonly label="No Gravado:" value="120" />
-                        <x-input readonly label="Precio:" value="120" />
+                        <!-- Abelardo = Se activo los imputs -->
+                        <x-input label="Base Imponible:" wire:model.live="BI" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)" />
+                        <x-input label="IGV:" wire:model.live="IGV" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)" />
+                        <x-input label="Otros Tributos:" wire:model.live="OtroTrib" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                        <x-input label="No Gravado:" wire:model.live="NoGravado" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                        <x-input label="Precio:" readonly wire:model.live="Precio" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                     </div>
                 </div>
             </div>
             <div class="flex justify-end mt-4 space-x-2">
                 @livewire('cuadro-de-ordenes-modal')
                 <x-button label="Cancelar" wire:navigate outline secondary href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" />
-                <x-button label="Aceptar" primary />
+                <x-button label="Aceptar" wire:click="submit" primary />
             </div>
         </x-card>
     </div>
