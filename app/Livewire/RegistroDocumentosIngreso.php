@@ -149,8 +149,8 @@ public function updatedNoGravado()
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->user = Auth::user()->id;
         $this->loadInitialData();
-
-        Log::info('El ID del usuario es:', ['usuario_id' => $this->user]);
+        $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
+        Log::info('Valor de tipoCaja: ' . $this->tipoCaja);
 
     }
 

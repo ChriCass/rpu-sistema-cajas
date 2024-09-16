@@ -29,4 +29,10 @@ class DDetalleDocumento extends Model
     {
         return $this->belongsTo(Documento::class, 'id_referencia');
     }
+
+    // Relación muchos a uno con t_centrodecostos
+    public function centroDeCostos()
+    {
+        return $this->belongsTo(CentroDeCostos::class, 'id_centroDeCostos', 'id');
+    }
 }

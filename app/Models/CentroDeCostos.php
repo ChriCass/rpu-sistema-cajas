@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\DDetalleDocumento;
 
 class CentroDeCostos extends Model
 {
@@ -22,4 +23,10 @@ class CentroDeCostos extends Model
     protected $fillable = [
         'id',
     ];
+
+      // Relación uno a muchos con d_detalledocumentos
+      public function detallesDocumentos()
+      {
+          return $this->hasMany(DDetalleDocumento::class, 'id_centroDeCostos', 'id');
+      }
 }

@@ -28,5 +28,6 @@ class Producto extends Model
     protected $fillable = [
         'id',
         'id_detalle',
+        'descripcion'
     ];
 }
