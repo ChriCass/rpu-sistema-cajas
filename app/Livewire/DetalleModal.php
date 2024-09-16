@@ -89,7 +89,7 @@ class DetalleModal extends Component
             // Crear el nuevo producto en la tabla detalle
             Detalle::create([
                 'id_familias' => $this->familia_id,
-                'id_subfamilia' => $this->subfamilia_id,
+                'id_subfamilia' => $subfam,
                 'id' => $this->nuevo_id,
                 'descripcion' => $this->nuevo_producto,
                 'id_cuenta' => $this->cuenta_id,
