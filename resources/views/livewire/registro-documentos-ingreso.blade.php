@@ -7,7 +7,7 @@
 
     <div class="p-4">
         <x-card title="Registro de Documentos ingreso">
-            @if (session()->has('message'))
+        @if (session()->has('message'))
             <x-alert title="Felicidades!" positive>
                 {{ session('message') }}
             </x-alert>
@@ -152,12 +152,19 @@
             </div>
             <div class="flex flex-wrap justify-between -mx-2 mt-4">
                 <div class="w-full md:w-3/12 px-2">
-                     <!-- Destinatario (solo visible si aplica) -->
-                     @if ($destinatarioVisible)
-                     <div class="w-full md:w-6/12 px-2">
-                         <x-select wire:model.live='nuevoDestinatario' placeholder="selecc." :options="$destinatarios" option-value="descripcion" option-label="descripcion" label="Destinatario:" />
-                     </div>
-                 @endif
+                <!-- Abelardo (cree ese select para los centros de costos) -->
+                    <div class="w-full md:w-6/12 px-2">
+                        <x-select wire:model.live='centroDeCostos' placeholder="selecc." :options="$CC" option-value="id" option-label="descripcion" label="C.C.:" />
+                    </div>
+                <!-- Destinatario (solo visible si aplica) -->
+                @if ($destinatarioVisible)
+                    <div class="w-full md:w-6/12 px-2">
+                        <x-select wire:model.live='nuevoDestinatario' placeholder="selecc." :options="$destinatarios" option-value="id" option-label="descripcion" label="Destinatario:" />
+                    </div>
+                @endif
+                    <div>
+                        <legend class="text-sm font-medium text-gray-700">{{$PruebaArray}}</legend>
+                    </div>
                 </div>
                 <div class="w-full md:w-3/12 px-2">
                     <div class="flex flex-col space-y-2">

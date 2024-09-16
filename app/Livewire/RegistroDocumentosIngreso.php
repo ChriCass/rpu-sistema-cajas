@@ -20,8 +20,13 @@ use App\Models\TipoDocumentoIdentidad;
 use App\Models\TipoDeCaja;
 use App\Models\TipoDeCambioSunat;
 use App\Models\MovimientoDeCaja;
+use App\Models\Producto;
+use App\Models\CentroDeCostos;
+use App\Models\DDetalleDocumento;
 
 use Illuminate\Support\Facades\Auth;
+
+use Livewire\Attributes\On;
 
 
 class RegistroDocumentosIngreso extends Component
@@ -43,7 +48,8 @@ class RegistroDocumentosIngreso extends Component
     public $tipoDocDescripcion;
     public $observaciones;
     public $entidad;
-     public $nuevoDestinatario;
+    public $nuevoDestinatario;
+    public $centroDeCostos; // Abelardo = Recoje el centro de costos
 
 
     public $familias = []; // Lista de familias
@@ -51,6 +57,7 @@ class RegistroDocumentosIngreso extends Component
     public $detalles = []; // Lista de detalles filtrados
     public $tasasIgv = []; // Lista de tasas de IGV
     public $monedas = []; // Lista de monedas
+    public $CC = []; // Abelardo = Lista de Centro de Costos
 
     public $tipoDocIdentidades;
     public $disableFields = false; // Para manejar el estado de desactivación de campos
@@ -59,7 +66,7 @@ class RegistroDocumentosIngreso extends Component
     public $user;
 
     /////
-
+    public $PruebaArray = ""; //Abelardo = pruebas con las consultas
     public $apertura;
 
     public $basImp;
@@ -68,6 +75,9 @@ class RegistroDocumentosIngreso extends Component
     public $noGravado = 0;
     public $precio = 0;
     
+
+
+    public $tipoCaja;
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa
 public function calculateIgv()
@@ -151,6 +161,7 @@ public function updatedNoGravado()
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
+        $this->CC = CentroDeCostos::all(); // Abelardo = Añadi para el select de centro de costos
     }
 
     public function buscarDescripcionTipoDocumento()
@@ -162,8 +173,9 @@ public function updatedNoGravado()
         if ($tipoComprobante) {
             $this->tipoDocDescripcion = $tipoComprobante->descripcion;
         } else {
-            // Si no se encuentra, puedes asignar un mensaje de error o dejar vacío
-            $this->tipoDocDescripcion = 'Descripción no encontrada';
+            // Si no se encuentra, puedes asignar un mensaje de error o dejar vacío = Abelardo = Modifique estos datos adaptarlo a la idea
+            $this->tipoDocumento = '';
+            session()->flash('error', 'Descripción no encontrada');
         }
     }
 
@@ -203,7 +215,7 @@ public function updatedNoGravado()
 
             case '004': // RENDICIONES
                 $this->disableFields = true;
-                $this->destinatarioVisible = true;
+                $this->destinatarioVisible = false;
                 $this->setDefaultRendicionesValues(); // Función especial para rendiciones
                 break;
 
@@ -250,7 +262,6 @@ public function updatedNoGravado()
         }
 
         $this->destinatarios = TipoDeCaja::all();
-
         $this->tipoDocId = '6'; // RUC
         $this->docIdent = '20606566558';
 
@@ -395,6 +406,14 @@ public function updatedNoGravado()
         ]);
     }
 
+    #[On('sending TipoCaja')]
+    public function settingTipoCaja($caja)
+    {
+        $this->tipoCaja = $caja;
+
+        Log::info('recibiendo el tipo de caja', ['tipo caja id' => $this->tipoCaja]);
+    }
+
 
     public function submit()
     {
@@ -411,7 +430,7 @@ public function updatedNoGravado()
             'tasaIgvId' => 'required', // ComboBox5
             'fechaEmi' => 'required|date', // TextBox33
             'fechaVen' => 'required|date', // TextBox34
-            'basImp' => 'required|numeric|min:0.01', // TextBox11
+            'basImp' => 'required|numeric|min:0', // TextBox11
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
@@ -428,6 +447,13 @@ public function updatedNoGravado()
             return;
         }
 
+        if ($this -> familiaId == '001') { //Abelardo = Se hace la validacion de destinario
+            if($this->nuevoDestinatario == ''){
+                session()->flash('error', 'Tiene que tener un destinatario');
+            return;
+            }
+        }
+
         // Validar si el documento ya está registrado
         $documentoExistente = Documento::where('id_entidades', $this->docIdent)
             ->where('id_t10tdoc', $this->tipoDocumento)
@@ -441,7 +467,7 @@ public function updatedNoGravado()
         }
 
         // Insertar el nuevo documento
-        $nuevoDocumento = Documento::create([
+        $nuevoDocumento =Documento::create([
             'id_tipmov' => 2, // Nuevo campo con valor fijo 2
             'fechaEmi' => $this->fechaEmi,
             'fechaVen' => $this->fechaVen,
@@ -475,14 +501,31 @@ public function updatedNoGravado()
             'id_dest_tipcaja' => $this->destinatarioVisible ? $this->nuevoDestinatario : null,
         ]);
 
+        $producto = Producto::select('id')
+                    -> where('id_detalle',$this->detalleId)
+                    -> where('descripcion','GENERAL')
+                    -> get()
+                    -> toarray();
+                    
+
+        DDetalleDocumento::create(['id_referencia' => $nuevoDocumento->id,
+                    'orden' => '1',
+                    'id_producto' => $producto[0]['id'],
+                    'id_tasas' => '1',
+                    'cantidad' => '1',
+                    'cu' => $this->precio,
+                    'total' => $this->precio,
+                    'id_centroDeCostos' => $this -> centroDeCostos ? $this -> centroDeCostos : null,]);
+
         // Registrar log
+
         Log::info('Documento registrado exitosamente', ['documento_id' => $nuevoDocumento->id]);
            // Llamar a la función para registrar movimientos de caja
-       $this->registrarMovimientoCaja($nuevoDocumento->id, $this->docIdent, $this->fechaEmi);
+        $this->registrarMovimientoCaja($nuevoDocumento->id, $this->docIdent, $this->fechaEmi);
         // Limpiar el formulario
         $this->resetForm();
 
-     
+        
 
 
         session()->flash('message', 'Documento registrado con éxito.');
@@ -567,7 +610,23 @@ public function updatedNoGravado()
                 ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
                 ->first();
             $nuevoMovApertura = $ultimoMovimientoApertura ? intval($ultimoMovimientoApertura->mov) + 1 : 1;
-    
+            
+            //Abelardo = Para la caja se pondran dos registro el primero
+            // La transaccion en caja
+            MovimientoDeCaja::create([
+                'id_libro' => 3,
+                'id_apertura' => $apertura->id,
+                'mov' => $nuevoMovApertura,
+                'fec' => $fechaEmi,
+                'id_documentos' => $documentoId,
+                'id_cuentas' => '5', // Abelardo = qie se jale del select de la apertura
+                'id_dh' => 1,
+                'monto' => $precioConvertido,
+                'montodo' => null,
+                'glosa' => $this->observaciones,
+            ]);
+            
+            // El pago de documento 
             MovimientoDeCaja::create([
                 'id_libro' => 3,
                 'id_apertura' => $apertura->id,
@@ -575,7 +634,7 @@ public function updatedNoGravado()
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuentaId,
-                'id_dh' => 1,
+                'id_dh' => 2,
                 'monto' => $precioConvertido,
                 'montodo' => null,
                 'glosa' => $this->observaciones,

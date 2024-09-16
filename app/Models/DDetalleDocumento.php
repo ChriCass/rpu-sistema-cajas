@@ -22,6 +22,8 @@ class DDetalleDocumento extends Model
         'total',
     ];
 
+    public $timestamps = false;
+    
     // Relación con el modelo Documento (muchos a 1)
     public function documento()
     {
