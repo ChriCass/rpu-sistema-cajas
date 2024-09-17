@@ -27,6 +27,9 @@ use App\Models\DDetalleDocumento;
 use Illuminate\Support\Facades\Auth;
 
 use Livewire\Attributes\On;
+use App\Services\ApiService;
+use Illuminate\Support\Facades\DB;
+
 
 
 class RegistroDocumentosIngreso extends Component
@@ -50,7 +53,7 @@ class RegistroDocumentosIngreso extends Component
     public $entidad;
     public $nuevoDestinatario;
     public $centroDeCostos; // Abelardo = Recoje el centro de costos
-
+    public $lenIdenId; // Abelardo = recoje el largo del imput
 
     public $familias = []; // Lista de familias
     public $subfamilias = []; // Lista de subfamilias filtradas
@@ -69,15 +72,14 @@ class RegistroDocumentosIngreso extends Component
     public $PruebaArray = ""; //Abelardo = pruebas con las consultas
     public $apertura;
 
-    public $basImp;
+    public $basImp = 0;
     public $igv = 0;
     public $otrosTributos = 0;
     public $noGravado = 0;
     public $precio = 0;
-    
-
-
     public $tipoCaja;
+
+    protected $apiService; // Abelardo = Cree un service para el Api de busqueda de Ruc 
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa
 public function calculateIgv()
@@ -142,7 +144,7 @@ public function updatedNoGravado()
 }
 
 
-    public function mount($aperturaId)
+    public function mount($aperturaId, ApiService $apiService)
     {
         $this->aperturaId = $aperturaId;
         $this->apertura = Apertura::findOrFail($aperturaId);
@@ -150,8 +152,14 @@ public function updatedNoGravado()
         $this->user = Auth::user()->id;
         $this->loadInitialData();
         $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
+        $this->apiService = $apiService; // Abelardo = Asigne el servicio inyectado para la api.
         Log::info('Valor de tipoCaja: ' . $this->tipoCaja);
 
+    }
+
+    public function hydrate(ApiService $apiService) // Abelardo = Hidrate la inyecion del servicio puesto que no esta funcionando el servicio, con esta opcion logre pasar el service por las diferentes funciones
+    {
+        $this->apiService = $apiService;
     }
 
     // Cargar datos iniciales
@@ -175,16 +183,40 @@ public function updatedNoGravado()
         } else {
             // Si no se encuentra, puedes asignar un mensaje de error o dejar vacío = Abelardo = Modifique estos datos adaptarlo a la idea
             $this->tipoDocumento = '';
+            $this->tipoDocDescripcion = '';
             session()->flash('error', 'Descripción no encontrada');
         }
     }
 
+    public function EnterRuc(){ //Abelardo = Evento enter para RUC
+        if($this -> tipoDocId <> ''){
+            $data = $this -> apiService -> REntidad($this -> tipoDocId,$this -> docIdent);
+            if ($data['success'] == '1') {
+                $this -> entidad = $data['desc'];
+            }else{
+                session()->flash('error', $data['desc']);
+                $this -> docIdent = '';
+                $this -> entidad = '';    
+            }
+        }else{
+            session()->flash('error', 'Elige un Tip de Indentidad');
+            $this -> docIdent = '';
+            $this -> entidad = '';
+        }
+    }
 
     // Método que se ejecuta cuando se selecciona una familia
     public function updatedFamiliaId($value)
     {
         // Actualizar las subfamilias según la familia seleccionada
-        $this->subfamilias = SubFamilia::where('id_familias', $value)->get();
+        $this->subfamilias = SubFamilia::select( // Abelardo = Hice cambios para que funcione el select
+            'id_familias',
+            'id as ic',  // Renombramos el campo 'id' a 'ic'
+            'desripcion'  
+        )
+        ->where('id_familias', $value)
+        ->get();
+        Log::info($this->subfamilias);
         $this->reset('subfamiliaId', 'detalleId'); // Reiniciar las selecciones
         $this->checkFieldState(); // Verificar el estado de los campos
     }
@@ -193,7 +225,10 @@ public function updatedNoGravado()
     public function updatedSubfamiliaId($value)
     {
         // Filtrar los detalles según la subfamilia seleccionada
-        $this->detalles = Detalle::where('id_subfamilia', $value)->get();
+        $this->detalles = Detalle::where('id_subfamilia', $value)
+                                    ->where('id_familias', $this -> familiaId)
+                                    ->get();
+        
         $this->reset('detalleId'); // Reiniciar detalle
     }
 
@@ -262,11 +297,7 @@ public function updatedNoGravado()
         }
 
         $this->destinatarios = TipoDeCaja::all();
-        $this->tipoDocId = '6'; // RUC
-        $this->docIdent = '20606566558';
-
-        $entidad = Entidad::where('id', $this->docIdent)->first();
-        $this->entidad = $entidad ? $entidad->descripcion : null;
+        
 
         $fecha = (new DateTime($this->apertura->fecha))->format('Y-m-d');
         Log::info('Fecha formateada: ', ['fecha' => $fecha]);
@@ -377,10 +408,6 @@ public function updatedNoGravado()
             $this->serieNumero2 = '1'; // Si no hay registros, empezar con 1
         }
 
-        $this->tipoDocId = '6';
-        $this->docIdent = '20606566558';
-        $entidad = Entidad::where('id', $this->docIdent)->first();
-        $this->entidad = $entidad->descripcion;
         $fecha = (new DateTime($this->apertura->fecha))->format('Y-m-d');
         Log::info('Fecha formateada: ', ['fecha' => $fecha]);
         $this->fechaEmi = $fecha;
@@ -402,7 +429,9 @@ public function updatedNoGravado()
             'fechaVen',
             'tipoDocDescripcion',
             'monedaId',
-            'tasaIgvId'
+            'tasaIgvId',
+            'observaciones',
+            'entidad'
         ]);
     }
 
@@ -412,6 +441,16 @@ public function updatedNoGravado()
         $this->tipoCaja = $caja;
 
         Log::info('recibiendo el tipo de caja', ['tipo caja id' => $this->tipoCaja]);
+    }
+
+    public function updatedtipoDocId($value){
+        if($value === '1'){;
+            $this -> lenIdenId = 8;
+            $this -> docIdent = "";
+        } else { 
+            $this -> lenIdenId = 11;
+            $this -> docIdent = "";
+        };
     }
 
 
@@ -619,7 +658,7 @@ public function updatedNoGravado()
                 'mov' => $nuevoMovApertura,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
-                'id_cuentas' => '5', // Abelardo = qie se jale del select de la apertura
+                'id_cuentas' => $this->tipoCaja, // Abelardo = que se jale del select de la apertura
                 'id_dh' => 1,
                 'monto' => $precioConvertido,
                 'montodo' => null,

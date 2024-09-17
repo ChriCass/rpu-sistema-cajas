@@ -42,7 +42,7 @@
                     <!-- Select Sub-Familia -->
                     <div class="w-full md:w-3/12 px-2">
                         <x-select label="Sub-Familia:" placeholder="Selecciona..." wire:model.live="subfamiliaId"
-                            :options="$subfamilias" option-label="desripcion" option-value="id" :disabled="$disableFields" />
+                            :options="$subfamilias" option-label="desripcion" option-value="ic" :disabled="$disableFields" />
                     </div>
 
                     <!-- Select Detalle -->
@@ -64,25 +64,24 @@
                                 :disabled="$disableFields"
                                 wire:model.live="tipoDocumento"
                                 wire:keydown.enter="buscarDescripcionTipoDocumento"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2)"
                             />
                         </div>
                         
                         <div class="w-full md:w-4/12 px-2">
                             <x-input
                                 label="Descripción T. Doc:"
-                                :disabled="$disableFields"
+                                :disabled=True
                                 wire:model.live="tipoDocDescripcion"
 
-                                readonly
                             />
                         </div>
                         
                         <div class="w-full md:w-4/12 px-2">
                             <div class="flex items-center">
-                                <x-input label="Serie" :disabled="$disableFields" wire:model.live="serieNumero1" />
-                                <span class="mx-2">-</span>
-                                <x-input   label="Numero" :disabled="$disableFields" wire:model.live="serieNumero2" />
-
+                                <x-input label="Serie" :disabled="$disableFields" wire:model.live="serieNumero1" oninput="this.value = this.value.toUpperCase()" maxlength="4" />
+                                <span class="mx-2"> </span>
+                                <x-input   label="Numero" :disabled="$disableFields" wire:model.live="serieNumero2" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"/>
                             </div>
                         </div>
                     </div>
@@ -92,7 +91,7 @@
                                 option-label="abreviado" option-value="id" :disabled="$disableFields" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-input :disabled="$disableFields" label="RUC:" wire:model.live="docIdent" />
+                            <x-input :disabled="$disableFields" label="Num Ident:" wire:model.live="docIdent" wire:keydown.enter="EnterRuc" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{$lenIdenId}})"/>
                         </div>
                         <div class="w-full md:w-2/12 px-2">
                             <x-select label="Moneda:" wire:model.live="monedaId" :options="$monedas" option-label="id"
@@ -103,7 +102,7 @@
 
                     <div class="flex flex-wrap justify-between -mx-2 mt-4">
                         <div class="w-full md:w-8/12 px-2">
-                            <x-input  label="Entidad:" wire:model.live='entidad' :disabled="$disableFields" />
+                            <x-input  label="Entidad:" wire:model.live='entidad' :disabled=True />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
                             <x-select label="Tasa Impositiva:" wire:model.live="tasaIgvId" :options="$tasasIgv"
@@ -129,25 +128,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full md:w-6/12 px-2">
-                    <div class="flex flex-wrap -mx-2 mt-4">
-                        <fieldset class="border p-10 border-gray-300 p-2 rounded-md w-full">
-                            <legend class="text-sm font-medium text-gray-700">T. Referencia</legend>
-                            <div class="flex flex-wrap">
-                                <div class="w-full md:w-6/12 px-2">
-                                    <x-input   label="T. Doc:" value="" />
-                                </div>
-                                <div class="w-full md:w-6/12 px-2">
-                                    <x-input   label="Orden Numero:" value="" />
-                                </div>
-                            </div>
-                        </fieldset>
-                    </div>
-                </div>
+        
             </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full px-2">
-                    <x-input wire:model.live='observaciones'   label="Observaciones:" />
+                    <x-input wire:model.live='observaciones'   label="Observaciones:" oninput="this.value = this.value.toUpperCase()"/>
                 </div>
             </div>
             <div class="flex flex-wrap justify-between -mx-2 mt-4">
@@ -168,11 +153,11 @@
                 </div>
                 <div class="w-full md:w-3/12 px-2">
                     <div class="flex flex-col space-y-2">
-                        <x-input   label="Base Imponible:" wire:model.live="basImp"   />
-                        <x-input   label="IGV:" wire:model.live='igv'/>
-                        <x-input   label="Otros Tributos:"   />
-                        <x-input   label="No Gravado:" wire:model.live='noGravado'  />
-                        <x-input readonly  wire:model.live='precio' label="Precio:"   />
+                        <x-input   label="Base Imponible:" wire:model.live="basImp" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                        <x-input   label="IGV:" wire:model.live='igv' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                        <x-input   label="Otros Tributos:" wire:model.live='otrosTributos' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                        <x-input   label="No Gravado:" wire:model.live='noGravado' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)" />
+                        <x-input readonly  wire:model.live='precio' label="Precio:"/>
                     </div>
                 </div>
             </div>

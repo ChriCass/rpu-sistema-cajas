@@ -37,7 +37,7 @@ class DetalleApertura extends Component
         $this->tipoCajas = TipoDeCaja::all()->map(function ($tipoCaja) {
             return ['id' => $tipoCaja->id, 'descripcion' => $tipoCaja->descripcion];
         })->toArray();
-
+         
         $this->meses = Mes::all()->map(function ($mes) {
             return ['id' => $mes->id, 'descripcion' => $mes->descripcion];
         })->toArray();
@@ -47,7 +47,8 @@ class DetalleApertura extends Component
             return ['key' => $año, 'year' => $año];
         }, $años);
     }
- 
+    
+
 
     #[On('monto-inicial')]
     public function recibirMontoInicial($montoInicial)
