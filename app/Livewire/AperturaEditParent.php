@@ -4,16 +4,22 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log;
+
 
 class AperturaEditParent extends Component
 {
     public $aperturaId;
     public $mostrarIngreso = false;
+    public $mostrarEDIngreso = false;
     public $mostrarSalida = false;
+    public $mostrarEDSalida = false;
     public $mostrarCXP = false;
     public $mostrarCXC = false;
     public $mostrarAplicaciones = false;
 
+
+    public $numMov;
     // Nuevas variables para los componentes secundarios
     public $mostrarRegistroCXP = false;
     public $mostrarIngresoComponente = false;
@@ -21,8 +27,9 @@ class AperturaEditParent extends Component
     public $mostrarRegistroCXC = false;
 
     #[On('mostrarComponente')]
-    public function mostrarComponente($componente)
+    public function mostrarComponente($componente, $numeroMovimiento = null)
     {
+        Log::info("Evento recibido: mostrarComponente = {$componente}");
         // Reseteamos los componentes secundarios antes de mostrar uno nuevo
         $this->resetSecundarios();
 
@@ -34,6 +41,14 @@ class AperturaEditParent extends Component
             case 'salida':
                 $this->mostrarSalida = true;
                 break;
+         case 'EditarIngreso':
+              $this->mostrarEDIngreso = true; // Para mostrar el formulario de edición de ingreso
+               $this->numMov = $numeroMovimiento;
+              break;
+          case 'EditarSalida':
+              $this->mostrarEDSalida = true; // Para mostrar el formulario de edición de salida
+              $this->numMov = $numeroMovimiento;
+              break;
             case 'cxp':
                 $this->mostrarCXP = true;
                 break;
@@ -44,7 +59,7 @@ class AperturaEditParent extends Component
                 $this->mostrarAplicaciones = true;
                 break;
 
-            // Nuevos componentes (secundarios)
+                // Nuevos componentes (secundarios)
             case 'registroCXP':
                 $this->mostrarRegistroCXP = true;
                 break;
@@ -81,10 +96,12 @@ class AperturaEditParent extends Component
         // Reseteamos todos los componentes principales
         $this->mostrarIngreso = false;
         $this->mostrarSalida = false;
+     $this->mostrarEDSalida = false;
+       $this->mostrarEDIngreso = false;
         $this->mostrarCXP = false;
         $this->mostrarCXC = false;
         $this->mostrarAplicaciones = false;
-
+        $this->numMov = null;
         // Reseteamos también los componentes secundarios
         $this->resetSecundarios();
     }
@@ -97,8 +114,10 @@ class AperturaEditParent extends Component
             'mostrarSalida' => $this->mostrarSalida,
             'mostrarCXP' => $this->mostrarCXP,
             'mostrarCXC' => $this->mostrarCXC,
+            'numMov' => $this->numMov,
             'mostrarAplicaciones' => $this->mostrarAplicaciones,
-
+            'mostrarEDIngreso' => $this->mostrarEDIngreso,
+            'mostrarEDSalida' => $this->mostrarEDSalida,
             // Pasamos las nuevas variables al renderizado
             'mostrarRegistroCXP' => $this->mostrarRegistroCXP,
             'mostrarRegistroCXC' => $this->mostrarRegistroCXC,
