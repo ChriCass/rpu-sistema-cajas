@@ -210,7 +210,7 @@ class EdRegistroDocumentosIngreso extends Component
         LEFT JOIN 
             tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
         WHERE 
-            CO1.id_tipmov = 2 -- cxp
+            CO1.id_tipmov = 1 -- cxc
             AND CO1.id = ?
     ", [$idMovimiento]);
 
