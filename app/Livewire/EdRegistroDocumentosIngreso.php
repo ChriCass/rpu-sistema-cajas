@@ -249,9 +249,11 @@ class EdRegistroDocumentosIngreso extends Component
         
         // Asignar los resultados a las variables del componente
         $this->familiaId = $result->familia_id; // ID de la familia
+        $this->updatedFamiliaId($this->familiaId);
         $this->subfamiliaId = $result->subfamilia_id; // ID de la subfamilia
+        $this->updatedSubfamiliaId($this->subfamiliaId);
             // Log del subfamilia_id
-            Log::info('Mensaje de información: ' . $this->subfamiliaId);
+        Log::info('Mensaje de información: ' . $this->subfamiliaId);
         $this->detalleId = $result->detalle_id; // ID del detalle
         $this->tasaIgvId = $result->tasa_igv; // Tasa de IGV seleccionada
         $this->monedaId = $result->tipo_moneda_id; // ID de la moneda seleccionada
