@@ -249,10 +249,9 @@ class EdRegistroDocumentosIngreso extends Component
         
         // Asignar los resultados a las variables del componente
         $this->familiaId = $result->familia_id; // ID de la familia
-        $this->subfamiliaId = (int) $result->subfamilia_id; // ID de la subfamilia
-
+        $this->subfamiliaId = $result->subfamilia_id; // ID de la subfamilia
             // Log del subfamilia_id
-            Log::info('Subfamilia ID:', ['subfamilia_id' => $this->subfamiliaId]);
+            Log::info('Mensaje de información: ' . $this->subfamiliaId);
         $this->detalleId = $result->detalle_id; // ID del detalle
         $this->tasaIgvId = $result->tasa_igv; // Tasa de IGV seleccionada
         $this->monedaId = $result->tipo_moneda_id; // ID de la moneda seleccionada
@@ -290,6 +289,7 @@ class EdRegistroDocumentosIngreso extends Component
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all(); // Abelardo = Añadi para el select de centro de costos
+        $this->subfamilias = SubFamilia::select('id as ic','desripcion')->get()->toArray();
     }
 
     public function buscarDescripcionTipoDocumento()
