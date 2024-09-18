@@ -8,15 +8,15 @@
     <div class="p-4">
         <x-card title="Registro de Documentos ingreso">
         @if (session()->has('message'))
-            <x-alert title="Felicidades!" positive>
+            <x-alert title="Felicidades!" positive class="mb-3">
                 {{ session('message') }}
             </x-alert>
         @elseif (session()->has('warning'))
-            <x-alert title="Advertencia!" warning>
+            <x-alert title="Advertencia!" warning class="mb-3">
                 {{ session('warning') }}
             </x-alert>
         @elseif (session()->has('error'))
-            <x-alert title="Error!" negative>
+            <x-alert title="Error!" negative class="mb-3"> 
                 {{ session('error') }}
             </x-alert>
         @endif
