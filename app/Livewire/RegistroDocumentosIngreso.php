@@ -574,7 +574,7 @@ public function updatedNoGravado()
 
         // Insertar el nuevo documento
         $nuevoDocumento =Documento::create([
-            'id_tipmov' => 2, // Nuevo campo con valor fijo 2
+            'id_tipmov' => 1,  ////cxc
             'fechaEmi' => $this->fechaEmi,
             'fechaVen' => $this->fechaVen,
             'id_t10tdoc' => $this->tipoDocumento,
@@ -631,10 +631,14 @@ public function updatedNoGravado()
         // Limpiar el formulario
         $this->resetForm();
 
-        
-
-
+    
         session()->flash('message', 'Documento registrado con éxito.');
+
+        // Emitir el evento para actualizar la tabla en `TablaDetalleApertura`
+        $this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
+
+        $this->dispatch('scroll-up');
+         
     }
 
     public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi)

@@ -35,6 +35,19 @@ class TablaDetalleApertura extends Component
         $this->consultaBD();
     }
 
+
+    #[On('actualizar-tabla-apertura')]
+    public function actualizarTabla($aperturaId)
+    {
+        // Si el evento incluye un id de apertura, actualiza la propiedad
+        if ($aperturaId) {
+            $this->aperturaId = $aperturaId;
+        }
+
+        // Llama a la consulta para actualizar los datos
+        $this->consultaBD();
+    }
+
     public function consultaBD()
     {
         try {
