@@ -42,7 +42,7 @@
 
     <div class="mt-8">
         @if ($mostrarEDIngreso)
-            @livewire('ed-registro-documentos-ingreso', ['numeroMovimiento' => $numMov])
+            @livewire('ed-registro-documentos-ingreso', ['numeroMovimiento' => $numMov,'aperturaId' => $aperturaId])
         @endif
         @if ($mostrarEDSalida)
             @livewire('ed-registro-documentos-egreso', ['numeroMovimiento' => $numMov])

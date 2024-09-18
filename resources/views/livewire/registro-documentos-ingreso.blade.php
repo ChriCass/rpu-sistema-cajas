@@ -88,10 +88,10 @@
                     <div class="flex flex-wrap -mx-2 mt-4">
                         <div class="w-full md:w-2/12 px-2">
                             <x-select label="Tip Doc Iden:" wire:model.live="tipoDocId" :options="$tipoDocIdentidades"
-                                option-label="abreviado" option-value="id" :disabled="$disableFields" />
+                                option-label="abreviado" option-value="id" :disabled="$disableFieldsEspecial" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
-                            <x-input :disabled="$disableFields" label="Num Ident:" wire:model.live="docIdent" wire:keydown.enter="EnterRuc" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{$lenIdenId}})"/>
+                            <x-input :disabled="$disableFieldsEspecial" label="Num Ident:" wire:model.live="docIdent" wire:keydown.enter="EnterRuc" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{$lenIdenId}})"/>
                         </div>
                         <div class="w-full md:w-2/12 px-2">
                             <x-select label="Moneda:" wire:model.live="monedaId" :options="$monedas" option-label="id"

@@ -23,6 +23,7 @@ use App\Models\MovimientoDeCaja;
 use App\Models\Producto;
 use App\Models\CentroDeCostos;
 use App\Models\DDetalleDocumento;
+use App\Models\Cuenta;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -64,6 +65,7 @@ class RegistroDocumentosIngreso extends Component
 
     public $tipoDocIdentidades;
     public $disableFields = false; // Para manejar el estado de desactivación de campos
+    public $disableFieldsEspecial = false; // Para manejar el estado de desactivación de campos
     public $destinatarios;
 
     public $user;
@@ -180,6 +182,61 @@ public function updatedNoGravado()
         // Si se encuentra el tipo de documento, actualizamos la descripción
         if ($tipoComprobante) {
             $this->tipoDocDescripcion = $tipoComprobante->descripcion;
+            if($this->tipoDocumento=='75'){
+                $this->serieNumero1 = '0000';
+                // Obtener el siguiente número de serie utilizando el modelo Documento
+                $ultimoDocumento = Documento::where('id_t10tdoc',  $this->tipoDocumento) // Tipo de documento 74
+                    ->where('serie', $this->serieNumero1) // Serie 0000
+                    ->orderByRaw('CAST(numero AS UNSIGNED) DESC') // Ordenar por número de documento de manera descendente
+                    ->first(); // Obtener el primer registro (el número más alto)
+
+                // Asignar el siguiente número de serie
+                if ($ultimoDocumento) {
+                    $this->serieNumero2 = intval($ultimoDocumento->numero) + 1; // Incrementar el número en 1
+                } else {
+                    $this->serieNumero2 = '1'; // Si no hay registros, empezar con 1
+                }
+
+                $this->destinatarios = TipoDeCaja::all();
+
+                $this->tipoDocId = '1'; // RUC
+                $this->docIdent = '10000001'; // Valor por defecto
+
+                $entidad = Entidad::where('id', $this->docIdent)->first();
+                $this->entidad = $entidad->descripcion;
+                $fecha = (new DateTime($this->apertura->fecha))->format('Y-m-d');
+                Log::info('Fecha formateada: ', ['fecha' => $fecha]);
+                $this->fechaEmi = $fecha;
+                $this->fechaVen = $fecha;
+
+                // Encontrar la tasa de IGV por la descripcion seleccionada
+                $tasaIgv = TasaIgv::where('tasa', 'No Gravado')->first();
+
+                if ($tasaIgv) {
+                    $this->tasaIgvId = $tasaIgv->tasa; // Usamos el id internamente si es necesario
+                    Log::info('Tasa IGV encontrada: ', ['id' => $tasaIgv->id, 'tasa' => $tasaIgv->tasa]);
+                } else {
+                    Log::warning('No se encontró la Tasa IGV con el valor: ' . $this->tasaIgvDescripcion);
+                }
+
+                $this->monedaId = TipoDeMoneda::where('id', 'PEN')->first()->id;
+
+            }else{
+                $this->reset([
+                'serieNumero1',
+                'serieNumero2',
+                'tipoDocId',
+                'docIdent',
+                'fechaEmi',
+                'fechaVen',
+                'monedaId',
+                'tasaIgvId',
+                'observaciones',
+                'entidad'
+            ]);
+
+            }
+
         } else {
             // Si no se encuentra, puedes asignar un mensaje de error o dejar vacío = Abelardo = Modifique estos datos adaptarlo a la idea
             $this->tipoDocumento = '';
@@ -238,18 +295,21 @@ public function updatedNoGravado()
         switch ($this->familiaId) {
             case '001': // TRANSFERENCIAS
                 $this->disableFields = true;
+                $this->disableFieldsEspecial = true;
                 $this->destinatarioVisible = true;
                 $this->setDefaultTransferenciasValues();
                 break;
 
             case '003': // ANTICIPOS
                 $this->disableFields = true;
-                $this->destinatarioVisible = true;
+                $this->disableFieldsEspecial = false;
+                $this->destinatarioVisible = false;
                 $this->setDefaultAnticiposValues();
                 break;
 
             case '004': // RENDICIONES
                 $this->disableFields = true;
+                $this->disableFieldsEspecial = false;
                 $this->destinatarioVisible = false;
                 $this->setDefaultRendicionesValues(); // Función especial para rendiciones
                 break;
@@ -257,6 +317,7 @@ public function updatedNoGravado()
             default:
                 // Habilitar todos los campos y ocultar destinatario
                 $this->disableFields = false;
+                $this->disableFieldsEspecial = false;
                 $this->destinatarioVisible = false;
                 $this->resetForm();
                 break;
@@ -265,7 +326,9 @@ public function updatedNoGravado()
     // Establecer valores por defecto para rendiciones
     public function setDefaultRendicionesValues()
     {
-        $this->subfamiliaId = SubFamilia::where('desripcion', 'GENERAL')->first()->id;
+        $subfamilia = SubFamilia::select('id as ic','desripcion')
+                            -> where('desripcion', 'GENERAL')-> get() ->toarray();
+        $this->subfamiliaId = $subfamilia[0]['ic'];
 
         $detalle = Detalle::where('descripcion', 'RENDICIONES POR PAGAR')->first(); // Encontrar el detalle correcto
 
@@ -309,7 +372,9 @@ public function updatedNoGravado()
     // Establecer valores por defecto para transferencias
     public function setDefaultTransferenciasValues()
     {
-        $this->subfamiliaId = SubFamilia::where('desripcion', 'GENERAL')->first()->id;
+        $subfamilia = SubFamilia::select('id as ic','desripcion')
+                            -> where('desripcion', 'GENERAL')-> get() ->toarray();
+        $this->subfamiliaId = $subfamilia[0]['ic'];
 
         $detalle = Detalle::where('id', '001000001')->first(); // Aquí obtienes el objeto completo
 
@@ -368,7 +433,9 @@ public function updatedNoGravado()
     public function setDefaultAnticiposValues()
     {
         // Obtener subfamilia por descripcion 'GENERAL'
-        $this->subfamiliaId = SubFamilia::where('desripcion', 'GENERAL')->first()->id;
+        $subfamilia = SubFamilia::select('id as ic','desripcion')
+                            -> where('desripcion', 'GENERAL')-> get() ->toarray();
+        $this->subfamiliaId = $subfamilia[0]['ic'];
 
         // Obtener detalle por descripcion 'ANTICIPOS A CLIENTES'
         $detalle = Detalle::where('descripcion', 'ANTICIPOS A CLIENTES')->first();
@@ -652,13 +719,24 @@ public function updatedNoGravado()
             
             //Abelardo = Para la caja se pondran dos registro el primero
             // La transaccion en caja
+            
+            $descaja = TipoDeCaja::select('descripcion')
+                        ->where('id',$this->tipoCaja)
+                        ->get()
+                        ->toarray();
+            $cuenta = Cuenta::select('id')
+                        ->where('descripcion',$descaja[0]['descripcion'])
+                        ->get()
+                        ->toarray();
+            
+            
             MovimientoDeCaja::create([
                 'id_libro' => 3,
                 'id_apertura' => $apertura->id,
                 'mov' => $nuevoMovApertura,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
-                'id_cuentas' => $this->tipoCaja, // Abelardo = que se jale del select de la apertura
+                'id_cuentas' => $cuenta[0]['id'], // Abelardo = que se jale del select de la apertura
                 'id_dh' => 1,
                 'monto' => $precioConvertido,
                 'montodo' => null,
@@ -690,8 +768,6 @@ public function updatedNoGravado()
         session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');
     }
     
-
-
 
     public function render()
     {
