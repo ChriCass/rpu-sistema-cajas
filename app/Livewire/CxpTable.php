@@ -24,10 +24,7 @@ final class CxpTable extends PowerGridComponent
 {
     public function setUp(): array
     {
-     
-
         return [
-           
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(),
@@ -75,45 +72,16 @@ final class CxpTable extends PowerGridComponent
     public function columns(): array
     {
         return [
-            Column::make('ID', 'id')
-                ->searchable()
-               ,
-
-            Column::make('Fecha Emisión', 'fechaEmi')
-                ->searchable()
-               ,
-
-            Column::make('Tipo de Documento', 'tipoDocumento')
-                ->searchable()
-              ,
-
-            Column::make('Entidad', 'entidadDescripcion')
-                ->searchable()
-                 ,
-
-            Column::make('Serie', 'serie')
-                ->searchable() ,
-
-            Column::make('Número', 'numero')
-                ->searchable(),
-           
-
-            Column::make('Moneda', 'id_t04tipmon')
-                ->searchable()
-                 ,
-
-            Column::make('Tasa', 'tasa')
-                ->searchable()
-              ,
-
-            Column::make('Precio', 'precio')
-                ->searchable()
-                 ,
-
-            Column::make('Usuario', 'usuario')
-                ->searchable()
-              ,
-
+            Column::make('ID', 'id')->searchable(),
+            Column::make('Fecha Emisión', 'fechaEmi')->searchable(),
+            Column::make('Tipo de Documento', 'tipoDocumento')->searchable(),
+            Column::make('Entidad', 'entidadDescripcion')->searchable(),
+            Column::make('Serie', 'serie')->searchable(),
+            Column::make('Número', 'numero')->searchable(),
+            Column::make('Moneda', 'id_t04tipmon')->searchable(),
+            Column::make('Tasa', 'tasa')->searchable(),
+            Column::make('Precio', 'precio')->searchable(),
+            Column::make('Usuario', 'usuario')->searchable(),
             Column::action('Acciones')
         ];
     }
@@ -121,22 +89,84 @@ final class CxpTable extends PowerGridComponent
     public function filters(): array
     {
         return [
+            // Filtro para Tipo de Documento con inputText
             Filter::select('tipoDocumento')
-                ->dataSource(TipoDeComprobanteDePagoODocumento::all())
+                ->dataSource(TipoDeComprobanteDePagoODocumento::all()->map(function($tipoDoc) {
+                    return [
+                        'id' => $tipoDoc->id,
+                        'descripcion' => $tipoDoc->descripcion
+                    ];
+                }))
                 ->optionValue('id')
                 ->optionLabel('descripcion'),
 
-            Filter::select('entidadDescripcion')
-                ->dataSource(Entidad::all())
+            Filter::inputText('tipoDocumento')
+                ->operators(['contains'])
+                ->placeholder('Buscar tipo de documento')
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $builder->where('tabla10_tipodecomprobantedepagoodocumento.descripcion', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            // Filtro para Entidad con inputText
+            Filter::select('entidadDescripcion', 'documentos.id_entidades')
+                ->dataSource(Entidad::all()->map(function($entidad) {
+                    return [
+                        'id' => $entidad->id,
+                        'descripcion' => $entidad->descripcion
+                    ];
+                }))
                 ->optionValue('id')
                 ->optionLabel('descripcion'),
 
-            Filter::select('usuario')
-                ->dataSource(User::all())
+            Filter::inputText('entidadDescripcion')
+                ->operators(['contains'])
+                ->placeholder('Buscar entidad')
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $builder->where('entidades.descripcion', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            // Filtro para Usuario con inputText
+            Filter::select('usuario', 'documentos.id_user')
+                ->dataSource(User::all()->map(function($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name
+                    ];
+                }))
                 ->optionValue('id')
                 ->optionLabel('name'),
 
-           
+            Filter::inputText('usuario')
+                ->operators(['contains'])
+                ->placeholder('Buscar usuario')
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $builder->where('users.name', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            // Filtro para el campo de descripción (Serie o Número)
+            Filter::inputText('serie')
+                ->operators(['contains'])
+                ->placeholder('Buscar serie')
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $builder->where('documentos.serie', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            Filter::inputText('numero')
+                ->operators(['contains'])
+                ->placeholder('Buscar número')
+                ->builder(function (Builder $builder, $value) {
+                    if (is_array($value) && isset($value['value'])) {
+                        $builder->where('documentos.numero', 'like', "%{$value['value']}%");
+                    }
+                })
         ];
     }
 
@@ -144,9 +174,9 @@ final class CxpTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('Editar: ' . $row->id)
+                ->slot('Editar ')
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-              ///  ->route('documento.edit', ['documentoId' => $row->id]),
+             //   ->openModal('edit-documento-modal', ['documentoId' => $row->id]),
         ];
     }
 }
