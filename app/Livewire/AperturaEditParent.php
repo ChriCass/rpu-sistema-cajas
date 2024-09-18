@@ -37,26 +37,33 @@ class AperturaEditParent extends Component
         switch ($componente) {
             case 'ingreso':
                 $this->mostrarIngreso = true;
+                $this->dispatch('scroll-down');
                 break;
             case 'salida':
                 $this->mostrarSalida = true;
+                $this->dispatch('scroll-down');
                 break;
          case 'EditarIngreso':
               $this->mostrarEDIngreso = true; // Para mostrar el formulario de edición de ingreso
                $this->numMov = $numeroMovimiento;
+               $this->dispatch('scroll-down');
               break;
           case 'EditarSalida':
               $this->mostrarEDSalida = true; // Para mostrar el formulario de edición de salida
               $this->numMov = $numeroMovimiento;
+              $this->dispatch('scroll-down');
               break;
             case 'cxp':
                 $this->mostrarCXP = true;
+                $this->dispatch('scroll-down');
                 break;
             case 'cxc':
                 $this->mostrarCXC = true;
+                $this->dispatch('scroll-down');
                 break;
             case 'aplicaciones':
                 $this->mostrarAplicaciones = true;
+                $this->dispatch('scroll-down');
                 break;
 
                 // Nuevos componentes (secundarios)
@@ -73,7 +80,12 @@ class AperturaEditParent extends Component
                 $this->mostrarRegistroCXC = true;
                 break;
         }
+           // Después de mostrar el componente, emitimos un evento para hacer scroll hacia abajo
+    
     }
+
+    // Hook que se ejecuta cuando se actualiza la visibilidad de los componentes
+ 
 
     public function cancelarComponente()
     {
