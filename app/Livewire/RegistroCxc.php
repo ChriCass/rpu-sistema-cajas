@@ -17,19 +17,16 @@ class RegistroCxc extends Component
     public $tasas;
     public $usuarios;
 
-    public function mount($aperturaId)
+    public function mount()
     {   
-        $this->meses = Mes::all();
-        $this->aperturaId = $aperturaId;
-    
-        // Recuperar los comprobantes, garantizando que todos tengan descripción
-        $this->comprobantes = TipoDeComprobanteDePagoODocumento::whereNotIn('id', ['70', '71', '72', '73', '80'])
-                                ->whereNotNull('descripcion')
-                                ->get();
-        $this->monedas = TipoDeMoneda::all();
-        $this->tasas = TasaIgv::all();
-        $this->usuarios = User::all();
+         
     }
+
+    public function mostrarRegistro(){
+        $this->dispatch('mostrarDocumentosCxc');
+    }
+   
+
     
     public function render()
     {

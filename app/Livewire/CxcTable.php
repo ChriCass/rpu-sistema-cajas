@@ -3,6 +3,12 @@
 namespace App\Livewire;
 
 use App\Models\Documento;
+use App\Models\User;
+use App\Models\Mes;
+use Illuminate\Support\Facades\DB;
+use App\Models\TasaIgv;
+use App\Models\TipoDeMoneda;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -15,16 +21,8 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
-use App\Models\TipoDeComprobanteDePagoODocumento;
-use Illuminate\Support\Facades\DB;
-use App\Models\User;
-use App\Models\Mes;
-use App\Models\Entidad;
-use App\Models\TasaIgv;
-use App\Models\TipoDeMoneda;
-use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
-final class CxpTable extends PowerGridComponent
+final class CxcTable extends PowerGridComponent
 {
     use WithExport;
 
@@ -56,13 +54,18 @@ final class CxpTable extends PowerGridComponent
             ->leftJoin('users', 'documentos.id_user', '=', 'users.id')
             ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
             ->leftJoin('tasas_igv', 'documentos.id_tasasIgv', '=', 'tasas_igv.id')
-            ->where('documentos.id_tipmov', 2);
+            ->where('documentos.id_tipmov', 1);
     }
 
     public function relationSearch(): array
     {
         return [];
     }
+
+    public function mostrarRegistro(){
+        $this->dispatch('mostrarDocumentosCxc');
+    }
+   
 
     public function fields(): PowerGridFields
     {
