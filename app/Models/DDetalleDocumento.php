@@ -20,6 +20,7 @@ class DDetalleDocumento extends Model
         'cantidad',
         'cu',
         'total',
+        'id_centroDeCostos',
     ];
 
     public $timestamps = false;

@@ -612,8 +612,17 @@ public function updatedNoGravado()
                     -> where('descripcion','GENERAL')
                     -> get()
                     -> toarray();
-                    
 
+        if ($this->centroDeCostos <> '') {
+            Log::info('Paso');
+            $centroDeCosts = $this->centroDeCostos;
+        } else {
+            Log::info('Es nulo');
+            $centroDeCosts = null;
+        }
+
+        Log::info('Centro de Costos:'.$centroDeCosts);
+                    
         DDetalleDocumento::create(['id_referencia' => $nuevoDocumento->id,
                     'orden' => '1',
                     'id_producto' => $producto[0]['id'],
@@ -621,7 +630,7 @@ public function updatedNoGravado()
                     'cantidad' => '1',
                     'cu' => $this->precio,
                     'total' => $this->precio,
-                    'id_centroDeCostos' => $this -> centroDeCostos ? $this -> centroDeCostos : null,]);
+                    'id_centroDeCostos' => $centroDeCosts,]);
 
         // Registrar log
 

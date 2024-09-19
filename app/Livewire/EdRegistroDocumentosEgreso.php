@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use DateTime;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,7 @@ use App\Models\Cuenta;
 
 class EdRegistroDocumentosEgreso extends Component
 {   
+
     public $aperturaId;
     public $familiaId; // ID de la familia seleccionada
     public $subfamiliaId; // ID de la subfamilia seleccionada
@@ -64,7 +66,8 @@ class EdRegistroDocumentosEgreso extends Component
     public $destinatarios;
 
     public $user;
-
+    public $movimientoCompras;
+    public $movimientoCaja;
     /////
     public $PruebaArray = ""; //Abelardo = pruebas con las consultas
     public $apertura;
@@ -148,7 +151,7 @@ class EdRegistroDocumentosEgreso extends Component
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->user = Auth::user()->id;
         $this->loadInitialData();
-        //$this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
+        $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
         $this->apiService = $apiService; // Abelardo = Asigne el servicio inyectado para la api.
         $this->numMov = $numeroMovimiento;
         $this->loadDocumentData($this->numMov);
@@ -156,16 +159,6 @@ class EdRegistroDocumentosEgreso extends Component
 
     }
 
-    /***
-    public function mount($numeroMovimiento)
-    {
-        $this->numMov = $numeroMovimiento;
-        $this->user = Auth::user()->id;
-        $this->loadInitialData();
-        //$this->loadDocumentData($this->numMov);
-    }
-    
-    */
     public function loadDocumentData($idMovimiento)
     {
         // Ejecutar la consulta SQL usando el Query Builder de Laravel o SQL raw
@@ -187,13 +180,14 @@ class EdRegistroDocumentosEgreso extends Component
                 DATE_FORMAT(CO1.fechaEmi, '%d/%m/%Y') AS fechaEmision, 
                 DATE_FORMAT(CO1.fechaVen, '%d/%m/%Y') AS fechaVencimiento, 
                 CO1.observaciones, 
-                tipoDeCaja.descripcion AS tipo_caja_descripcion, 
+                CO1.id_dest_tipcaja AS tipo_caja_descripcion, 
                 CO1.basImp AS base_imponible, 
                 CO1.IGV, 
                 CO1.noGravadas, 
                 CO1.otroTributo, 
                 CO1.precio, 
-                CO1.detalle_producto -- Detalle del producto
+                CO1.detalle_producto, -- Detalle del producto
+                CO1.id_centroDeCostos
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -217,7 +211,8 @@ class EdRegistroDocumentosEgreso extends Component
                     documentos.noGravadas, 
                     documentos.otroTributo, 
                     documentos.precio,
-                    detalle.descripcion AS detalle_producto -- Descripción del producto
+                    detalle.descripcion AS detalle_producto, -- Descripción del producto
+                    d_detalledocumentos.id_centroDeCostos
                 FROM 
                     documentos 
                 LEFT JOIN 
@@ -240,7 +235,7 @@ class EdRegistroDocumentosEgreso extends Component
             LEFT JOIN 
                 tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
             WHERE 
-                CO1.id_tipmov = 1 -- cxc
+                CO1.id_tipmov = 2 -- cxc
                 AND CO1.id = ?
         ", [$idMovimiento]);
 
@@ -252,8 +247,6 @@ class EdRegistroDocumentosEgreso extends Component
         $this->updatedFamiliaId($this->familiaId);
         $this->subfamiliaId = $result->subfamilia_id; // ID de la subfamilia
         $this->updatedSubfamiliaId($this->subfamiliaId);
-            // Log del subfamilia_id
-        Log::info('Mensaje de información: ' . $this->subfamiliaId);
         $this->detalleId = $result->detalle_id; // ID del detalle
         $this->tasaIgvId = $result->tasa_igv; // Tasa de IGV seleccionada
         $this->monedaId = $result->tipo_moneda_id; // ID de la moneda seleccionada
@@ -262,12 +255,13 @@ class EdRegistroDocumentosEgreso extends Component
         $this->serieNumero2 = $result->numero; // Parte 2 del número de serie
         $this->tipoDocId = $result->tipo_comprobante_id; // Tipo de documento de identificación
         $this->docIdent = $result->entidad_id; // Documento de identidad
-        $this->fechaEmi = $result->fechaEmision; // Fecha de emisión
-        $this->fechaVen = $result->fechaVencimiento; // Fecha de vencimiento
+        $this->fechaEmi = Carbon::createFromFormat('d/m/Y', $result->fechaEmision)->format('Y-m-d'); // Fecha de emisión
+        $this->fechaVen = Carbon::createFromFormat('d/m/Y', $result->fechaVencimiento)->format('Y-m-d'); // Fecha de emisión; // Fecha de vencimiento
         $this->tipoDocDescripcion = $result->tipo_documento_descripcion; // Descripción del tipo de documento
         $this->observaciones = $result->observaciones; // Observaciones
         $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
         $this->nuevoDestinatario = $result->tipo_caja_descripcion; // Destinatario o tipo de caja
+        $this->centroDeCostos = $result->id_centroDeCostos;
 
         // Variables financieras
         $this->basImp = $result->base_imponible; // Base imponible
@@ -286,7 +280,7 @@ class EdRegistroDocumentosEgreso extends Component
     // Cargar datos iniciales
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'like', '0%')->get();
+        $this->familias = Familia::where('id', '<>', '002')->get();
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -641,11 +635,165 @@ class EdRegistroDocumentosEgreso extends Component
     }
 
 
-/**
-    public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi)
+    public function submit()
+    {
+        // Validar los campos obligatorios
+        $this->validate([
+            'tipoDocumento' => 'required', // TextBox52
+            'tipoDocDescripcion' => 'required', // TextBox53
+            'serieNumero1' => 'required', // TextBox2
+            'serieNumero2' => 'required', // TextBox3
+            'tipoDocId' => 'required', // ComboBox2
+            'docIdent' => 'required', // TextBox4
+            'entidad' => 'required', // TextBox5
+            'monedaId' => 'required', // ComboBox4
+            'tasaIgvId' => 'required', // ComboBox5
+            'fechaEmi' => 'required|date', // TextBox33
+            'fechaVen' => 'required|date', // TextBox34
+            'basImp' => 'required|numeric|min:0', // TextBox11
+            'igv' => 'required|numeric|min:0', // TextBox14
+            'noGravado' => 'required|numeric|min:0', // TextBox13
+            'precio' => 'required|numeric|min:0.01', // TextBox17
+            'observaciones' => 'nullable|string|max:500', // TextBox29
+        ], [
+            'required' => 'El campo es obligatorio',
+            'numeric' => 'Debe ser un valor numérico',
+            'min' => 'El valor debe ser mayor a :min',
+        ]);
+
+        // Validar si el precio es 0
+        if ($this->precio == 0) {
+            session()->flash('error', 'No puede ser el monto cero');
+            return;
+        }
+
+        if ($this -> familiaId == '001') { //Abelardo = Se hace la validacion de destinario
+            if($this->nuevoDestinatario == ''){
+                session()->flash('error', 'Tiene que tener un destinatario');
+            return;
+            }
+        }
+
+        // Insertar el nuevo documento
+        Documento::updateOrCreate(
+            ['id' => $this -> numMov], // Condición de búsqueda
+            [
+                'id_tipmov' => 2, // Valor fijo 2
+                'fechaEmi' => $this->fechaEmi,
+                'fechaVen' => $this->fechaVen,
+                'id_t10tdoc' => $this->tipoDocumento,
+                'id_t02tcom' => $this->tipoDocId,
+                'id_entidades' => $this->docIdent,
+                'id_t04tipmon' => $this->monedaId,
+                'id_tasasIgv' => $this->tasaIgvId === 'No Gravado' ? 0 : ($this->tasaIgvId === '18%' ? 1 : ($this->tasaIgvId === '10%' ? 2 : null)),
+                'serie' => $this->serieNumero1,
+                'numero' => $this->serieNumero2,
+                'totalBi' => $this->totalBi ?? 0,
+                'descuentoBi' => $this->descuentoBi ?? 0,
+                'recargoBi' => $this->recargoBi ?? 0,
+                'basImp' => $this->basImp,
+                'IGV' => $this->igv,
+                'totalNg' => $this->totalNg ?? 0,
+                'descuentoNg' => $this->descuentoNg ?? 0,
+                'recargoNg' => $this->recargoNg ?? 0,
+                'noGravadas' => $this->noGravado,
+                'otroTributo' => $this->otroTributo ?? 0,
+                'precio' => $this->precio,
+                'detraccion' => $this->detraccion ?? 0,
+                'montoNeto' => $this->montoNeto ?? 0,
+                'id_t10tdocMod' => $this->id_t10tdocMod ?? null,
+                'observaciones' => $this->observaciones,
+                'serieMod' => $this->serieMod ?? null,
+                'numeroMod' => $this->numeroMod ?? null,
+                'id_user' => $this->user ?? Auth::user()->id,
+                'fecha_Registro' => now(),
+                'id_dest_tipcaja' => $this->destinatarioVisible ? $this->nuevoDestinatario : null,
+            ]
+        );
+        
+        $datos = $this->borrarRegistrosed($this -> numMov);
+
+        if(count($datos) == '1'){
+            $movcaja = $datos['movcaja'];
+            $movlibro = null;
+        }else{
+            $movcaja = $datos['movcaja'];
+            $movlibro = $datos['movlibro'];
+        }
+
+        $producto = Producto::select('id')
+                    -> where('id_detalle',$this->detalleId)
+                    -> where('descripcion','GENERAL')
+                    -> get()
+                    -> toarray();
+                    
+        if ($this->centroDeCostos <> '') {
+            Log::info('Paso');
+            $centroDeCosts = $this->centroDeCostos;
+        } else {
+            Log::info('Es nulo');
+            $centroDeCosts = null;
+        }
+
+        Log::info('Centro de Costos:'.$centroDeCosts);
+                    
+        DDetalleDocumento::create(['id_referencia' => $this -> numMov,
+                    'orden' => '1',
+                    'id_producto' => $producto[0]['id'],
+                    'id_tasas' => '1',
+                    'cantidad' => '1',
+                    'cu' => $this->precio,
+                    'total' => $this->precio,
+                    'id_centroDeCostos' => $centroDeCosts,]);
+            
+        
+        // Registrar log
+
+        Log::info('Documento registrado exitosamente', ['documento_id' => $this -> numMov]);
+           // Llamar a la función para registrar movimientos de caja
+        $this->registrarMovimientoCaja($this -> numMov, $this->docIdent, $this->fechaEmi, $movcaja, $movlibro);
+        // Limpiar el formulario
+
+        session()->flash('message', 'Documento registrado con éxito.');
+        $this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
+
+        $this->dispatch('scroll-up');
+    }
+
+
+    public function borrarRegistrosed($idmov){
+        $tipoFamilia = Familia::select('id_tipofamilias')
+                    ->where('id',$this->familiaId)
+                    ->get()
+                    ->toarray();
+
+        // Registro en movimientosdecaja para ingresos
+        if ($tipoFamilia[0]['id_tipofamilias'] == '2'){
+            $datos = MovimientoDeCaja::select('mov')
+                    ->where('id_documentos',$idmov)
+                    ->where('id_libro','2')
+                    ->get()
+                    ->toarray();
+            $data['movlibro'] = $datos[0]['mov'];
+        }
+        $datos = MovimientoDeCaja::select('mov')
+                    ->distinct()
+                    ->where('id_documentos',$idmov)
+                    ->where('id_libro','3')
+                    ->get()
+                    ->toarray();
+        $data['movcaja'] = $datos[0]['mov'];
+
+        MovimientoDeCaja::where('id_documentos',$idmov)->delete();
+        DDetalleDocumento::where('id_referencia',$idmov)->delete();
+        return $data;
+
+    }
+
+    public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $movcaja, $movlibro)
     {
         // Log de variables iniciales
-        Log::info('Iniciando registro de movimiento de caja para egresos', [
+        Log::info('Iniciando registro de movimiento de caja', [
             'documentoId' => $documentoId,
             'entidadId' => $entidadId,
             'tipoDocumento' => $this->tipoDocumento,
@@ -656,58 +804,57 @@ class EdRegistroDocumentosEgreso extends Component
         ]);
     
         // Determinar si es una transferencia o no
-        if ($this->familiaId != 'TRANSFERENCIAS') {
-            $lib = "2"; // Egresos
-            $cuentaDetalle = Detalle::find($this->detalleId);
-            $cuentaId = $cuentaDetalle->id_cuenta ?? null; // Cuenta extraída de Logistica.detalle
-            Log::info('Cuenta obtenida de Logistica.detalle', ['cuentaId' => $cuentaId]);
+        $lib = ($this->familiaId == '001') ? '5' : '2';
+        Log::info('Determinado tipo de libro', ['lib' => $lib]);
+    
+        // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
+        if ($this->familiaId == '001') { 
+            $cuentaId = 8; // Transferencias
+            Log::info('Cuenta para transferencias asignada', ['cuentaId' => $cuentaId]);
         } else {
-            $lib = "5"; // Transferencias
-            $cuentaId = 9; // Cuenta para transferencias
-            Log::info('Transferencia detectada, cuenta asignada', ['cuentaId' => $cuentaId]);
+            $cuentaDetalle = Detalle::find($this->detalleId);
+            $cuentaId = $cuentaDetalle->id_cuenta ?? null; // Cuenta de Logistica.detalle
+            Log::info('Cuenta asignada desde Logistica.detalle', ['cuentaId' => $cuentaId]);
         }
     
-        // Si la moneda es USD, aplicar tipo de cambio
+        // Calcular tipo de cambio si la moneda es USD
         if ($this->monedaId == 'USD') {
             $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaEmi)->first()->venta ?? 1;
             $precioConvertido = round($this->precio * $tipoCambio, 2);
-            Log::info('Tipo de cambio aplicado', ['tipoCambio' => $tipoCambio, 'precioConvertido' => $precioConvertido]);
+            Log::info('Tipo de cambio calculado', [
+                'tipoCambio' => $tipoCambio,
+                'precioConvertido' => $precioConvertido
+            ]);
         } else {
             $precioConvertido = $this->precio;
             Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
         }
     
-        // Obtener el último número de movimiento de caja
-        $ultimoMovimiento = MovimientoDeCaja::where('id_libro', $lib)
-            ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
-            ->first();
-        $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
-        Log::info('Nuevo movimiento de caja asignado', ['nuevoMov' => $nuevoMov]);
-    
-        // Determinar si es necesario registrar movimientos específicos
-        $tipoFamilia = Familia::where('descripcion', $this->familiaId)->first()->id_tipofamilias ?? null;
-    
-        if ($this->familiaId != 'TRANSFERENCIAS' && $this->familiaId != 'ANTICIPOS' && $this->familiaId != 'RENDICIONES') {
-            if ($tipoFamilia == '2') {
-                MovimientoDeCaja::create([
-                    'id_libro' => $lib,
-                    'mov' => $nuevoMov,
-                    'fec' => $fechaEmi,
-                    'id_documentos' => $documentoId,
-                    'id_cuentas' => 3,
-                    'id_dh' => 2, // Crédito para egresos
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
-                    'glosa' => $this->observaciones,
-                ]);
-                Log::info('Movimiento de caja registrado', [
-                    'id_documentos' => $documentoId,
-                    'monto' => $precioConvertido
-                ]);
-            }
+        $tipoFamilia = Familia::select('id_tipofamilias')
+                    ->where('id',$this->familiaId)
+                    ->get()
+                    ->toarray();
+
+        // Registro en movimientosdecaja para ingresos
+        if ($tipoFamilia[0]['id_tipofamilias'] == '2') { 
+            MovimientoDeCaja::create([
+                'id_libro' => $lib,
+                'mov' => $movlibro,
+                'fec' => $fechaEmi,
+                'id_documentos' => $documentoId,
+                'id_cuentas' => $cuentaId,
+                'id_dh' => 2,
+                'monto' => $precioConvertido,
+                'montodo' => null,
+                'glosa' => $this->observaciones,
+            ]);
+            Log::info('Registro de ingresos en movimientosdecaja realizado', [
+                'id_documentos' => $documentoId,
+                'monto' => $precioConvertido
+            ]);
         }
     
-        // Registrar la apertura
+        // Obtener y registrar la apertura relacionada
         $apertura = Apertura::where('numero', $this->apertura->numero)
             ->whereHas('mes', function ($query) {
                 $query->where('descripcion', $this->apertura->mes->descripcion);
@@ -716,15 +863,23 @@ class EdRegistroDocumentosEgreso extends Component
             ->first();
     
         if ($apertura) {
-            $ultimoMovimientoApertura = MovimientoDeCaja::where('id_apertura', $apertura->id)
-                ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
-                ->first();
-            $nuevoMovApertura = $ultimoMovimientoApertura ? intval($ultimoMovimientoApertura->mov) + 1 : 1;
-    
+            
+            //Abelardo = Para la caja se pondran dos registro el primero
+            // La transaccion en caja
+            
+            $descaja = TipoDeCaja::select('descripcion')
+                        ->where('id',$this->tipoCaja)
+                        ->get()
+                        ->toarray();
+            $cuenta = Cuenta::select('id')
+                        ->where('descripcion',$descaja[0]['descripcion'])
+                        ->get()
+                        ->toarray();
+            
             MovimientoDeCaja::create([
-                'id_libro' => 3, // Registro de apertura en libro 3
+                'id_libro' => 3,
                 'id_apertura' => $apertura->id,
-                'mov' => $nuevoMovApertura,
+                'mov' => $movcaja,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuentaId,
@@ -733,98 +888,38 @@ class EdRegistroDocumentosEgreso extends Component
                 'montodo' => null,
                 'glosa' => $this->observaciones,
             ]);
-            Log::info('Movimiento de caja relacionado con apertura registrado', [
+                        
+            // El pago de documento 
+
+            MovimientoDeCaja::create([
+                'id_libro' => 3,
+                'id_apertura' => $apertura->id,
+                'mov' => $movcaja,
+                'fec' => $fechaEmi,
+                'id_documentos' => $documentoId,
+                'id_cuentas' => $cuenta[0]['id'], // Abelardo = que se jale del select de la apertura
+                'id_dh' => 2,
+                'monto' => $precioConvertido,
+                'montodo' => null,
+                'glosa' => $this->observaciones,
+            ]);
+            
+
+            Log::info('Registro de movimientos relacionado con apertura realizado', [
                 'id_documentos' => $documentoId,
                 'id_apertura' => $apertura->id,
-                'nuevoMovApertura' => $nuevoMovApertura
+                'nuevoMovApertura' => $movcaja
             ]);
         }
     
-        // Confirmación de registro
+        // Confirmación de registro exitoso
         Log::info('Documento y movimiento de caja registrados exitosamente');
         session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');
-    }  */
-    
-/***
-    public function submit()
-{
-    
-    // Validar los campos obligatorios
-    $this->validate([
-        'tipoDocumento' => 'required', // TextBox52
-        'tipoDocDescripcion' => 'required', // TextBox53
-        'serieNumero1' => 'required', // TextBox2
-        'serieNumero2' => 'required', // TextBox3
-        'tipoDocId' => 'required', // ComboBox2
-        'docIdent' => 'required', // TextBox4
-        'entidad' => 'required', // TextBox5
-        'monedaId' => 'required', // ComboBox4
-        'tasaIgvId' => 'required', // ComboBox5
-        'fechaEmi' => 'required|date', // TextBox33
-        'fechaVen' => 'required|date', // TextBox34
-        'basImp' => 'required|numeric|min:0.01', // TextBox11
-        'igv' => 'required|numeric|min:0', // TextBox14
-        'noGravado' => 'required|numeric|min:0', // TextBox13
-        'precio' => 'required|numeric|min:0.01', // TextBox17
-        'observaciones' => 'nullable|string|max:500', // TextBox29
-    ], [
-        'required' => 'El campo es obligatorio',
-        'numeric' => 'Debe ser un valor numérico',
-        'min' => 'El valor debe ser mayor a :min',
-    ]);
-
-    // Verificar si el documento ya está registrado
-    $documentoExistente = Documento::where('id_entidades', $this->docIdent)
-        ->where('id_t10tdoc', $this->tipoDocumento)
-        ->where('serie', $this->serieNumero1)
-        ->where('numero', $this->serieNumero2)
-        ->first();
-
-    if ($documentoExistente) {
-        session()->flash('error', 'Documento ya registrado');
-        return;
     }
 
-    // Registrar el nuevo documento de egreso
-    $nuevoDocumento = Documento::create([
-        'id_tipmov' => 1, // Cambiado a 1 para Egresos
-        'fechaEmi' => $this->fechaEmi,
-        'fechaVen' => $this->fechaVen,
-        'id_t10tdoc' => $this->tipoDocumento,
-        'id_t02tcom' => $this->tipoDocId,
-        'id_entidades' => $this->docIdent,
-        'id_t04tipmon' => $this->monedaId,
-        'id_tasasIgv' => $this->tasaIgvId === 'No Gravado' ? 0 : ($this->tasaIgvId === '18%' ? 1 : ($this->tasaIgvId === '10%' ? 2 : null)),
-        'serie' => $this->serieNumero1,
-        'numero' => $this->serieNumero2,
-        'basImp' => $this->basImp,
-        'IGV' => $this->igv,
-        'noGravadas' => $this->noGravado ?? 0,
-        'otroTributo' => $this->otrosTributos ?? 0,
-        'precio' => $this->precio,
-        'detraccion' => $this->detraccion ?? 0,
-        'montoNeto' => $this->montoNeto ?? 0,
-        'id_t10tdocMod' => $this->id_t10tdocMod ?? null,
-        'observaciones' => $this->observaciones,
-        'serieMod' => $this->serieMod ?? null,
-        'numeroMod' => $this->numeroMod ?? null,
-        'id_user' => Auth::user()->id,
-        'fecha_Registro' => now(),
-        'id_dest_tipcaja' => $this->destinatarioVisible ? $this->nuevoDestinatario : null,
-    ]);
-
-    // Registrar movimiento en Tesorería
-    $this->registrarMovimientoCaja($nuevoDocumento->id, $this->docIdent, $this->fechaEmi);
-
-           // Limpiar el formulario
-           $this->resetForm();
+    
 
 
-
-    session()->flash('message', 'Documento de egreso registrado exitosamente.');
-}
-
-     */
     public function render()
     {
         return view('livewire.ed-registro-documentos-egreso');
