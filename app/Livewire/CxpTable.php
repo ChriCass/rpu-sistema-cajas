@@ -19,15 +19,19 @@ use App\Models\TipoDeComprobanteDePagoODocumento;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Entidad;
+use App\Models\TasaIgv;
+use App\Models\TipoDeMoneda;
+use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 
 final class CxpTable extends PowerGridComponent
-{
+{     use WithExport;
+
     public function setUp(): array
     {
         return [
             Footer::make()
                 ->showPerPage()
-                ->showRecordCount(),
+                ->showRecordCount(mode: 'full'), 
         ];
     }
 
@@ -37,7 +41,7 @@ final class CxpTable extends PowerGridComponent
                 'documentos.id',
                 DB::raw("DATE_FORMAT(fechaEmi, '%d/%m/%Y') AS fechaEmi"),
                 'tabla10_tipodecomprobantedepagoodocumento.descripcion AS tipoDocumento',
-                'documentos.id_entidades',
+                'documentos.id_entidades as id_entidades',
                 'entidades.descripcion AS entidadDescripcion',
                 'documentos.serie',
                 'documentos.numero',
@@ -51,6 +55,11 @@ final class CxpTable extends PowerGridComponent
             ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
             ->leftJoin('tasas_igv', 'documentos.id_tasasIgv', '=', 'tasas_igv.id')
             ->where('documentos.id_tipmov', 2);
+    }
+
+    public function relationSearch(): array
+    {
+        return [];
     }
 
     public function fields(): PowerGridFields
@@ -74,7 +83,9 @@ final class CxpTable extends PowerGridComponent
         return [
             Column::make('ID', 'id')->searchable(),
             Column::make('Fecha Emisión', 'fechaEmi')->searchable(),
+          
             Column::make('Tipo de Documento', 'tipoDocumento')->searchable(),
+            Column::make('id entidades', 'id_entidades')->searchable(),
             Column::make('Entidad', 'entidadDescripcion')->searchable(),
             Column::make('Serie', 'serie')->searchable(),
             Column::make('Número', 'numero')->searchable(),
@@ -90,85 +101,84 @@ final class CxpTable extends PowerGridComponent
     {
         return [
             // Filtro para Tipo de Documento con inputText
-            Filter::select('tipoDocumento')
-                ->dataSource(TipoDeComprobanteDePagoODocumento::all()->map(function($tipoDoc) {
-                    return [
-                        'id' => $tipoDoc->id,
-                        'descripcion' => $tipoDoc->descripcion
-                    ];
-                }))
-                ->optionValue('id')
-                ->optionLabel('descripcion'),
-
             Filter::inputText('tipoDocumento')
                 ->operators(['contains'])
                 ->placeholder('Buscar tipo de documento')
                 ->builder(function (Builder $builder, $value) {
-                    if (is_array($value) && isset($value['value'])) {
+                    if (!empty($value['value'])) {
                         $builder->where('tabla10_tipodecomprobantedepagoodocumento.descripcion', 'like', "%{$value['value']}%");
                     }
                 }),
-
+    
             // Filtro para Entidad con inputText
-            Filter::select('entidadDescripcion', 'documentos.id_entidades')
-                ->dataSource(Entidad::all()->map(function($entidad) {
-                    return [
-                        'id' => $entidad->id,
-                        'descripcion' => $entidad->descripcion
-                    ];
-                }))
-                ->optionValue('id')
-                ->optionLabel('descripcion'),
-
             Filter::inputText('entidadDescripcion')
                 ->operators(['contains'])
                 ->placeholder('Buscar entidad')
                 ->builder(function (Builder $builder, $value) {
-                    if (is_array($value) && isset($value['value'])) {
+                    if (!empty($value['value'])) {
                         $builder->where('entidades.descripcion', 'like', "%{$value['value']}%");
                     }
                 }),
-
+    
             // Filtro para Usuario con inputText
             Filter::select('usuario', 'documentos.id_user')
-                ->dataSource(User::all()->map(function($user) {
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name
-                    ];
-                }))
-                ->optionValue('id')
-                ->optionLabel('name'),
+            ->dataSource(User::all()) // Obtén los usuarios desde el modelo User
+            ->optionValue('id')
+            ->optionLabel('name') // Ajusta al campo que contiene el nombre del usuario
+             
+            ->builder(function (Builder $builder, $value) {
+                if (!empty($value)) {
+                    $builder->where('documentos.id_user', $value);
+                }
+            }),
 
-            Filter::inputText('usuario')
-                ->operators(['contains'])
-                ->placeholder('Buscar usuario')
-                ->builder(function (Builder $builder, $value) {
-                    if (is_array($value) && isset($value['value'])) {
-                        $builder->where('users.name', 'like', "%{$value['value']}%");
-                    }
-                }),
+            Filter::select('tasa', 'documentos.id_tasasIgv')
+    ->dataSource(TasaIgv::all()) // Obtén las tasas desde el modelo TasaIgv
+    ->optionValue('id')
+    ->optionLabel('tasa') // Ajusta al campo que contiene el valor de la tasa
+     
+    ->builder(function (Builder $builder, $value) {
+        if (!empty($value)) {
+            $builder->where('documentos.id_tasasIgv', $value);
+        }
+    }),
 
-            // Filtro para el campo de descripción (Serie o Número)
+        
+    
+            // Filtro para Serie con inputText
             Filter::inputText('serie')
                 ->operators(['contains'])
                 ->placeholder('Buscar serie')
                 ->builder(function (Builder $builder, $value) {
-                    if (is_array($value) && isset($value['value'])) {
+                    if (!empty($value['value'])) {
                         $builder->where('documentos.serie', 'like', "%{$value['value']}%");
                     }
                 }),
-
+    
+            // Filtro para Número con inputText
             Filter::inputText('numero')
                 ->operators(['contains'])
                 ->placeholder('Buscar número')
                 ->builder(function (Builder $builder, $value) {
-                    if (is_array($value) && isset($value['value'])) {
+                    if (!empty($value['value'])) {
                         $builder->where('documentos.numero', 'like', "%{$value['value']}%");
+                    }
+                }),
+    
+            // Filtro para Moneda con select
+            Filter::select('id_t04tipmon', 'documentos.id_t04tipmon')
+                ->dataSource(TipoDeMoneda::all()) // Obtén los tipos de moneda desde el modelo
+                ->optionValue('id')
+                ->optionLabel('id') // Ajusta 'descripcion' al campo correspondiente del modelo de tipo de moneda
+                 
+                ->builder(function (Builder $builder, $value) {
+                    if (!empty($value)) {
+                        $builder->where('documentos.id_t04tipmon', $value);
                     }
                 })
         ];
     }
+    
 
     public function actions(Documento $row): array
     {
@@ -176,7 +186,6 @@ final class CxpTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('Editar ')
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-             //   ->openModal('edit-documento-modal', ['documentoId' => $row->id]),
         ];
     }
 }
