@@ -8,6 +8,8 @@ use App\Models\Mes;
 use App\Models\TasaIgv;
 use App\Models\TipoDeComprobanteDePagoODocumento;
 use App\Models\User;
+use Livewire\Attributes\On;
+
 
 class RegistroCxc extends Component
 {   public $aperturaId;
@@ -16,10 +18,12 @@ class RegistroCxc extends Component
     public $monedas;
     public $tasas;
     public $usuarios;
+    public $mostrarAlerta = false;
 
-    public function mount()
-    {   
-         
+    #[On('mostrarAlerta')]
+    public function setMostrarAlerta()
+    {
+        $this->mostrarAlerta = true;
     }
 
     public function mostrarRegistro(){

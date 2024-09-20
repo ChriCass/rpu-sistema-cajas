@@ -17,6 +17,8 @@ use App\Livewire\EditVaucherDePago;
 use App\Livewire\EditVaucherDePagoVentas;
 use App\Livewire\RegistroDeIngresoAvanz;
 use App\Livewire\AplicacionDetail;
+use App\Livewire\EdRegistroDocumentosCxc;
+
 
 
 /*
@@ -73,8 +75,9 @@ Route::middleware([
 
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
-        Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
+        
         Route::get('/registodocumentosingreso/avanzado', RegistroDeIngresoAvanz::class)->name('apertura.edit.registodocumentosingreso.avanzado');
+      /** 
         Route::get('/registodocumentosingreso/edit', EditRegistroDocumentosIngreso::class)->name('apertura.edit.editregistodocumentosingreso');
         Route::get('/registodocumentosegreso', RegistroDocumentosEgreso::class)->name('apertura.edit.registodocumentosegreso');
         Route::get('/registodocumentosegreso/edit', EditRegistroDocumentosEgreso::class)->name('apertura.edit.editregistodocumentosegreso');
@@ -86,14 +89,17 @@ Route::middleware([
         Route::get('/vaucherdepagosventas/edit', EditVaucherDePagoVentas::class)->name('apertura.edit.editvaucherdepagosventas');
         Route::get('/vaucherdepagosventas/registrocxc', RegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxc');
         Route::get('/vaucherdepagosventas/registrocxc/nuevo', FormRegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxc');
-        Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones');
+        Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones'); 
+        Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
+        */
 
     });
    /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
     /// usar el aperturaController si hay futuros problemas en el manejo de layouts y uso de rutas con livewire
 
-
     Route::prefix('aplicaciones/{aplicacionesId}')->group(function (){
         Route::get('/', AplicacionDetail::class)->name('aplicacion.show');
     });
+
+ 
 });
