@@ -10,18 +10,25 @@ use App\Models\TasaIgv;
 use App\Models\User;
 use App\Models\Documento;
 use Illuminate\Support\Facades\DB;
-
+use Livewire\Attributes\On;
 class RegistroCxp extends Component
 {     
-    
-    public $mostrarRegistroDocumentos = false;
-    public $documentosCXP;
+     
+     
+    public $mostrarAlerta = false;
+ 
 
     public function mostrarRegistro(){
         $this->dispatch('mostrarDocumentosCxp');
     }
    
+  
 
+    #[On('mostrarAlerta')]
+    public function setMostrarAlerta()
+    {
+        $this->mostrarAlerta = true;
+    }
      
     public function render()
     {

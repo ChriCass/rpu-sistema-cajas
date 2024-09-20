@@ -12,12 +12,8 @@ use Livewire\Attributes\On;
 
 
 class RegistroCxc extends Component
-{   public $aperturaId;
-    public $meses;
-    public $comprobantes;
-    public $monedas;
-    public $tasas;
-    public $usuarios;
+{    
+     
     public $mostrarAlerta = false;
 
     #[On('mostrarAlerta')]

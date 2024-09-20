@@ -15,6 +15,12 @@
           <div class="w-full w-6/12 px-4 mb-4">
               @livewire('registro-documentos-cxp')      
           </div>
+
+          <div class="w-full w-6/12 px-4 mb-4">
+            
+            @livewire('ed-registro-documentos-cxp')      
+          
+        </div>
         </div>
       </div>
 </x-app-layout>
