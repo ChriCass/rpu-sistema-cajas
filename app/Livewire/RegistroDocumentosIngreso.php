@@ -155,8 +155,7 @@ public function updatedNoGravado()
         $this->loadInitialData();
         $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
         $this->apiService = $apiService; // Abelardo = Asigne el servicio inyectado para la api.
-        Log::info('Valor de tipoCaja: ' . $this->tipoCaja);
-
+       
     }
 
     public function hydrate(ApiService $apiService) // Abelardo = Hidrate la inyecion del servicio puesto que no esta funcionando el servicio, con esta opcion logre pasar el service por las diferentes funciones

@@ -10,6 +10,20 @@ use App\Models\TipoDeMoneda;
 use App\Models\Detalle;
 use App\Models\SubFamilia;
 use App\Models\TipoDocumentoIdentidad;
+use DateTime;
+
+use App\Models\Documento;
+use Illuminate\Support\Facades\Log;
+use App\Models\Entidad;
+ 
+use App\Services\ApiService;
+use App\Models\TipoDeCaja;
+use App\Models\TipoDeCambioSunat;
+use App\Models\MovimientoDeCaja;
+use App\Models\Producto;
+use App\Models\CentroDeCostos;
+use App\Models\DDetalleDocumento;
+use App\Models\Cuenta;
 
 use App\Models\TipoDeComprobanteDePagoODocumento;
 
@@ -45,20 +59,21 @@ class RegistroDocumentosCxp extends Component
     public $tipoDocIdentidades;
     public $visible;
     public $destinatarioVisible = false; // Mostrar u ocultar destinatario
-
+    public $disableFieldsEspecial = false; 
     public $user;
 
     public $detraccion;
     public $porcetajeDetraccion;
-
-
+    public $CC = [];
+    // Abelardo = Recoje el centro de costos
+    public $lenIdenId;
     public $basImp;
     public $igv = 0;
     public $otrosTributos = 0;
     public $noGravado = 0;
     public $precio = 0;
-    
-
+    protected $apiService; 
+    public $PruebaArray = ""; 
     #[On('mostrarDocumentosCxp')]
     public function mostrar()
     {
@@ -66,94 +81,101 @@ class RegistroDocumentosCxp extends Component
     }
 
     public function calculateIgv()
-{
-    // Ensure the baseImponible is not null or zero
-    if (!$this->basImp || !$this->tasaIgvId) {
-        return;
+    {
+        // Ensure the baseImponible is not null or zero
+        if (!$this->basImp || !$this->tasaIgvId) {
+            return;
+        }
+
+        // Calculate IGV based on the selected tasa
+        switch ($this->tasaIgvId) {
+            case '18%':
+                $this->igv = round($this->basImp * 0.18, 2);
+                break;
+            case '10%':
+                $this->igv = round($this->basImp * 0.10, 2);
+                break;
+            case 'No Gravado':
+            default:
+                $this->igv = 0; // No IGV applied
+                break;
+        }
     }
 
-    // Calculate IGV based on the selected tasa
-    switch ($this->tasaIgvId) {
-        case '18%':
-            $this->igv = round($this->basImp * 0.18, 2);
-            break;
-        case '10%':
-            $this->igv = round($this->basImp * 0.10, 2);
-            break;
-        case 'No Gravado':
-        default:
-            $this->igv = 0; // No IGV applied
-            break;
+    // Function to calculate the total price dynamically
+    public function calculatePrecio()
+    {
+        if (is_numeric($this->basImp) && is_numeric($this->igv) && is_numeric($this->otrosTributos) && is_numeric($this->noGravado)) {
+            $this->precio = round($this->basImp + $this->igv + $this->otrosTributos + $this->noGravado, 2);
+        }
     }
-}
 
-// Function to calculate the total price dynamically
-public function calculatePrecio()
-{
-    if (is_numeric($this->basImp) && is_numeric($this->igv) && is_numeric($this->otrosTributos) && is_numeric($this->noGravado)) {
-        $this->precio = round($this->basImp + $this->igv + $this->otrosTributos + $this->noGravado, 2);
+    // Livewire hooks for triggering the functions when fields are updated
+    public function updatedBasImp()
+    {
+        // Calculate IGV based on the updated base imponible
+        $this->calculateIgv();
+
+        // Calculate the total price
+        $this->calculatePrecio();
     }
-}
 
-// Livewire hooks for triggering the functions when fields are updated
-public function updatedBasImp()
-{
-    // Calculate IGV based on the updated base imponible
-    $this->calculateIgv();
+    public function updatedTasaIgvId()
+    {
+        // Recalculate IGV based on the updated tasa
+        $this->calculateIgv();
 
-    // Calculate the total price
-    $this->calculatePrecio();
-}
-
-public function updatedTasaIgvId()
-{
-    // Recalculate IGV based on the updated tasa
-    $this->calculateIgv();
-
-    // Recalculate the total price
-    $this->calculatePrecio();
-}
-
-public function updatedOtrosTributos()
-{
-    // Recalculate the total price whenever otros tributos is updated
-    $this->calculatePrecio();
-}
-
-public function updatedNoGravado()
-{
-    // Recalculate the total price whenever no gravado is updated
-    $this->calculatePrecio();
-}
-public function buscarDescripcionTipoDocumento()
-{
-    // Buscar el tipo de documento en la base de datos
-    $tipoComprobante = TipoDeComprobanteDePagoODocumento::where('id', $this->tipoDocumento)->first();
-
-    // Si se encuentra el tipo de documento, actualizamos la descripción
-    if ($tipoComprobante) {
-        $this->tipoDocDescripcion = $tipoComprobante->descripcion;
-    } else {
-        // Si no se encuentra, puedes asignar un mensaje de error o dejar vacío = Abelardo = Modifique estos datos adaptarlo a la idea
-        $this->tipoDocumento = '';
-        session()->flash('error', 'Descripción no encontrada');
+        // Recalculate the total price
+        $this->calculatePrecio();
     }
-}
+
+    public function updatedOtrosTributos()
+    {
+        // Recalculate the total price whenever otros tributos is updated
+        $this->calculatePrecio();
+    }
+
+    public function updatedNoGravado()
+    {
+        // Recalculate the total price whenever no gravado is updated
+        $this->calculatePrecio();
+    }
+    public function buscarDescripcionTipoDocumento()
+    {
+        // Buscar el tipo de documento en la base de datos
+        $tipoComprobante = TipoDeComprobanteDePagoODocumento::where('id', $this->tipoDocumento)->first();
+
+        // Si se encuentra el tipo de documento, actualizamos la descripción
+        if ($tipoComprobante) {
+            $this->tipoDocDescripcion = $tipoComprobante->descripcion;
+        } else {
+            // Si no se encuentra, puedes asignar un mensaje de error o dejar vacío = Abelardo = Modifique estos datos adaptarlo a la idea
+            $this->tipoDocumento = '';
+            session()->flash('error', 'Descripción no encontrada');
+        }
+    }
 
 
-    public function mount()
+    public function mount(ApiService $apiService)
     {
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->user = Auth::user()->id;
         $this->loadInitialData();
+        $this->apiService = $apiService;
     }
+
+    public function hydrate(ApiService $apiService) // Abelardo = Hidrate la inyecion del servicio puesto que no esta funcionando el servicio, con esta opcion logre pasar el service por las diferentes funciones
+    {
+        $this->apiService = $apiService;
+    }
+
 
     public function updatedFamiliaId($value)
     {
         // Actualizar las subfamilias según la familia seleccionada
         $this->subfamilias = SubFamilia::where('id_familias', $value)->get();
         $this->reset('subfamiliaId', 'detalleId'); // Reiniciar las selecciones
-         
+
     }
 
     // Método que se ejecuta cuando se selecciona una subfamilia
@@ -171,6 +193,25 @@ public function buscarDescripcionTipoDocumento()
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
     }
+
+  
+    public function EnterRuc(){ //Abelardo = Evento enter para RUC
+        if($this -> tipoDocId <> ''){
+            $data = $this -> apiService -> REntidad($this -> tipoDocId,$this -> docIdent);
+            if ($data['success'] == '1') {
+                $this -> entidad = $data['desc'];
+            }else{
+                session()->flash('error', $data['desc']);
+                $this -> docIdent = '';
+                $this -> entidad = '';    
+            }
+        }else{
+            session()->flash('error', 'Elige un Tip de Indentidad');
+            $this -> docIdent = '';
+            $this -> entidad = '';
+        }
+    }
+
 
     public function render()
     {
