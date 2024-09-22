@@ -74,6 +74,22 @@ class RegistroDocumentosCxp extends Component
     public $precio = 0;
     protected $apiService; 
     public $PruebaArray = ""; 
+
+     ///tiene detraccion
+
+     public $toggle = false;
+     public $monto_detraccion;
+     public $monto_neto;
+ 
+     // Función para actualizar el estado de los inputs
+     public function updatedToggle($value)
+     {
+         if (!$value) {
+             $this->monto_detraccion = null; // Reiniciar valores si se desactiva el toggle
+             $this->monto_neto = null;
+         }
+     }
+
     #[On('mostrarDocumentosCxp')]
     public function mostrar()
     {

@@ -73,6 +73,23 @@ class RegistroDocumentoCxc extends Component
     protected $apiService; // Abelardo = Cree un service para el Api de busqueda de Ruc 
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa
+
+ ///tiene detraccion
+
+ public $toggle = false;
+ public $monto_detraccion;
+ public $monto_neto;
+
+ // Función para actualizar el estado de los inputs
+ public function updatedToggle($value)
+ {
+     if (!$value) {
+         $this->monto_detraccion = null; // Reiniciar valores si se desactiva el toggle
+         $this->monto_neto = null;
+     }
+ }
+
+
 public function calculateIgv()
 {
     // Ensure the baseImponible is not null or zero

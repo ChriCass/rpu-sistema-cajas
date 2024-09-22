@@ -66,6 +66,21 @@ class EdRegistroDocumentosCxc extends Component
     public $destinatarioVisible = false;
     public $user;
 
+
+    ///tiene detraccion
+
+    public $toggle = false;
+    public $monto_detraccion;
+    public $monto_neto;
+
+    // Función para actualizar el estado de los inputs
+    public function updatedToggle($value)
+    {
+        if (!$value) {
+            $this->monto_detraccion = null; // Reiniciar valores si se desactiva el toggle
+            $this->monto_neto = null;
+        }
+    }
     #[On('showEdCxc')]
     public function showEdcxc($idcxc)
     {
@@ -109,8 +124,6 @@ class EdRegistroDocumentosCxc extends Component
                 ->where('documentos.id_tipmov', 1)
                 ->where('documentos.id', $this->idcxc)
                 ->first();
-
-           
         }
     }
 
@@ -193,38 +206,36 @@ class EdRegistroDocumentosCxc extends Component
                 CO1.id_tipmov = 1
                 AND CO1.id = ?
         ", [$this->idcxc]);
-        Log::info('Resultado de la consulta de documentoCxc:', ['documentoCxc' => $result]);
+            Log::info('Resultado de la consulta de documentoCxc:', ['documentoCxc' => $result]);
             // Asignar los resultados a las variables del componente
-        $this->familiaId = $result->familia_id; // ID de la familia
-          Log::info('log para la familia' ,['familia' => $this->familiaId]);
-        $this->updatedFamiliaId($this->familiaId);
-        $this->subfamiliaId = $result->subfamilia_id; // ID de la subfamilia
-        $this->updatedSubfamiliaId($this->subfamiliaId);
-        $this->detalleId = $result->detalle_id; // ID del detalle
-        $this->tasaIgvId = $result->tasa_igv; // Tasa de IGV seleccionada
-        $this->monedaId = $result->tipo_moneda_id; // ID de la moneda seleccionada
-        $this->tipoDocumento = $result->tipo_documento_id; // ID del tipo de documento seleccionado
-        $this->serieNumero1 = $result->serie; // Parte 1 del número de serie
-        $this->serieNumero2 = $result->numero; // Parte 2 del número de serie
-        $this->tipoDocId = $result->tipo_comprobante_id; // Tipo de documento de identificación
-        $this->docIdent = $result->entidad_id; // Documento de identidad
-        $this->fechaEmi = Carbon::createFromFormat('d/m/Y', $result->fechaEmision)->format('Y-m-d'); // Fecha de emisión
-        $this->fechaVen = Carbon::createFromFormat('d/m/Y', $result->fechaVencimiento)->format('Y-m-d'); // Fecha de emisión; // Fecha de vencimiento
-        $this->tipoDocDescripcion = $result->tipo_documento_descripcion; // Descripción del tipo de documento
-        $this->observaciones = $result->observaciones; // Observaciones
-        $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
-        $this->nuevoDestinatario = $result->tipo_caja_descripcion; // Destinatario o tipo de caja
-        $this->centroDeCostos = $result->id_centroDeCostos;
+            $this->familiaId = $result->familia_id; // ID de la familia
+            Log::info('log para la familia', ['familia' => $this->familiaId]);
+            $this->updatedFamiliaId($this->familiaId);
+            $this->subfamiliaId = $result->subfamilia_id; // ID de la subfamilia
+            $this->updatedSubfamiliaId($this->subfamiliaId);
+            $this->detalleId = $result->detalle_id; // ID del detalle
+            $this->tasaIgvId = $result->tasa_igv; // Tasa de IGV seleccionada
+            $this->monedaId = $result->tipo_moneda_id; // ID de la moneda seleccionada
+            $this->tipoDocumento = $result->tipo_documento_id; // ID del tipo de documento seleccionado
+            $this->serieNumero1 = $result->serie; // Parte 1 del número de serie
+            $this->serieNumero2 = $result->numero; // Parte 2 del número de serie
+            $this->tipoDocId = $result->tipo_comprobante_id; // Tipo de documento de identificación
+            $this->docIdent = $result->entidad_id; // Documento de identidad
+            $this->fechaEmi = Carbon::createFromFormat('d/m/Y', $result->fechaEmision)->format('Y-m-d'); // Fecha de emisión
+            $this->fechaVen = Carbon::createFromFormat('d/m/Y', $result->fechaVencimiento)->format('Y-m-d'); // Fecha de emisión; // Fecha de vencimiento
+            $this->tipoDocDescripcion = $result->tipo_documento_descripcion; // Descripción del tipo de documento
+            $this->observaciones = $result->observaciones; // Observaciones
+            $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
+            $this->nuevoDestinatario = $result->tipo_caja_descripcion; // Destinatario o tipo de caja
+            $this->centroDeCostos = $result->id_centroDeCostos;
 
-        // Variables financieras
-        $this->basImp = $result->base_imponible; // Base imponible
-        $this->igv = $result->IGV; // IGV
-        $this->noGravado = $result->noGravadas; // No gravado
-        $this->otrosTributos = $result->otroTributo; // Otros tributos
-        $this->precio = $result->precio; // Precio total
+            // Variables financieras
+            $this->basImp = $result->base_imponible; // Base imponible
+            $this->igv = $result->IGV; // IGV
+            $this->noGravado = $result->noGravadas; // No gravado
+            $this->otrosTributos = $result->otroTributo; // Otros tributos
+            $this->precio = $result->precio; // Precio total
         }
-        
-        
     }
 
     public function updatedFamiliaId($value)
@@ -233,13 +244,13 @@ class EdRegistroDocumentosCxc extends Component
         $this->subfamilias = SubFamilia::select( // Abelardo = Hice cambios para que funcione el select
             'id_familias',
             'id as ic',  // Renombramos el campo 'id' a 'ic'
-            'desripcion'  
+            'desripcion'
         )
-        ->where('id_familias', $value)
-        ->get();
+            ->where('id_familias', $value)
+            ->get();
         Log::info($this->subfamilias);
         $this->reset('subfamiliaId', 'detalleId'); // Reiniciar las selecciones
-        
+
     }
 
     // Método que se ejecuta cuando se selecciona una subfamilia
@@ -247,9 +258,9 @@ class EdRegistroDocumentosCxc extends Component
     {
         // Filtrar los detalles según la subfamilia seleccionada
         $this->detalles = Detalle::where('id_subfamilia', $value)
-                                    ->where('id_familias', $this -> familiaId)
-                                    ->get();
-        
+            ->where('id_familias', $this->familiaId)
+            ->get();
+
         $this->reset('detalleId'); // Reiniciar detalle
     }
 
@@ -327,7 +338,6 @@ class EdRegistroDocumentosCxc extends Component
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->user = Auth::user()->id;
         $this->loadInitialData();
-      
     }
 
     public function loadInitialData()
@@ -336,7 +346,7 @@ class EdRegistroDocumentosCxc extends Component
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
-        $this->CC = CentroDeCostos::all(); 
+        $this->CC = CentroDeCostos::all();
     }
 
     public function render()
