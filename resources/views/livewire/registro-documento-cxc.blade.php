@@ -167,7 +167,7 @@
                         <div class="flex items-center justify-start gap-3 mx-3 w-3/12">
                             <x-toggle wire:model.live="toggle" left-label="tiene porcentaje?" name="toggle" />
                             <div class="w-5/12">
-                                <x-maskable mask="###" :disabled="!$toggle" wire:model="porcentaje"
+                                <x-maskable mask="###" :disabled="!$toggle" wire:model.live="porcentaje"
                                     suffix="%" />
                             </div>
                         </div>
@@ -175,14 +175,14 @@
                         <div class="flex mx-3">
                             <label for="monto_detraccion" class="text-sm font-medium text-gray-700">Monto de
                                 detracción:</label>
-                            <x-input class="w-1/12" wire:model.live="monto_detraccion" id="monto_detraccion"
+                            <x-input class="w-1/12" wire:model.live="montoDetraccion" id="monto_detraccion"
                                 class="w-32" :disabled="!$toggle" />
                         </div>
 
                         <div class="flex items-center">
                             <label for="monto_neto" class="text-sm font-medium text-gray-700">Monto Neto:</label>
-                            <x-input class="w-1/12" wire:model.live="monto_neto" id="monto_neto" class="w-32"
-                                :disabled="!$toggle" />
+                            <x-input class="w-1/12" wire:model.live="montoNeto" id="monto_neto" class="w-32"
+                                :disabled=True />
                         </div>
                     </div>
 

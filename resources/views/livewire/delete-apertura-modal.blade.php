@@ -17,7 +17,7 @@
             
             <x-slot name="footer" class="flex justify-end gap-x-4">
                 <x-button flat negative label="Cancelar" wire:click="$set('openModal', false)" />
-                <x-button negative label="Eliminar" wire:click="insertNewProducto" />
+                <x-button negative label="Eliminar" wire:click="deleteMovimiento" />
             </x-slot>
         </x-card>
     </x-modal>

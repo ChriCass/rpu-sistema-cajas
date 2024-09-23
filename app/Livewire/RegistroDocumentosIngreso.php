@@ -564,6 +564,7 @@ public function updatedNoGravado()
             ->where('id_t10tdoc', $this->tipoDocumento)
             ->where('serie', $this->serieNumero1)
             ->where('numero', $this->serieNumero2)
+            ->where('id_tipmov','1')
             ->first();
 
         if ($documentoExistente) {
