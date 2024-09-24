@@ -25,9 +25,8 @@ final class ProductoTable extends PowerGridComponent
         
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Exportable::make(fileName: 'Tabla Producto') 
+            ->type(Exportable::TYPE_XLS), 
         
             Footer::make()
                 ->showPerPage()
@@ -67,7 +66,7 @@ final class ProductoTable extends PowerGridComponent
                 Column::make('descripcion', 'descripcion')
                 ->sortable()
                 ->searchable(),
-            Column::action('Action')
+            Column::action('Action')->visibleInExport(visible: false)
         ];
     }
 

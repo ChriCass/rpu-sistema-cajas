@@ -77,7 +77,7 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap -mx-2 mt-4">
-                            <div class="w-full md:w-2/12 px-2">
+                            <div class="w-full md:w-3/12 px-2">
                                 <x-select label="Tip Doc Iden:" wire:model.live="tipoDocId" :options="$tipoDocIdentidades"
                                     option-label="abreviado" option-value="id" :disabled="$disableFieldsEspecial" />
                             </div>
@@ -86,7 +86,7 @@
                                     wire:keydown.enter="EnterRuc"
                                     oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{ $lenIdenId }})" />
                             </div>
-                            <div class="w-full md:w-2/12 px-2">
+                            <div class="w-full md:w-3/12 px-2">
                                 <x-select label="Moneda:" wire:model.live="monedaId" :options="$monedas"
                                     option-label="id" option-value="id" :disabled="$disableFields" />
                             </div>

@@ -57,23 +57,7 @@
                             <x-alert title="Balance: {{ $balance }}" positive />
                         @endif
                     </div>
-                    <div class="space-x-2 mt-5">
-                        <!-- Aquí cambiamos wire:navigate por dispatch -->
-                        <x-button 
-                            label="Registro CXP" 
-                            wire:click="$dispatch('mostrarComponente', {componente: 'registroCXP'})" 
-                        />
-
-                        <x-button 
-                            label="Ingreso" 
-                            wire:click="$dispatch('mostrarComponente', {componente: 'ingreso'})" 
-                        />
-
-                        <x-button 
-                            label="Gasto" 
-                            wire:click="$dispatch('mostrarComponente', {componente: 'gasto'})" 
-                        />
-                    </div>
+     
                     <!-- Mostrar "Haber" cuando hay datos en el contenedor -->
                     @if (!empty($contenedor))
                         <div class="space-x-2 flex items-center">

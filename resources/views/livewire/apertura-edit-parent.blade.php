@@ -13,12 +13,12 @@
     <!-- Mostrar los componentes principales -->
     @if (
         $mostrarIngreso ||
-            $mostrarSalida ||
-            $mostrarCXP ||
-            $mostrarCXC ||
-            $mostrarAplicaciones ||
-            $mostrarEDIngreso ||
-            $mostrarEDSalida)
+        $mostrarSalida ||
+        $mostrarCXP ||
+        $mostrarCXC ||
+        $mostrarAplicaciones ||
+        $mostrarEDIngreso ||
+        $mostrarEDSalida)
         <div class="mt-4 flex justify-center">
             <!-- Botón de cancelar, resetea todos los componentes -->
             <x-button right-icon="x-mark" warning label="Cancelar" wire:click="cancelarComponente" />
@@ -56,25 +56,6 @@
         @endif
     </div>
 
-
-    <!-- Mostrar los componentes secundarios debajo de los principales -->
-    <div class="mt-8">
-        @if ($mostrarRegistroCXP)
-            @livewire('registro-cxp', ['aperturaId' => $aperturaId])
-        @endif
-
-        @if ($mostrarIngresoComponente)
-            @livewire('registro-ingreso', ['aperturaId' => $aperturaId])
-        @endif
-
-        @if ($mostrarGastoComponente)
-            @livewire('registro-gasto', ['aperturaId' => $aperturaId])
-        @endif
-
-        @if ($mostrarRegistroCXC)
-            @livewire('registro-cxc', ['aperturaId' => $aperturaId])
-        @endif
-    </div>
+    
 </div>
-
  

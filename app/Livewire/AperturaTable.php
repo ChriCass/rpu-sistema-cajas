@@ -27,9 +27,8 @@ final class AperturaTable extends PowerGridComponent
       
 
         return [
-            Exportable::make('export')
-                ->striped()
-                ->type(Exportable::TYPE_XLS, Exportable::TYPE_CSV),
+            Exportable::make(fileName: 'Tabla  Apertura') 
+            ->type(Exportable::TYPE_XLS),
          
             Footer::make()
                 ->showPerPage()
@@ -98,7 +97,7 @@ final class AperturaTable extends PowerGridComponent
 
          
             Column::make('Fecha', 'fecha_formatted', 'fecha'),
-            Column::action('Acciones')
+            Column::action('Acciones')->visibleInExport(visible: false)
         ];
     }
 

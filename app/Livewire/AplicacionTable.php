@@ -10,6 +10,7 @@ class AplicacionTable extends Component
 
     public $aplicaciones;
 
+    /////no se puede usar powergrid por la consulta compleja. 
     public function mount()
     {
         $this->aplicaciones = MovimientoDeCaja::selectRaw(

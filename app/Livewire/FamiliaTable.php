@@ -27,6 +27,8 @@ final class FamiliaTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(mode: 'full'), 
+                Exportable::make(fileName: 'Tabla Familia') 
+            ->type(Exportable::TYPE_XLS), 
         ];
     }
 
@@ -65,7 +67,7 @@ final class FamiliaTable extends PowerGridComponent
             Column::make('Id tipofamilias', 'id_tipofamilias')
                 ->searchable()->hidden(),
 
-            Column::action('Acciones')
+            Column::action('Acciones')->visibleInExport(visible: false)
         ];
     }
 

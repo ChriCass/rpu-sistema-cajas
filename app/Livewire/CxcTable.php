@@ -32,6 +32,8 @@ final class CxcTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(mode: 'full'),
+                Exportable::make(fileName: 'Tabla Cuentas por Cobrar') 
+                ->type(Exportable::TYPE_XLS), 
         ];
     }
 
@@ -98,7 +100,7 @@ final class CxcTable extends PowerGridComponent
             Column::make('Tasa', 'tasa')->searchable(),
             Column::make('Precio', 'precio')->searchable(),
             Column::make('Usuario', 'usuario')->searchable(),
-            Column::action('Acciones')
+            Column::action('Acciones')->visibleInExport(visible: false)
         ];
     }
 

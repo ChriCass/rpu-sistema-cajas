@@ -32,6 +32,8 @@ final class DetalleTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(mode: 'full'), 
+                Exportable::make(fileName: 'Tabla Detalle') 
+            ->type(Exportable::TYPE_XLS), 
         ];
     }
 
@@ -74,7 +76,7 @@ final class DetalleTable extends PowerGridComponent
             Column::make('DESCRIPCION', 'descripcion')->searchable(),
             Column::make('FAMILIA', 'familia_descripcion')->searchable(),
             Column::make('SUBFAMILIA', 'subfamilia_descripcion')->searchable(),
-            Column::action('Acciones')
+            Column::action('Acciones')->visibleInExport(visible: false)
         ];
     }
     #[On('detalleUpdated')]

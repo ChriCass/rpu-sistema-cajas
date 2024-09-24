@@ -30,8 +30,7 @@ class AperturaEditParent extends Component
     public function mostrarComponente($componente, $numeroMovimiento = null)
     {
         Log::info("Evento recibido: mostrarComponente = {$componente}");
-        // Reseteamos los componentes secundarios antes de mostrar uno nuevo
-        $this->resetSecundarios();
+        
 
         // Mostrar el componente correspondiente
         switch ($componente) {
@@ -66,7 +65,7 @@ class AperturaEditParent extends Component
                 $this->dispatch('scroll-down');
                 break;
 
-                // Nuevos componentes (secundarios)
+       /*         // Nuevos componentes (secundarios)
             case 'registroCXP':
                 $this->mostrarRegistroCXP = true;
                 break;
@@ -78,7 +77,7 @@ class AperturaEditParent extends Component
                 break;
             case 'registroCXC':
                 $this->mostrarRegistroCXC = true;
-                break;
+                break; */
         }
            // Después de mostrar el componente, emitimos un evento para hacer scroll hacia abajo
     
@@ -94,13 +93,13 @@ class AperturaEditParent extends Component
     }
 
     // Reiniciar solo los componentes secundarios
-    public function resetSecundarios()
+  /*  public function resetSecundarios()
     {
         $this->mostrarRegistroCXP = false;
         $this->mostrarIngresoComponente = false;
         $this->mostrarGastoComponente = false;
         $this->mostrarRegistroCXC = false;
-    }
+    } */
 
     // Reiniciar todos los componentes (principales y secundarios)
     public function resetComponentes()
@@ -115,7 +114,7 @@ class AperturaEditParent extends Component
         $this->mostrarAplicaciones = false;
         $this->numMov = null;
         // Reseteamos también los componentes secundarios
-        $this->resetSecundarios();
+      ///  $this->resetSecundarios();
     }
 
     public function render()

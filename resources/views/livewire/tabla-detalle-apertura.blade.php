@@ -1,9 +1,26 @@
 <div>
-    @if (session()->has('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
+    <div x-data="{ show: true }" x-show="show" x-transition class="my-3">
+        @if (session()->has('message'))
+            <x-alert title="¡Éxito!" positive padding="none">
+                <x-slot name="slot">
+                    {{ session('message') }} — <b>¡Revísalo!</b>
+                    <button @click="show = false" class="ml-2 text-red-500 hover:text-red-700">Cerrar</button>
+                </x-slot>
+            </x-alert>
+        @endif
+    </div>
+    
+    <div x-data="{ show: true }" x-show="show" x-transition class="my-3">
+        @if (session()->has('error'))
+            <x-alert title="¡Error!" negative padding="small">
+                <x-slot name="slot">
+                    {{ session('error') }} — <b>¡Revísalo!</b>
+                    <button @click="show = false" class="ml-2 text-red-500 hover:text-red-700">Cerrar</button>
+                </x-slot>
+            </x-alert>
+        @endif
+    </div>
+    
 
     <div class="overflow-x-auto mt-5">
         <table class="min-w-full bg-white">
@@ -59,7 +76,7 @@
                                     <div><x-button
                                             wire:click="editarMovimiento({{ $movimiento->Monto }}, '{{ $movimiento->NumeroMovimiento }}')"
                                             label="Editar" warning /></div>
-                                    <div wire:ignore> @livewire('delete-apertura-modal', ['numMov' => $movimiento->NumeroMovimiento , 'aperturaId' => $aperturaId])</div>
+                                    <div wire:ignore> @livewire('delete-apertura-modal', ['numMov' => $movimiento->NumeroMovimiento, 'aperturaId' => $aperturaId])</div>
                                 </div>
 
 

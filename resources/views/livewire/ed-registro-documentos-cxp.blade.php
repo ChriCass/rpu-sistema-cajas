@@ -87,14 +87,14 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap -mx-2 mt-4">
-                        <div class="w-full md:w-2/12 px-2">
+                        <div class="w-full md:w-3/12 px-2">
                             <x-select label="Tip Doc Iden:" wire:model.live="tipoDocId" :options="$tipoDocIdentidades"
                                 option-label="abreviado" option-value="id" :disabled="$disableFieldsEspecial" />
                         </div>
                         <div class="w-full md:w-4/12 px-2">
                             <x-input :disabled="$disableFieldsEspecial" label="Num Ident:" wire:model.live="docIdent" wire:keydown.enter="EnterRuc" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{$lenIdenId}})"/>
                         </div>
-                        <div class="w-full md:w-2/12 px-2">
+                        <div class="w-full md:w-3/12 px-2">
                             <x-select label="Moneda:" wire:model.live="monedaId" :options="$monedas" option-label="id"
                                 option-value="id" :disabled="$disableFields" />
                         </div>
@@ -112,14 +112,14 @@
                     </div>
                     <div class="flex flex-wrap justify-between -mx-2 mt-4">
 
-                        <div class="w-full md:w-3/12 px-2">
+                        <div class="w-full md:w-4/12 px-2">
                             <label for="">Fecha Emision</label>
                             <input wire:model="fechaEmi" @if ($disableFields) disabled @endif
                                 type="date"
                                 class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-gray-600 disabled:bg-gray-100 disabled:text-gray-400">
 
                         </div>
-                        <div class="w-full md:w-3/12 px-2">
+                        <div class="w-full md:w-4/12 px-2">
                             <label for="fecha_ven">Fecha Ven</label>
                             <input wire:model="fechaVen" type="date"
                                 class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-gray-600 disabled:bg-gray-100 disabled:text-gray-400"
@@ -187,17 +187,18 @@
                     </div>
                 </div>
 
-
                 <div class="flex gap-3">
                     <div>
                         @livewire('cuadro-de-ordenes-modal')
                     </div>
-                    <div><x-button label="Cancelar" wire:navigate outline secondary /></div>
-                    <div> <x-button label="Aceptar" wire:click='submit' primary /></div>
-
-
-
+                    <div>
+                        @livewire('delete-cxp-modal', ['idcxp' => $this->idcxp])
+                    </div>
+                    <div>
+                        <x-button label="Aceptar" wire:click='submit' primary />
+                    </div>
                 </div>
+                
             </div>
         </x-card>
     </div>

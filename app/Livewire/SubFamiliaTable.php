@@ -27,6 +27,8 @@ final class SubFamiliaTable extends PowerGridComponent
             Footer::make()
                 ->showPerPage()
                 ->showRecordCount(mode: 'full'),
+                Exportable::make(fileName: 'Tabla SubFamilia') 
+                ->type(Exportable::TYPE_XLS), 
         ];
     }
 
@@ -67,7 +69,7 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->searchable(),
             Column::make('Familia Descripcion', 'familia_descripcion', 'id_familias') // Mostrar la descripción de la familia pero buscar por id_familias
                 ->searchable(),
-            Column::action('Acciones')
+            Column::action('Acciones')->visibleInExport(visible: false)
         ];
     }
 

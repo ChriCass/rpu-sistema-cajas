@@ -2,6 +2,23 @@
     <div class="p-4">
     
         <x-card>
+                  <!-- Mensaje de éxito -->
+                  @if (session()->has('message'))
+                  <x-alert title="¡Éxito!" positive padding="medium" class="mb-4">
+                      <x-slot name="slot">
+                          {{ session('message') }}
+                      </x-slot>
+                  </x-alert>
+              @endif
+  
+              <!-- Mensaje de error -->
+              @if (session()->has('error'))
+                  <x-alert title="¡Error!" negative padding="medium" class="mb-4">
+                      <x-slot name="slot">
+                          {{ session('error') }}
+                      </x-slot>
+                  </x-alert>
+              @endif
             @if($mostrarAlerta)
             <x-alert title="Documento no editable" class="mb-4" warning padding="medium">
                 <x-slot name="slot">
