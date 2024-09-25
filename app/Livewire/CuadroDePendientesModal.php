@@ -29,7 +29,7 @@ class CuadroDePendientesModal extends Component
 
 
         // Ejecutar la consulta dinámica
-        $this->pendientes = DB::table(DB::raw('(
+     /*   $this->pendientes = DB::table(DB::raw('(
             SELECT 
                 CON3.id AS id_documentos,  
                 CON3.fechaEmi,
@@ -68,7 +68,84 @@ class CuadroDePendientesModal extends Component
         ->where('tdoc', '<>', 'Vaucher de Transferencia')
         ->orderBy(DB::raw('CAST(id_documentos AS UNSIGNED)'), 'asc')
         ->get();
-        
+        */
+
+         // Ejecutar la consulta dinámica con la nueva estructura SQL
+         $this->pendientes = DB::select("
+         SELECT 
+             id_documentos, 
+             tdoc, 
+             id_entidades, 
+             RZ, 
+             Num, 
+             Mon, 
+             Descripcion, 
+             IF(Mon = 'PEN', monto, montodo) AS monto
+         FROM (
+             SELECT 
+                 id_documentos,
+                 fechaEmi,
+                 tabla10_tipodecomprobantedepagoodocumento.descripcion AS tdoc,
+                 id_entidades,
+                 entidades.descripcion AS RZ,
+                 Num,
+                 IF(CON3.Descripcion = 'DETRACCIONES POR PAGAR', 'PEN', id_t04tipmon) AS Mon,
+                 CON3.Descripcion,
+                 monto,
+                 montodo
+             FROM (
+                 SELECT 
+                     id_documentos,
+                     documentos.fechaEmi,
+                     documentos.id_t10tdoc,
+                     documentos.id_entidades,
+                     CONCAT(documentos.serie, '-', documentos.numero) AS Num,
+                     documentos.id_t04tipmon,
+                     cuentas.Descripcion,
+                     monto,
+                     montodo
+                 FROM (
+                     SELECT 
+                         id_documentos,
+                         id_cuentas,
+                         SUM(monto) AS monto,
+                         SUM(montodo) AS montodo
+                     FROM (
+                         SELECT 
+                             id_documentos,
+                             id_cuentas,
+                             IF(id_dh = '2', monto, monto * -1) AS monto,
+                             IF(id_dh = '2', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo
+                         FROM movimientosdecaja
+                         LEFT JOIN (
+                             SELECT 
+                                 cuentas.id, 
+                                 tipodecuenta.id AS idTcuenta 
+                             FROM cuentas 
+                             LEFT JOIN tipodecuenta ON cuentas.id_tCuenta = tipodecuenta.id
+                         ) INN1 ON movimientosdecaja.id_cuentas = INN1.id
+                         WHERE INN1.idTcuenta <> '1'
+                     ) CON1
+                     GROUP BY id_documentos, id_cuentas
+                     HAVING SUM(monto) <> 0
+                 ) CON2
+                 LEFT JOIN documentos ON CON2.id_documentos = documentos.id
+                 LEFT JOIN cuentas ON CON2.id_cuentas = cuentas.id
+             ) CON3
+             LEFT JOIN entidades ON CON3.id_entidades = entidades.id
+             LEFT JOIN tabla10_tipodecomprobantedepagoodocumento ON CON3.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id
+             WHERE monto > 0
+         ) CON4
+         WHERE fechaEmi <= :fechaApertura
+         AND Mon = :moneda
+         AND IF(Mon = 'PEN', monto, montodo) <> 0
+         AND tdoc <> 'Vaucher de Transferencia'
+         ORDER BY CAST(id_documentos AS UNSIGNED) ASC
+     ", [
+         'fechaApertura' => $this->fechaApertura,
+         'moneda' => $this->moneda,
+     ]);
+
 
         Log::info('Consulta de pendientes ejecutada', [
             'aperturaId' => $this->aperturaId,
