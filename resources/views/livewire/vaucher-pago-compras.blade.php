@@ -58,7 +58,7 @@
                         @endif
                     </div>
      
-                    <!-- Mostrar "Haber" cuando hay datos en el contenedor -->
+                    
                     @if (!empty($contenedor))
                         <div class="space-x-2 flex items-center">
                               

@@ -53,9 +53,9 @@ class VaucherPagoCompras extends Component
         Log::info('Fecha de apertura establecida', ['fechaApertura' => $this->fechaApertura]);
 
         // Verificar si el contenedor está vacío y agregar valores de prueba si es necesario
-        if (empty($this->contenedor)) {
+       /* if (empty($this->contenedor)) {
             $this->generateTestValues();
-        }
+        } */
     }
 
     // Función para habilitar la edición del monto
@@ -93,7 +93,7 @@ class VaucherPagoCompras extends Component
 
 
     // Nueva función para generar valores de prueba
-    public function generateTestValues()
+   /** public function generateTestValues()
     {
         // Generar datos ficticios para pruebas
         $this->contenedor = [
@@ -127,7 +127,7 @@ class VaucherPagoCompras extends Component
 
         // Calcular debe y haber con los valores generados
         $this->calculateDebeHaber();
-    }
+    }  */
 
     #[On('sendingContenedor')]
     public function handleSendingContenedor($contenedor)
