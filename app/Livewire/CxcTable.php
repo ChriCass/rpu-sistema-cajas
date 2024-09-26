@@ -21,6 +21,8 @@ use PowerComponents\LivewirePowerGrid\Header;
 use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Livewire\Attributes\On;
+
 
 final class CxcTable extends PowerGridComponent
 {
@@ -180,6 +182,14 @@ final class CxcTable extends PowerGridComponent
                 })
         ];
     }
+
+    #[On('cxc-updated')]
+    #[On('cxc-created')]
+    public function refreshTable(): void
+    {
+        $this->fillData();
+    }
+    
 
 
     public function actions(Documento $row): array

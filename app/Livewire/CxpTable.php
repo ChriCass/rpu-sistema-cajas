@@ -23,6 +23,7 @@ use App\Models\Entidad;
 use App\Models\TasaIgv;
 use App\Models\TipoDeMoneda;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
+use Livewire\Attributes\On;
 
 final class CxpTable extends PowerGridComponent
 {
@@ -65,6 +66,15 @@ final class CxpTable extends PowerGridComponent
     {
         return [];
     }
+
+
+    #[On('cxp-updated')]
+    #[On('cxp-created')]
+    public function refreshTable(): void
+    {
+        $this->fillData();
+    }
+    
 
     public function fields(): PowerGridFields
     {

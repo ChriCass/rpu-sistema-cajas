@@ -527,7 +527,7 @@ class EdRegistroDocumentosCxp extends Component
 
     
         session()->flash('message', 'Documento registrado con éxito.');
-
+        $this->dispatch('cxc-updated');
         // Emitir el evento para actualizar la tabla en `TablaDetalleApertura`
         //$this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
 

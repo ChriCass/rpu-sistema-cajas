@@ -616,6 +616,7 @@ class RegistroDocumentoCxc extends Component
         // Confirmación de registro exitoso
         Log::info('Documento y movimiento de caja registrados exitosamente');
         session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');
+        $this->dispatch('cxc-created');
     }
 
 
