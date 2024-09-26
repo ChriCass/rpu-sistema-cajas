@@ -16,7 +16,7 @@
             <div>
                 {{-- Alerta de éxito --}}
                 @if(session()->has('message'))
-                    <x-alert title="¡Transacción Exitosa!" positive padding="none">
+                    <x-alert title="¡Transacción Exitosa!" class="mb-3" positive padding="none">
                         <x-slot name="slot">
                             {{ session('message') }} — <b>¡verifícalo!</b>
                         </x-slot>
@@ -25,7 +25,7 @@
             
                 {{-- Alerta de error --}}
                 @if(session()->has('error'))
-                    <x-alert title="¡Error en la transacción!" negative padding="small">
+                    <x-alert title="¡Error en la transacción!" class="mb-3"  negative padding="small">
                         <x-slot name="slot">
                             {{ session('error') }} — <b>¡revisa los datos!</b>
                         </x-slot>
@@ -34,7 +34,7 @@
             
                 {{-- Alerta de advertencia --}}
                 @if(session()->has('warning'))
-                    <x-alert title="¡Advertencia!" warning padding="medium">
+                    <x-alert title="¡Advertencia!" class="mb-3"  warning padding="medium">
                         <x-slot name="slot">
                             {{ session('warning') }} 
                         </x-slot>
@@ -89,12 +89,12 @@
                         />
                     @endif
                 </div>
-                <div class="flex gap-3 mt-5">
-                    <div> <x-button label="Registro CXC" primary class="py-2 px-4" /></div>
+                <!--   <div class="flex gap-3 mt-5">
+                 <div> <x-button label="Registro CXC" primary class="py-2 px-4" /></div>
                     <div><x-button label="Registro CXP" secondary class="py-2 px-4" /></div>
                     <div> <x-button label="Ingreso" secondary class="py-2 px-4" /></div>
-                    <div><x-button label="Gasto" secondary class="py-2 px-4" /></div>
-                </div>
+                    <div><x-button label="Gasto" secondary class="py-2 px-4" /></div>  
+                </div>  -->
 
                
             
@@ -117,10 +117,7 @@
                         @if (empty($contenedor))
                         <tr>
                             <td colspan="10" class="px-4 py-2 border-b border-gray-300 text-center text-sm text-gray-700">
-                               
-                                    No se encontraron registros. Prueba añadiendo un registro usando el botón "Nuevo".
-                             
-                                    
+                                No se encontraron registros. Prueba añadiendo un registro usando el botón "Nuevo".
                             </td>
                         </tr>
                         @else
@@ -135,12 +132,13 @@
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Monto</th>
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Debe</th>
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Haber</th>
+                            <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
                         </tr>
                         @endif
                     </thead>
                     <tbody>
                         @if (!empty($contenedor))
-                        @foreach ($contenedor as $detalle)
+                        @foreach ($contenedor as $index => $detalle)
                         <tr>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['tdoc'] }}</td>
@@ -149,15 +147,41 @@
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['num'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id_t04tipmon'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['cuenta'] }}</td>
+                            
+                            <!-- Columna Monto -->
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['monto'] }}</td>
+            
+                            <!-- Columnas Debe y Haber -->
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['montodebe'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['montohaber'] }}</td>
+            
+                            <!-- Columna Acciones: muestra el input y los botones de edición -->
+                            <td class="px-4 py-2 border-b border-gray-300">
+                                @if ($editingIndex === $index)
+                                    <!-- Input de edición del monto -->
+                                    <div class="relative mb-2">
+                                        <x-input   wire:model.live="editingMonto"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                                        @if ($warningMessage[$index] ?? false)
+                                            <span class="text-red-500 text-sm block mt-1">{{ $warningMessage[$index] }}</span>
+                                        @endif
+                                    </div>
+                                    <!-- Botones Guardar y Cancelar -->
+                                    <div class="flex space-x-2">
+                                        <x-button label="Guardar" wire:click="saveMonto({{ $index }})" />
+                                        <x-button label="Cancelar" wire:click="cancelEdit" outline secondary />
+                                    </div>
+                                @else
+                                    <!-- Botón para editar el monto -->
+                                    <x-button label="Editar Monto" wire:click="editMonto({{ $index }})" />
+                                @endif
+                            </td>
                         </tr>
                         @endforeach
                         @endif
                     </tbody>
                 </table>
             </div>
+            
             
             
             <!-- Botones Cancelar y Aceptar, alineados a la derecha -->

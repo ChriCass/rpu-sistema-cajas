@@ -27,6 +27,13 @@ class VaucherDeAplicaciones extends Component
     public $TotalHaber = 0;  // Inicializar TotalHaber
     public $balance = 0;     // Inicializar el balance
 
+
+
+    public $editingIndex = null; // Índice para manejar qué fila está en edición
+    public $editingMonto = null; // Monto temporal para la edición
+    public $warningMessage = []; // Para manejar mensajes de advertencia en cada fila
+
+
     public function mount()
     {
         $this->monedas = TipoDeMoneda::all();
@@ -60,7 +67,7 @@ class VaucherDeAplicaciones extends Component
 
             // Agregar el detalle al contenedor con las keys adaptadas
             $this->contenedor[] = [
-                'id' => null,  // Puedes asignar un valor si es necesario
+                'id' => $detalle['id_documentos'],  // Puedes asignar un valor si es necesario
                 'tdoc' => $detalle['tdoc'],
                 'id_entidades' => $detalle['id_entidades'],
                 'entidades' => $detalle['RZ'],  // Usar 'RZ' como 'entidades'
@@ -80,6 +87,37 @@ class VaucherDeAplicaciones extends Component
         Log::info("Contenedor actualizado: ", $this->contenedor);
         Log::info("TotalDebe: $this->TotalDebe, TotalHaber: $this->TotalHaber");
     }
+
+    public function editMonto($index)
+    {
+        $this->editingIndex = $index;
+        $this->editingMonto = $this->contenedor[$index]['monto'];
+        $this->warningMessage[$index] = null;
+        Log::info('Editando monto para la fila', ['index' => $index, 'monto' => $this->editingMonto]);
+    }
+
+    public function saveMonto($index)
+    {
+        if ($this->editingMonto === null || $this->editingMonto === '') {
+            $this->warningMessage[$index] = "Necesitas añadir un monto";
+            return;
+        }
+
+        $this->contenedor[$index]['monto'] = $this->editingMonto;
+        $this->warningMessage[$index] = null;
+        $this->editingIndex = null;
+        $this->editingMonto = null;
+        $this->recalcularTotales();
+        $this->recalcularBalance();
+    }
+
+    public function cancelEdit()
+    {
+        $this->editingIndex = null;
+        $this->editingMonto = null;
+        $this->warningMessage = null;
+    }
+
 
     public function submit()
     {

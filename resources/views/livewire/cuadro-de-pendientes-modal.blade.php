@@ -1,5 +1,5 @@
 <div>
-    <x-button label="Nuevo" wire:click="$set('openModal', true)" primary />
+    <x-button label="Selecc." wire:click="$set('openModal', true)" primary />
 
     <x-modal name="persistentModal" wire:model="openModal">
 
