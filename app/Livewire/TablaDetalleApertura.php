@@ -119,7 +119,7 @@ class TablaDetalleApertura extends Component
                 IF(entidades.descripcion IS NULL, '', entidades.descripcion) AS Entidad, -- Descripción de la entidad relacionada
                 CONCAT(documentos.serie, '-', documentos.numero) AS NumeroDocumento, -- Número del documento (serie y número)
                 if(id_dh = '1',movimientosdecaja.monto,movimientosdecaja.monto*-1) AS Monto, -- Monto del documento (unificado)
-                documentos.observaciones AS Glosa -- Glosa o descripción adicional
+                movimientosdecaja.glosa AS Glosa -- Glosa o descripción adicional
             FROM 
                 movimientosdecaja
             LEFT JOIN 

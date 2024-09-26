@@ -195,25 +195,19 @@ class VaucherPagoCompras extends Component
             session()->flash('error', 'Falta llenar campos');
             return;
         }
-
-        if (count($this->contenedor) <= 1) {
+        Log::info(count($this->contenedor));
+        if (count($this->contenedor) <= 0) {
             Log::warning('El contenedor no tiene suficientes detalles.');
             session()->flash('error', 'Debe haber más de un detalle en la transacción.');
             return;
         }
 
         Log::info('Campos validados correctamente.');
-
+        
+        
         // Obtener idapt de la apertura
         try {
-            $idapt = Apertura::join('Tesoreria.tipoDeCaja', 'Tesoreria.aperturas.id_tipo', '=', 'Tesoreria.tipoDeCaja.id')
-                ->join('General.meses', 'General.meses.id', '=', 'Tesoreria.aperturas.id_mes')
-                ->where('numero', $this->numero)
-                ->where('General.meses.descripcion', $this->mes)
-                ->where('año', $this->año)
-                ->where('Tesoreria.tipoDeCaja.descripcion', $this->tipoDeCaja)
-                ->firstOrFail()
-                ->id;
+            $idapt = $this -> aperturaId;
             Log::info("idapt obtenido correctamente: {$idapt}");
         } catch (\Exception $e) {
             Log::error('Error obteniendo idapt: ' . $e->getMessage());
@@ -247,33 +241,29 @@ class VaucherPagoCompras extends Component
                 return;
             }
         }
+        Log::info($this->contenedor);
 
         // Procesar cada detalle en el contenedor
         try {
             foreach ($this->contenedor as $detalle) {
-                $iddoc = $detalle['iddoc'] ?? 'NULL';
-                $glo = $detalle['descripcion'];
-                Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
 
+                $iddoc = $detalle['id_documentos'] ?? 'NULL';
+                $glo = $detalle['RZ'].' '.$detalle['Num'];
+                Log::info(DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'));
+                Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
                 // Obtener la cuenta
-                $cta = Cuenta::where('Descripcion', $detalle['cuenta'])->firstOrFail()->id;
+                $cta = Cuenta::where('Descripcion', $detalle['Descripcion'])->firstOrFail()->id;
                 Log::info("Cuenta obtenida: {$cta}");
 
                 // Determinar si es Debe o Haber y calcular el monto
-                if (isset($detalle['debe'])) {
-                    $dh = 1; // Debe
-                    $monto = $detalle['debe'] * $tipoCambio;
-                } else {
-                    $dh = 2; // Haber
-                    $monto = $detalle['haber'] * $tipoCambio;
-                }
-
-                // Insertar el movimiento en la base de datos
+                $dh = 1; // Debe
+                $monto = $detalle['monto'];
+                // Insertar el movimiento en la base de datoss
                 MovimientoDeCaja::create([
                     'id_libro' => 3,
                     'id_apertura' => $idapt,
                     'mov' => $movc,
-                    'fec' => $this->fechaApertura,
+                    'fec' => DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'),
                     'id_documentos' => $iddoc,
                     'id_cuentas' => $cta,
                     'id_dh' => $dh,
@@ -281,14 +271,37 @@ class VaucherPagoCompras extends Component
                     'montodo' => null,
                     'glosa' => $glo,
                 ]);
+                
                 Log::info("Movimiento de caja insertado: ID Cuenta: {$cta}, Debe/Haber: {$dh}, Monto: {$monto}");
             }
+             
+            $ctaCaja = Cuenta::where('Descripcion', $this ->tipoCaja['descripcion'])
+                    ->get()
+                    ->toarray();
+
+            Log::info($ctaCaja);
+          
+            MovimientoDeCaja::create([
+                'id_libro' => 3,
+                'id_apertura' => $idapt,
+                'mov' => $movc,
+                'fec' => DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'),
+                'id_documentos' => null,
+                'id_cuentas' => $ctaCaja[0]['id'],
+                'id_dh' => 2,
+                'monto' => $this -> haber,
+                'montodo' => null,
+                'glosa' => 'PAGO DE CXP',
+            ]);
+            
+        
         } catch (\Exception $e) {
             Log::error('Error insertando movimiento de caja: ' . $e->getMessage());
             session()->flash('error', 'Error al procesar los detalles.');
             return;
         }
 
+        /* 
         // Cálculo del balance
         $this->balance = $this->TotalDebe - $this->TotalHaber;
         Log::info("Balance calculado: {$this->balance}");
@@ -298,7 +311,8 @@ class VaucherPagoCompras extends Component
             session()->flash('error', 'El asiento no cuadra');
             return;
         }
-
+        */
+        
         // Si todo salió bien
         session()->flash('message', 'Transacción Exitosa.');
         Log::info('Transacción procesada exitosamente.');
