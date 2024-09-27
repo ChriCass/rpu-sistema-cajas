@@ -429,6 +429,17 @@ class EdRegistroDocumentosCxp extends Component
             'min' => 'El valor debe ser mayor a :min',
         ]);
 
+
+        $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
+                        ->where('id_documentos',$this->idcxp)
+                        ->get()
+                        ->toarray();
+        Log::info(count($comprobacion));
+        if(count($comprobacion) <> 0){
+            session()->flash('error', 'No se puede eliminar el documento de caja por que tiene movimientos de caja.');    
+            return $this->dispatch('cxp-updated');   
+        }
+
         // Validar si el precio es 0
         if ($this->precio == 0) {
             session()->flash('error', 'No puede ser el monto cero');
@@ -527,7 +538,7 @@ class EdRegistroDocumentosCxp extends Component
 
     
         session()->flash('message', 'Documento registrado con éxito.');
-        $this->dispatch('cxc-updated');
+        $this->dispatch('cxp-updated');
         // Emitir el evento para actualizar la tabla en `TablaDetalleApertura`
         //$this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
 

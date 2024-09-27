@@ -3,6 +3,10 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\MovimientoDeCaja;
+use App\Models\DDetalleDocumento;
+use App\Models\Documento;
+use Illuminate\Support\Facades\Log;
 
 class DeleteCxpModal extends Component
 {
@@ -18,7 +22,19 @@ class DeleteCxpModal extends Component
     public function deleteCXP()
     {
 
-        /// implementar logica para eliminar CXP
+        $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
+                        ->where('id_documentos',$this->idcxp)
+                        ->get()
+                        ->toarray();
+        Log::info(count($comprobacion));
+        if(count($comprobacion) <> 0){
+            session()->flash('error', 'No se puede eliminar el documento de caja por que tiene movimientos de caja.');    
+            return $this->redirect(route('cxp'), navigate: true);    
+        }
+
+        MovimientoDeCaja::where('id_documentos',$this->idcxp)->delete();
+        DDetalleDocumento::where('id_referencia',$this->idcxp)->delete();
+        Documento::where('id',$this->idcxp)->delete();
 
 
         ///

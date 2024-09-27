@@ -73,7 +73,7 @@
                             <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->Glosa }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">
                                 <div class="flex gap-3 flex-col">
-                                    <div><x-button
+                                    <div wire:ignore><x-button
                                             wire:click="editarMovimiento({{ $movimiento->Monto }}, '{{ $movimiento->NumeroMovimiento }}')"
                                             label="Editar" warning /></div>
                                     <div wire:ignore> @livewire('delete-apertura-modal', ['numMov' => $movimiento->NumeroMovimiento, 'aperturaId' => $aperturaId, 'familias' => $movimiento->Familia])</div>

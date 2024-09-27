@@ -446,6 +446,17 @@ class EdRegistroDocumentosCxc extends Component
             'min' => 'El valor debe ser mayor a :min',
         ]);
 
+
+        $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
+                        ->where('id_documentos',$this->idcxc)
+                        ->get()
+                        ->toarray();
+        if(count($comprobacion) <> 0){
+            session()->flash('error', 'No se puede eliminar el documento de caja por que tiene movimientos de caja.');    
+            return $this->dispatch('cxc-updated');    
+        }
+
+
         // Validar si el precio es 0
         if ($this->precio == 0) {
             session()->flash('error', 'No puede ser el monto cero');
