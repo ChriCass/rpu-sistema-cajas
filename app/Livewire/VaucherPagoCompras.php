@@ -53,7 +53,7 @@ class VaucherPagoCompras extends Component
         Log::info('Fecha de apertura establecida', ['fechaApertura' => $this->fechaApertura]);
 
         // Verificar si el contenedor está vacío y agregar valores de prueba si es necesario
-       /* if (empty($this->contenedor)) {
+        /* if (empty($this->contenedor)) {
             $this->generateTestValues();
         } */
     }
@@ -93,7 +93,7 @@ class VaucherPagoCompras extends Component
 
 
     // Nueva función para generar valores de prueba
-   /** public function generateTestValues()
+    /** public function generateTestValues()
     {
         // Generar datos ficticios para pruebas
         $this->contenedor = [
@@ -203,11 +203,11 @@ class VaucherPagoCompras extends Component
         }
 
         Log::info('Campos validados correctamente.');
-        
-        
+
+
         // Obtener idapt de la apertura
         try {
-            $idapt = $this -> aperturaId;
+            $idapt = $this->aperturaId;
             Log::info("idapt obtenido correctamente: {$idapt}");
         } catch (\Exception $e) {
             Log::error('Error obteniendo idapt: ' . $e->getMessage());
@@ -248,7 +248,7 @@ class VaucherPagoCompras extends Component
             foreach ($this->contenedor as $detalle) {
 
                 $iddoc = $detalle['id_documentos'] ?? 'NULL';
-                $glo = $detalle['RZ'].' '.$detalle['Num'];
+                $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
                 Log::info(DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'));
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
                 // Obtener la cuenta
@@ -271,16 +271,16 @@ class VaucherPagoCompras extends Component
                     'montodo' => null,
                     'glosa' => $glo,
                 ]);
-                
+
                 Log::info("Movimiento de caja insertado: ID Cuenta: {$cta}, Debe/Haber: {$dh}, Monto: {$monto}");
             }
-             
-            $ctaCaja = Cuenta::where('Descripcion', $this ->tipoCaja['descripcion'])
-                    ->get()
-                    ->toarray();
+
+            $ctaCaja = Cuenta::where('Descripcion', $this->tipoCaja['descripcion'])
+                ->get()
+                ->toarray();
 
             Log::info($ctaCaja);
-          
+
             MovimientoDeCaja::create([
                 'id_libro' => 3,
                 'id_apertura' => $idapt,
@@ -289,12 +289,10 @@ class VaucherPagoCompras extends Component
                 'id_documentos' => null,
                 'id_cuentas' => $ctaCaja[0]['id'],
                 'id_dh' => 2,
-                'monto' => $this -> haber,
+                'monto' => $this->haber,
                 'montodo' => null,
                 'glosa' => 'PAGO DE CXP',
             ]);
-            
-        
         } catch (\Exception $e) {
             Log::error('Error insertando movimiento de caja: ' . $e->getMessage());
             session()->flash('error', 'Error al procesar los detalles.');
@@ -312,15 +310,25 @@ class VaucherPagoCompras extends Component
             return;
         }
         */
-        
+
         // Si todo salió bien
         session()->flash('message', 'Transacción Exitosa.');
+        return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
         Log::info('Transacción procesada exitosamente.');
 
         // Resetear los campos después de procesar la transacción
         $this->reset(['fechaApertura', 'contenedor', 'debe', 'haber', 'balance']);
-        Log::info('Formulario reseteado.');
-        $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
+        ///  Log::info('Formulario reseteado.');
+        ///  $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
+
+        // Lógica de procesamiento (puedes dejar el resto de la lógica tal como está)
+
+        // Si todo salió bien
+        
+     //   Log::info('Transacción procesada exitosamente.');
+
+        // Redireccionar como SPA
+       
     }
 
 
