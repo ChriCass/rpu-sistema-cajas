@@ -41,38 +41,92 @@ class VaucherAplicacionesPendientesModal extends Component
     private function loadAplicaciones()
     {
         $query = "
-            SELECT 
-                documentos.id AS id_documentos, 
-                d_tipomovimientos.descripcionl AS tdoc, 
-                documentos.id_entidades, 
-                entidades.descripcion AS RZ, 
-                CONCAT(documentos.serie, '-', documentos.numero) AS Num, 
-                documentos.id_t04tipmon AS Mon, 
-                IFNULL(cuentas.Descripcion, 'CUENTAS POR COBRAR') AS Descripcion, 
-                IF(documentos.id_t04tipmon = 'PEN', d_detalledocumentos.total, d_detalledocumentos.total) AS monto
-            FROM 
-                documentos
-            LEFT JOIN 
-                d_tipomovimientos ON documentos.id_tipmov = d_tipomovimientos.id
-            LEFT JOIN 
-                entidades ON documentos.id_entidades = entidades.id
-            LEFT JOIN 
-                d_detalledocumentos ON documentos.id = d_detalledocumentos.id_referencia
-            LEFT JOIN 
-                cuentas ON d_detalledocumentos.id_producto = cuentas.id
-            WHERE 
-                documentos.fechaEmi <= ?
-                AND documentos.id_t04tipmon = ?
-                AND d_detalledocumentos.total <> 0
-                AND {$this->filterColumn} LIKE ?
-            ORDER BY 
-                CAST(documentos.id AS UNSIGNED) ASC
+            SELECT id_documentos, tdoc, id_entidades, RZ, Num, Mon, Descripcion, 
+                IF(Mon = 'PEN', monto, montodo) AS monto 
+            FROM (
+                SELECT id_documentos, fechaEmi, tabla10.descripcion AS tdoc, id_entidades, entidades.descripcion AS RZ, 
+                    Num, IF(CON3.Descripcion = 'DETRACCIONES POR COBRAR', 'PEN', id_t04tipmon) AS Mon, 
+                    CON3.Descripcion, monto, montodo 
+                FROM (
+                    SELECT id_documentos, 
+                        documentos.fechaEmi,  
+                        documentos.id_t10tdoc, 
+                        documentos.id_entidades, 
+                        CONCAT(documentos.serie, '-', documentos.numero) AS Num, 
+                        documentos.id_t04tipmon, 
+                        cuentas.Descripcion, monto, montodo 
+                    FROM (
+                        SELECT id_documentos, id_cuentas, SUM(monto) AS monto, SUM(montodo) AS montodo 
+                        FROM (
+                            SELECT id_documentos, id_cuentas, 
+                                IF(id_dh = '1', monto, monto * -1) AS monto, 
+                                IF(id_dh = '1', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo 
+                            FROM movimientosdecaja 
+                            LEFT JOIN (
+                                SELECT cuentas.id, tipodecuenta.id AS idTcuenta 
+                                FROM cuentas 
+                                LEFT JOIN tipodecuenta ON cuentas.id_tCuenta = tipodecuenta.id
+                            ) INN1 ON movimientosdecaja.id_cuentas = INN1.id 
+                            WHERE INN1.idTcuenta <> '1'
+                        ) CON1 
+                        GROUP BY id_documentos, id_cuentas 
+                        HAVING SUM(monto) <> 0
+                    ) CON2 
+                    LEFT JOIN documentos ON CON2.id_documentos = documentos.id 
+                    LEFT JOIN cuentas ON CON2.id_cuentas = cuentas.id
+                ) CON3 
+                LEFT JOIN entidades ON CON3.id_entidades = entidades.id 
+                LEFT JOIN tabla10_tipodecomprobantedepagoodocumento AS tabla10 
+                    ON CON3.id_t10tdoc = tabla10.id 
+                WHERE monto > 0
+
+                UNION ALL
+
+                SELECT id_documentos, fechaEmi,tabla10.descripcion AS tdoc, id_entidades, entidades.descripcion AS RZ, 
+                    Num, IF(CON3.Descripcion = 'DETRACCIONES POR PAGAR', 'PEN', id_t04tipmon) AS Mon, 
+                    CON3.Descripcion, monto, montodo 
+                FROM (
+                    SELECT id_documentos, 
+                        documentos.fechaEmi,
+                        documentos.id_t10tdoc, 
+                        documentos.id_entidades, 
+                        CONCAT(documentos.serie, '-', documentos.numero) AS Num, 
+                        documentos.id_t04tipmon, 
+                        cuentas.Descripcion, monto, montodo 
+                    FROM (
+                        SELECT id_documentos, id_cuentas, SUM(monto) AS monto, SUM(montodo) AS montodo 
+                        FROM (
+                            SELECT id_documentos, id_cuentas, 
+                                IF(id_dh = '2', monto, monto * -1) AS monto, 
+                                IF(id_dh = '2', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo 
+                            FROM movimientosdecaja 
+                            LEFT JOIN (
+                                SELECT cuentas.id, tipodecuenta.id AS idTcuenta 
+                                FROM cuentas 
+                                LEFT JOIN tipodecuenta ON cuentas.id_tCuenta = tipodecuenta.id
+                            ) INN1 ON movimientosdecaja.id_cuentas = INN1.id 
+                            WHERE INN1.idTcuenta <> '1'
+                        ) CON1 
+                        GROUP BY id_documentos, id_cuentas 
+                        HAVING SUM(monto) <> 0
+                    ) CON2 
+                    LEFT JOIN documentos ON CON2.id_documentos = documentos.id 
+                    LEFT JOIN cuentas ON CON2.id_cuentas = cuentas.id
+                ) CON3 
+                LEFT JOIN entidades ON CON3.id_entidades = entidades.id 
+                LEFT JOIN tabla10_tipodecomprobantedepagoodocumento AS tabla10 
+                    ON CON3.id_t10tdoc = tabla10.id 
+                WHERE monto > 0
+            ) CON4 
+            WHERE fechaEmi <= ? 
+            AND Mon = ?
+            AND ROUND(monto, 2) <> 0 
+            ORDER BY CAST(id_documentos AS UNSIGNED) ASC;
         ";
     
         $this->aplicaciones = DB::select($query, [
             $this->fecha,
-            $this->moneda,
-            '%' . $this->searchTerm . '%',
+            $this->moneda
         ]);
     }
     

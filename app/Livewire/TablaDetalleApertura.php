@@ -156,7 +156,8 @@ class TablaDetalleApertura extends Component
             Log::info('Movimientos obtenidos con SQL crudo:', ['movimientos' => $this->movimientos]);
 
             // Calcular el total de la tabla
-            $this->textBox4 = $this->textBox8 + $this->movimientos->sum('monto');
+            Log::info('Suma', ['suma' => $this->movimientos->sum('Monto')]);
+            $this->textBox4 = $this->textBox8 + $this->movimientos->sum('Monto');
             Log::info('Total calculado', ['total' => $this->textBox4]);
 
             // Despachar los eventos con los valores calculados
