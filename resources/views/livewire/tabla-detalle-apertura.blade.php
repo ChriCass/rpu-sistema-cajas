@@ -76,7 +76,7 @@
                                     <div><x-button
                                             wire:click="editarMovimiento({{ $movimiento->Monto }}, '{{ $movimiento->NumeroMovimiento }}')"
                                             label="Editar" warning /></div>
-                                    <div wire:ignore> @livewire('delete-apertura-modal', ['numMov' => $movimiento->NumeroMovimiento, 'aperturaId' => $aperturaId])</div>
+                                    <div wire:ignore> @livewire('delete-apertura-modal', ['numMov' => $movimiento->NumeroMovimiento, 'aperturaId' => $aperturaId, 'familias' => $movimiento->Familia])</div>
                                 </div>
 
 

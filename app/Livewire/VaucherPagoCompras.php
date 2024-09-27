@@ -320,6 +320,7 @@ class VaucherPagoCompras extends Component
         // Resetear los campos después de procesar la transacción
         $this->reset(['fechaApertura', 'contenedor', 'debe', 'haber', 'balance']);
         Log::info('Formulario reseteado.');
+        $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
     }
 
 
