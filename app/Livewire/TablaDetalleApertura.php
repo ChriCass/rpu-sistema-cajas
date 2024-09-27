@@ -171,17 +171,31 @@ class TablaDetalleApertura extends Component
 
 
 
-    public function editarMovimiento($monto, $numeroMovimiento)
+    public function editarMovimiento($monto, $numeroMovimiento, $familia)
     {
-        Log::info("Editar Movimiento: Monto={$monto}, NumeroMovimiento={$numeroMovimiento}");
+        Log::info("Editar Movimiento: Monto={$monto}, NumeroMovimiento={$numeroMovimiento}, Familia={$familia}");
 
-        // Determinar si el monto es positivo o negativo
-        if ($monto > 0) {
-            // Enviar booleano a AperturaEditParent para mostrar ed-registro-documentos-ingreso
+        // Si la familia es "Movimientos" y el monto es menor a cero
+        if ($familia === 'MOVIMIENTOS' && $monto < 0) {
+            // Mostrar componente edit-vaucher-de-pago-compras
+            $this->dispatch('mostrarComponente', 'EditVaucherDePagoCompras', $numeroMovimiento);
+            Log::info("Despachando evento 'mostrarComponente' para EditVaucherDePagoCompras con NumeroMovimiento={$numeroMovimiento}");
+        }
+        // Si la familia es "Movimientos" y el monto es mayor a cero
+        elseif ($familia === 'MOVIMIENTOS' && $monto > 0) {
+            // Mostrar componente edit-vaucher-de-pago-ventas
+            $this->dispatch('mostrarComponente', 'EditVaucherDePagoVentas', $numeroMovimiento);
+            Log::info("Despachando evento 'mostrarComponente' para EditVaucherDePagoVentas con NumeroMovimiento={$numeroMovimiento}");
+        }
+        // Si el monto es positivo y no cae en las categorías anteriores
+        elseif ($monto > 0) {
+            // Enviar booleano para mostrar ed-registro-documentos-ingreso
             $this->dispatch('mostrarComponente', 'EditarIngreso', $numeroMovimiento);
             Log::info("Despachando evento 'mostrarComponente' para EditarIngreso con NumeroMovimiento={$numeroMovimiento}");
-        } else {
-            // Enviar booleano a AperturaEditParent para mostrar ed-registro-documentos-egreso
+        }
+        // Si el monto es negativo y no cae en las categorías anteriores
+        else {
+            // Enviar booleano para mostrar ed-registro-documentos-egreso
             $this->dispatch('mostrarComponente', 'EditarSalida', $numeroMovimiento);
             Log::info("Despachando evento 'mostrarComponente' para EditarSalida con NumeroMovimiento={$numeroMovimiento}");
         }

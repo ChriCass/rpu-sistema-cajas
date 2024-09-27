@@ -18,6 +18,8 @@ class AperturaEditParent extends Component
     public $mostrarCXC = false;
     public $mostrarAplicaciones = false;
 
+    public $mostrarEDvaucherCompras = false;
+    public $mostrarEDvaucherVentas = false;
 
     public $numMov;
     // Nuevas variables para los componentes secundarios
@@ -52,6 +54,18 @@ class AperturaEditParent extends Component
               $this->numMov = $numeroMovimiento;
               $this->dispatch('scroll-down');
               break;
+              case 'EditVaucherDePagoCompras':
+                $this->mostrarEDvaucherCompras = true; // Mostrar el componente de editar voucher de pago de compras
+                $this->numMov = $numeroMovimiento;
+                $this->dispatch('scroll-down');
+                break;
+            case 'EditVaucherDePagoVentas':
+                $this->mostrarEDvaucherVentas = true; // Mostrar el componente de editar voucher de pago de ventas
+                $this->numMov = $numeroMovimiento;
+                $this->dispatch('scroll-down');
+                break;
+
+
             case 'cxp':
                 $this->mostrarCXP = true;
                 $this->dispatch('scroll-down');
@@ -134,6 +148,8 @@ class AperturaEditParent extends Component
             'mostrarRegistroCXC' => $this->mostrarRegistroCXC,
             'mostrarIngresoComponente' => $this->mostrarIngresoComponente,
             'mostrarGastoComponente' => $this->mostrarGastoComponente,
+            'mostrarEDvaucherCompras' => $this->mostrarEDvaucherCompras,
+            'mostrarEDvaucherVentas' => $this->mostrarEDvaucherVentas,
         ])->layout('layouts.app');
     }
 }
