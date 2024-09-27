@@ -57,12 +57,12 @@ class AperturaEditParent extends Component
               case 'EditVaucherDePagoCompras':
                 $this->mostrarEDvaucherCompras = true; // Mostrar el componente de editar voucher de pago de compras
                 $this->numMov = $numeroMovimiento;
-                $this->dispatch('scroll-down');
+              ///  $this->dispatch('scroll-down');
                 break;
             case 'EditVaucherDePagoVentas':
                 $this->mostrarEDvaucherVentas = true; // Mostrar el componente de editar voucher de pago de ventas
                 $this->numMov = $numeroMovimiento;
-                $this->dispatch('scroll-down');
+              ///  $this->dispatch('scroll-down');
                 break;
 
 
@@ -127,6 +127,10 @@ class AperturaEditParent extends Component
         $this->mostrarCXC = false;
         $this->mostrarAplicaciones = false;
         $this->numMov = null;
+        $this->mostrarEDvaucherCompras = false;
+        $this->mostrarEDvaucherVentas = false;
+
+
         // Reseteamos también los componentes secundarios
       ///  $this->resetSecundarios();
     }
