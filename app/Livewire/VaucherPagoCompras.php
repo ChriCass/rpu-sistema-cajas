@@ -313,6 +313,8 @@ class VaucherPagoCompras extends Component
 
         // Si todo salió bien
         session()->flash('message', 'Transacción Exitosa.');
+       
+        // Redireccionar como SPA
         return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
         Log::info('Transacción procesada exitosamente.');
 
@@ -327,7 +329,7 @@ class VaucherPagoCompras extends Component
         
      //   Log::info('Transacción procesada exitosamente.');
 
-        // Redireccionar como SPA
+       
        
     }
 

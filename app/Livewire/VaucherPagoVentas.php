@@ -296,7 +296,7 @@ class VaucherPagoVentas extends Component
          // Si todo salió bien
          session()->flash('message', 'Transacción Exitosa.');
          Log::info('Transacción procesada exitosamente.');
-         $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
+         return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
  
          // Resetear los campos después de procesar la transacción
          $this->reset(['fechaApertura', 'contenedor', 'debe', 'haber', 'balance']);
