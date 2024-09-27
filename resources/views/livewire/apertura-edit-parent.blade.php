@@ -13,12 +13,14 @@
     <!-- Mostrar los componentes principales -->
     @if (
         $mostrarIngreso ||
-        $mostrarSalida ||
-        $mostrarCXP ||
-        $mostrarCXC ||
-        $mostrarAplicaciones ||
-        $mostrarEDIngreso ||
-        $mostrarEDSalida)
+            $mostrarSalida ||
+            $mostrarCXP ||
+            $mostrarCXC ||
+            $mostrarAplicaciones ||
+            $mostrarEDIngreso ||
+            $mostrarEDSalida ||
+            $mostrarEDvaucherCompras ||
+            $mostrarEDvaucherVentas)
         <div class="mt-4 flex justify-center">
             <!-- Botón de cancelar, resetea todos los componentes -->
             <x-button right-icon="x-mark" warning label="Cancelar" wire:click="cancelarComponente" />
@@ -54,8 +56,13 @@
         @if ($mostrarEDSalida)
             @livewire('ed-registro-documentos-egreso', ['numeroMovimiento' => $numMov, 'aperturaId' => $aperturaId])
         @endif
+        @if ($mostrarEDvaucherCompras)
+            @livewire('edit-vaucher-de-pago', ['numeroMovimiento' => $numMov, 'aperturaId' => $aperturaId])
+        @endif
+        @if ($mostrarEDvaucherVentas)
+            @livewire('edit-vaucher-de-pago-ventas', ['numeroMovimiento' => $numMov, 'aperturaId' => $aperturaId])
+        @endif
     </div>
 
-    
+
 </div>
- 
