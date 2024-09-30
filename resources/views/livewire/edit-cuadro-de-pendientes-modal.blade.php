@@ -1,6 +1,7 @@
 <div>
     <x-button label="Selecc." wire:click="$set('openModal', true)" primary />
 
+
     <x-modal name="persistentModal" wire:model="openModal">
 
         <x-card title="Cuadro De Pendientes">
@@ -59,14 +60,14 @@
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">
                                         <button wire:click="toggleSelection({{ $pendiente->id_documentos }}, '{{ $pendiente->Num }}', '{{ $pendiente->Descripcion }}')"
                                             class="{{ collect($contenedor)->contains(function ($item) use ($pendiente) {
-                                                return $item->id_documentos === $pendiente->id_documentos &&
-                                                       $item->Num === $pendiente->Num &&
-                                                       $item->Descripcion === $pendiente->Descripcion;
+                                                return $item['id_documentos'] === $pendiente->id_documentos &&
+                                                       $item['Num'] === $pendiente->Num &&
+                                                       $item['Descripcion'] === $pendiente->Descripcion;
                                             }) ? 'bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded' : 'bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded' }}">
                                             {{ collect($contenedor)->contains(function ($item) use ($pendiente) {
-                                                return $item->id_documentos === $pendiente->id_documentos &&
-                                                       $item->Num === $pendiente->Num &&
-                                                       $item->Descripcion === $pendiente->Descripcion;
+                                                return $item['id_documentos'] === $pendiente->id_documentos &&
+                                                       $item['Num'] === $pendiente->Num &&
+                                                       $item['Descripcion'] === $pendiente->Descripcion;
                                             }) ? 'Quitar' : 'Selecc' }}
                                         </button>
                                     </td>

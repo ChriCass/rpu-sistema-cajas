@@ -11,6 +11,8 @@ use App\Models\TipoDeCaja;
 use App\Models\MovimientoDeCaja;
 use App\Models\TipoDeCambioSunat;
 use App\Models\Cuenta;
+use Livewire\Attributes\On;
+
 
 class EditVaucherDePago extends Component
 {
@@ -108,7 +110,7 @@ class EditVaucherDePago extends Component
 
         $this->contenedor = array_map(function ($item) {
             return [
-                'id' => $item->id,
+                'id_documentos' => $item->id,
                 'tdoc' => $item->tipo_documento_descripcion,    // Mapeo de tipo_documento_descripcion a tdoc
                 'id_entidades' => $item->id_entidades,
                 'RZ' => $item->entidad_descripcion,             // Mapeo de entidad_descripcion a RZ
@@ -360,6 +362,26 @@ class EditVaucherDePago extends Component
        
     }
 
+
+      // Escuchar el evento desde el modal
+      #[On('updateVaucherData')]
+      public function updateVaucherData($nuevoContenedor)
+      {
+          Log::info('Recibido contenedor actualizado:', ['nuevoContenedor' => $nuevoContenedor]);
+      
+          // Asignar directamente el nuevo contenedor
+          $this->contenedor = array_map(function ($item) use ($nuevoContenedor) {
+              $nuevoItem = collect($nuevoContenedor)->firstWhere('id_documentos', $item['id_documentos']);
+              if ($nuevoItem) {
+                  // Asignar el monto de 'debe' a partir del nuevo contenedor
+                  $item['debe'] = $nuevoItem['monto'] ?? 0; // Asignar monto o 0 si no existe
+              }
+              return $item;
+          }, $nuevoContenedor); // Cambiar esto para que el nuevo contenedor reemplace el actual
+      
+          Log::info('Contenedor actualizado:', ['contenedor' => $this->contenedor]);
+      }
+      
 
     public function render()
     {
