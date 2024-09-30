@@ -15,7 +15,7 @@
                 <x-input label="ID" wire:model="detalleId" readonly />
             </div>
             <div class="w-full   px-4">
-                <x-maskable mask="AAAAAAAAAAAAAAAAAAA" label="Descripción" wire:model="descripcion" />
+                <x-input   oninput="this.value = this.value.toUpperCase()" label="Descripción" wire:model="descripcion" />
                 @error('descripcion') <span class="text-red-500">{{ $message }}</span> @enderror
             </div>
             <div class="w-full  px-4">
