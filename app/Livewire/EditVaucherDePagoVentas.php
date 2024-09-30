@@ -11,7 +11,7 @@ use App\Models\TipoDeCaja;
 use App\Models\Cuenta;
 use App\Models\MovimientoDeCaja;
 use App\Models\TipoDeCambioSunat;
-
+use Livewire\Attributes\On;
 
 class EditVaucherDePagoVentas extends Component
 {
@@ -108,7 +108,7 @@ class EditVaucherDePagoVentas extends Component
 
         $this->contenedor = array_map(function ($item) {
             return [
-                'id' => $item->id,
+                'id_documentos' => $item->id,
                 'tdoc' => $item->tipo_documento_descripcion,    // Mapeo de tipo_documento_descripcion a tdoc
                 'id_entidades' => $item->id_entidades,
                 'RZ' => $item->entidad_descripcion,             // Mapeo de entidad_descripcion a RZ
@@ -138,6 +138,30 @@ class EditVaucherDePagoVentas extends Component
             Log::warning('El contenedor está vacío. No se obtuvieron resultados de la consulta.');
         }
     }
+
+    #[On('sendingContenedor')]
+    public function updateVaucherData($nuevoContenedor)
+    {
+        Log::info('Recibido contenedor actualizado:', ['nuevoContenedor' => $nuevoContenedor]);
+    
+        // Asignar el nuevo contenedor o vaciarlo si no hay elementos
+        if (!empty($nuevoContenedor)) {
+            $this->contenedor = array_map(function ($item) use ($nuevoContenedor) {
+                $nuevoItem = collect($nuevoContenedor)->firstWhere('id_documentos', $item['id_documentos']);
+                if ($nuevoItem) {
+                    $item['haber'] = $nuevoItem['monto'] ?? 0;  // Asignar el monto a la key 'haber'
+                }
+                return $item;
+            }, $nuevoContenedor);
+    
+            Log::info('Contenedor actualizado:', ['contenedor' => $this->contenedor]);
+        } else {
+            $this->contenedor = [];  // Vaciamos el contenedor si no hay datos seleccionados
+            Log::info('Contenedor vaciado');
+        }
+    }
+    
+    
 
     public function calculateDebeHaber()
     {
