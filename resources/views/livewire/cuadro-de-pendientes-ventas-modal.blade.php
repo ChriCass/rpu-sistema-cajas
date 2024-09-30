@@ -3,7 +3,7 @@
 
     <x-modal name="persistentModal" wire:model="openModal">
 
-        <x-card title="Cuadro De Pendientes Ventas">
+        <x-card title="Cuadro De Pendientes">
             <div class="p-4">
                 <!-- Mostrar los mensajes aquí -->
                 @if (session()->has('message'))

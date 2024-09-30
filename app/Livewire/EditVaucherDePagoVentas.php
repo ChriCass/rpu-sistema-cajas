@@ -44,7 +44,7 @@ class EditVaucherDePagoVentas extends Component
         // Obtener el tipo de caja relacionado con el ID de caja
         $this->tipoCaja = TipoDeCaja::where('id', $this->caja)->first();
         $this->numMov = $numeroMovimiento;
-        $this->fecha = (new DateTime($apertura->fecha))->format('d/m/Y');
+        $this->fechaApertura = (new DateTime($apertura->fecha))->format('d/m/Y');
 
         // Cargar los datos del vaucher al inicializar el componente
         $this->loadVaucherData();
@@ -216,7 +216,9 @@ class EditVaucherDePagoVentas extends Component
         }
 
         Log::info('Campos validados correctamente.');
-        
+        MovimientoDeCaja::where('id_libro','3')
+                        ->where('mov',$this->numMov)
+                        ->delete();
         
         // Obtener idapt de la apertura
         try {
@@ -268,18 +270,18 @@ class EditVaucherDePagoVentas extends Component
            MovimientoDeCaja::create([
                'id_libro' => 3,
                'id_apertura' => $idapt,
-               'mov' => $movc,
+               'mov' => $this->numMov,
                'fec' => DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'),
                'id_documentos' => null,
                'id_cuentas' => $ctaCaja[0]['id'],
                'id_dh' => 1,
-               'monto' => $this -> debe,
+               'monto' => $this -> haber,
                'montodo' => null,
                'glosa' => 'PAGO DE CXC',
            ]);
             foreach ($this->contenedor as $detalle) {
 
-                $iddoc = $detalle['id_documentos'] ?? 'NULL';
+                $iddoc = $detalle['id'] ?? 'NULL';
                 $glo = $detalle['RZ'].' '.$detalle['Num'];
                 Log::info(DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'));
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
@@ -289,12 +291,12 @@ class EditVaucherDePagoVentas extends Component
 
                 // Determinar si es Debe o Haber y calcular el monto
                 $dh = 2; // Debe
-                $monto = $detalle['monto'];
+                $monto = $detalle['haber'];
                 // Insertar el movimiento en la base de datoss
                 MovimientoDeCaja::create([
                     'id_libro' => 3,
                     'id_apertura' => $idapt,
-                    'mov' => $movc,
+                    'mov' => $this->numMov,
                     'fec' => DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'),
                     'id_documentos' => $iddoc,
                     'id_cuentas' => $cta,

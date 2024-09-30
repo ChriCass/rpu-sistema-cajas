@@ -10,6 +10,7 @@ use Livewire\Attributes\On;
 use App\Models\MovimientoDeCaja;
 use App\Models\TipoDeCambioSunat;
 use Illuminate\Support\Facades\Http;
+use App\Models\Cuenta;
 
 class VaucherDeAplicaciones extends Component
 {
@@ -103,12 +104,18 @@ class VaucherDeAplicaciones extends Component
             return;
         }
 
-        $this->contenedor[$index]['monto'] = $this->editingMonto;
+        if($this->contenedor[$index]['montodebe'] <> null){
+            $this->contenedor[$index]['montodebe'] = $this->editingMonto;
+        }else{
+            $this->contenedor[$index]['montohaber'] = $this->editingMonto;
+        }
+        
         $this->warningMessage[$index] = null;
         $this->editingIndex = null;
         $this->editingMonto = null;
         $this->recalcularTotales();
         $this->recalcularBalance();
+        Log::info($this->contenedor);
     }
 
     public function cancelEdit()
@@ -136,6 +143,7 @@ class VaucherDeAplicaciones extends Component
         }
 
         foreach ($this->contenedor as $detalle) {
+            /** 
             // Obtener el tipo de cambio si la moneda es USD
             $montoConvertido = $detalle['monto'];
             if ($this->moneda === 'USD') {
@@ -149,6 +157,11 @@ class VaucherDeAplicaciones extends Component
                     return;
                 }
             }
+            */
+
+            $cuenta = cuenta::where('descripcion',$detalle['cuenta'])
+                    ->get()
+                    ->toarray();
 
             try {
                 MovimientoDeCaja::create([
@@ -156,11 +169,11 @@ class VaucherDeAplicaciones extends Component
                     'mov' => $this->aplicacionesId ?? 1,
                     'fec' => $this->fecha,
                     'id_documentos' => $detalle['id'],
-                    'id_cuentas' => $detalle['cuenta'],
+                    'id_cuentas' => $cuenta[0]['id'],
                     'id_dh' => ($detalle['montodebe'] !== null) ? 1 : 2,
-                    'monto' => $montoConvertido,
+                    'monto' => ($detalle['montodebe'] !== null) ? $detalle['montodebe'] : $detalle['montohaber'],
                     'montodo' => null,
-                    'glosa' => $detalle['tdoc'] . " - " . $detalle['num'],
+                    'glosa' => $detalle['entidades'] . " " . $detalle['num'],
                 ]);
 
                 Log::info("Detalle procesado exitosamente: ", $detalle);
@@ -168,7 +181,7 @@ class VaucherDeAplicaciones extends Component
                 Log::error("Error al procesar el detalle: ", ['error' => $e->getMessage(), 'detalle' => $detalle]);
                 session()->flash('error', 'Error al procesar los detalles.');
                 return;
-            }
+            }   
         }
 
         session()->flash('message', 'Datos procesados correctamente.');
