@@ -73,6 +73,11 @@ Route::middleware([
         return view('logistica.producto', ['routeName' => 'producto']);
     })->name('producto');
 
+    Route::get('/configuracion/entidades', function () {
+        return view('configuracion.entidades', ['routeName' => 'entidades']);
+    })->name('entidades');
+
+
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
         

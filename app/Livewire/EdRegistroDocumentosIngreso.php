@@ -443,7 +443,7 @@ class EdRegistroDocumentosIngreso extends Component
         $subfamilia = SubFamilia::select('id as ic','desripcion')
                             -> where('desripcion', 'GENERAL')-> get() ->toarray();
         $this->subfamiliaId = $subfamilia[0]['ic'];
-
+        
         $detalle = Detalle::where('descripcion', 'RENDICIONES POR PAGAR')->first(); // Encontrar el detalle correcto
 
         if ($detalle) {
