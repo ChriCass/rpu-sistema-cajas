@@ -47,7 +47,7 @@
             
                 <x-slot name="footer" class="flex justify-end gap-x-4">
                     <x-button flat label="Cancelar" wire:click="$set('openModal', false)" />
-                    <x-button primary label="Aceptar" />
+                    <x-button primary label="Aceptar" wire:click='submitEntidad'/>
                 </x-slot>
             </div>
         </x-card>
