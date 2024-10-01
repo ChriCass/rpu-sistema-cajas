@@ -9,23 +9,20 @@
         <x-card>
             @livewire('edit-aplicacion-detail', ['aplicacionesId' => $aplicacionesId])
             
-            <!-- Botones -->
-            <div class="flex justify-end mt-4 space-x-2">
-                <x-button label="Cancelar" outline secondary wire:click="$set('showFormEdit', false)" />
-    
-                @if($showFormEdit)
-                    <x-button icon="x-mark" label="No Editar" warning wire:click="toggleEdit" />
-                @else
-                    <x-button icon="pencil" label="Editar" wire:click="toggleEdit" />
-                @endif
-            </div>
+         
         </x-card>
     </div>
-
-    @if($showFormEdit && $detallesRecibidos)
+{{-- 
+@if($showFormEdit && $detallesRecibidos)
+    <!-- Si la variable showFormEdit es verdadera y detallesRecibidos también es verdadero,
+         se mostrará el formulario para editar la aplicación -->
     <div class="p-4">
+        <!-- Renderiza el componente Livewire form-edit-aplicacion-detail, 
+             pasando los detalles, fecha y aplicacionesId como parámetros -->
         @livewire('form-edit-aplicacion-detail', ['detalles' => $detalles, 'fecha' => $fecha, 'aplicacionesId' => $aplicacionesId])
     </div>
 @endif
+--}}
+
 
 </div>

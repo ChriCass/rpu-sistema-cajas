@@ -15,7 +15,7 @@ class EditAplicacionDetail extends Component
     public $aplicacion;
     public $fecha;
     public $detalles = [];
-
+    
     public function mount($aplicacionesId)
     {
         $this->aplicacionesId = $aplicacionesId;

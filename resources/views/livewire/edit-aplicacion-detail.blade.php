@@ -58,6 +58,14 @@
                 </tbody>
             </table>
         </div>
+   <!-- Botones -->
+   <div class="flex justify-end mt-4 space-x-2">
+    <x-button label="Cancelar" outline secondary wire:navigate href="{{ route('aplicaciones') }}" />
 
+
+     
+         @livewire('delete-aplicaciones-modal', ['detalles'=> $detalles])
+ 
+</div>
    
 </div>
