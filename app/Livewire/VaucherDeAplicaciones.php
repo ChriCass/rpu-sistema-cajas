@@ -182,6 +182,10 @@ class VaucherDeAplicaciones extends Component
             // Resetear campos después del envío
             $this->reset(['contenedor', 'TotalDebe', 'TotalHaber', 'balance']);
             Log::info("Formulario reseteado tras el envío exitoso.");
+    
+            // Redirigir a la ruta 'aplicaciones' con navigate:true
+            return $this->redirect(route('aplicaciones'), navigate: true);
+    
         } catch (\Exception $e) {
             // Si algo falla, se deshacen los cambios
             DB::rollBack();
@@ -190,6 +194,7 @@ class VaucherDeAplicaciones extends Component
             return;
         }
     }
+    
     
 
     // Función para alternar la visibilidad

@@ -17,28 +17,32 @@ class DeleteAplicacionesModal extends Component
     }
 
     public function deleteAplication()
-    {
-        DB::beginTransaction(); // Iniciar transacción
+{
+    DB::beginTransaction(); // Iniciar transacción
 
-        try {
-            Log::info("Intentando eliminar movimientos con mov: {$this->detalles}");
+    try {
+        Log::info("Intentando eliminar movimientos con mov: {$this->detalles}");
 
-            // Eliminar los movimientos
-            MovimientoDeCaja::where('id_libro', 4)
-                ->where('mov', $this->detalles)
-                ->delete();
+        // Eliminar los movimientos
+        MovimientoDeCaja::where('id_libro', 4)
+            ->where('mov', $this->detalles)
+            ->delete();
 
-            DB::commit(); // Confirmar la transacción
+        DB::commit(); // Confirmar la transacción
 
-            session()->flash('message', 'Movimiento eliminado exitosamente.');
-            Log::info("Movimientos eliminados exitosamente: {$this->detalles}");
+        session()->flash('message', 'Movimiento eliminado exitosamente.');
+        Log::info("Movimientos eliminados exitosamente: {$this->detalles}");
 
-        } catch (\Exception $e) {
-            DB::rollBack(); // Revertir la transacción en caso de error
-            Log::error("Error al eliminar el movimiento: {$e->getMessage()}");
-            session()->flash('error', 'Ocurrió un error al eliminar el movimiento.');
-        }
+        // Redireccionar a la ruta 'aplicaciones' con navegación dinámica
+        return $this->redirect(route('aplicaciones'), navigate: true);
+
+    } catch (\Exception $e) {
+        DB::rollBack(); // Revertir la transacción en caso de error
+        Log::error("Error al eliminar el movimiento: {$e->getMessage()}");
+        session()->flash('error', 'Ocurrió un error al eliminar el movimiento.');
     }
+}
+
 
     public function render()
     {

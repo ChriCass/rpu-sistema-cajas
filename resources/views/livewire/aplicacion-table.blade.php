@@ -1,5 +1,30 @@
 <div>
     <div class="p-4 bg-white rounded shadow-md">
+        <!-- Alertas de WireUI -->
+        @if(session()->has('message'))
+            <x-alert title="Success Message!" positive padding="none">
+                <x-slot name="slot">
+                    {{ session('message') }} — <b>¡Éxito!</b>
+                </x-slot>
+            </x-alert>
+        @endif
+
+        @if(session()->has('error'))
+            <x-alert title="Error Message!" negative padding="small">
+                <x-slot name="slot">
+                    {{ session('error') }} — <b>Error encontrado</b>
+                </x-slot>
+            </x-alert>
+        @endif
+
+        @if(session()->has('warning'))
+            <x-alert title="Alert Message!" warning padding="medium">
+                <x-slot name="slot">
+                    {{ session('warning') }} — <b>Atención</b>
+                </x-slot>
+            </x-alert>
+        @endif
+
         <div class="flex items-center space-x-4 mb-4">
             <!-- Filtro Mes -->
             <div>
@@ -40,15 +65,18 @@
                             <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['mov'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['monto'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['monto_do'] }}</td>
-                            <td class="px-4 py-2 border-b border-gray-300"> <x-button 
-                                label="Detalles" wire:click="$dispatch('setFec', '{{ $aplicacion['fec'] }}')" wire:navigate 
-                                href="{{ route('aplicacion.show', ['aplicacionesId' => $aplicacion['mov']]) }}"
-                            /></td>
+                            <td class="px-4 py-2 border-b border-gray-300">
+                                <x-button 
+                                    label="Detalles" 
+                                    wire:click="$dispatch('setFec', '{{ $aplicacion['fec'] }}')" 
+                                    wire:navigate 
+                                    href="{{ route('aplicacion.show', ['aplicacionesId' => $aplicacion['mov']]) }}" 
+                                />
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
-    
 </div>
