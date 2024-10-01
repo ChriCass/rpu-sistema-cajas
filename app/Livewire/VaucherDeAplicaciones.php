@@ -11,6 +11,8 @@ use App\Models\MovimientoDeCaja;
 use App\Models\TipoDeCambioSunat;
 use Illuminate\Support\Facades\Http;
 use App\Models\Cuenta;
+use Illuminate\Support\Facades\DB;
+
 
 class VaucherDeAplicaciones extends Component
 {
@@ -129,65 +131,66 @@ class VaucherDeAplicaciones extends Component
     public function submit()
     {
         Log::info('Submit iniciado');
-
+    
+        // Verificar que el balance esté equilibrado
         if ($this->balance !== 0) {
             Log::warning('El balance no está equilibrado: ' . $this->balance);
             session()->flash('error', 'El balance no está equilibrado. Verifique los montos.');
             return;
         }
-
+    
+        // Verificar si el contenedor tiene detalles
         if (empty($this->contenedor)) {
             Log::warning('El contenedor está vacío. No hay detalles seleccionados.');
             session()->flash('error', 'No hay detalles seleccionados para procesar.');
             return;
         }
-
-        foreach ($this->contenedor as $detalle) {
-            /** 
-            // Obtener el tipo de cambio si la moneda es USD
-            $montoConvertido = $detalle['monto'];
-            if ($this->moneda === 'USD') {
-                $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fecha)->value('venta');
-                if ($tipoCambio) {
-                    $montoConvertido = $detalle['monto'] * $tipoCambio;
-                    Log::info("Monto convertido de USD a PEN: ", ['monto_original' => $detalle['monto'], 'monto_convertido' => $montoConvertido, 'tipo_cambio' => $tipoCambio]);
-                } else {
-                    Log::error('No se pudo obtener el tipo de cambio para la fecha ' . $this->fecha);
-                    session()->flash('error', 'No se encontró el tipo de cambio para la fecha seleccionada.');
-                    return;
-                }
-            }
-            */
-
-            $cuenta = cuenta::where('descripcion',$detalle['cuenta'])
-                    ->get()
-                    ->toarray();
-
-            try {
+    
+        // Iniciar una transacción para asegurar atomicidad
+        DB::beginTransaction();
+    
+        try {
+            foreach ($this->contenedor as $detalle) {
+                // Obtener la cuenta con bloqueo pesimista
+                $cuenta = Cuenta::where('descripcion', $detalle['cuenta'])
+                            ->lockForUpdate()
+                            ->firstOrFail();
+    
+                $monto = ($detalle['montodebe'] !== null) ? $detalle['montodebe'] : $detalle['montohaber'];
+                $id_dh = ($detalle['montodebe'] !== null) ? 1 : 2;
+    
+                // Crear movimiento de caja
                 MovimientoDeCaja::create([
                     'id_libro' => 4,
                     'mov' => $this->aplicacionesId ?? 1,
                     'fec' => $this->fecha,
                     'id_documentos' => $detalle['id'],
-                    'id_cuentas' => $cuenta[0]['id'],
-                    'id_dh' => ($detalle['montodebe'] !== null) ? 1 : 2,
-                    'monto' => ($detalle['montodebe'] !== null) ? $detalle['montodebe'] : $detalle['montohaber'],
+                    'id_cuentas' => $cuenta->id,
+                    'id_dh' => $id_dh,
+                    'monto' => $monto,
                     'montodo' => null,
                     'glosa' => $detalle['entidades'] . " " . $detalle['num'],
                 ]);
-
+    
                 Log::info("Detalle procesado exitosamente: ", $detalle);
-            } catch (\Exception $e) {
-                Log::error("Error al procesar el detalle: ", ['error' => $e->getMessage(), 'detalle' => $detalle]);
-                session()->flash('error', 'Error al procesar los detalles.');
-                return;
-            }   
+            }
+    
+            // Confirmar la transacción si todo fue exitoso
+            DB::commit();
+            session()->flash('message', 'Datos procesados correctamente.');
+    
+            // Resetear campos después del envío
+            $this->reset(['contenedor', 'TotalDebe', 'TotalHaber', 'balance']);
+            Log::info("Formulario reseteado tras el envío exitoso.");
+        } catch (\Exception $e) {
+            // Si algo falla, se deshacen los cambios
+            DB::rollBack();
+            Log::error("Error al procesar el detalle: ", ['error' => $e->getMessage(), 'detalle' => $detalle]);
+            session()->flash('error', 'Error al procesar los detalles.');
+            return;
         }
-
-        session()->flash('message', 'Datos procesados correctamente.');
-        $this->reset(['contenedor', 'TotalDebe', 'TotalHaber', 'balance']);
-        Log::info("Formulario reseteado tras el envío exitoso.");
     }
+    
 
     // Función para alternar la visibilidad
     public function toggleContent()

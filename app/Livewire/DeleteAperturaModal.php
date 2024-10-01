@@ -9,6 +9,7 @@ use App\Models\Producto;
 use App\Models\Detalle;
 use App\Models\MovimientoDeCaja;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DeleteAperturaModal extends Component
 {
@@ -27,22 +28,38 @@ class DeleteAperturaModal extends Component
 
     public function deleteMovimiento()
     {
-        // Eliminar el movimiento y los documentos asociados
-        if ($this->familias <> 'MOVIMIENTOS'){
-        MovimientoDeCaja::where('id_documentos', $this->numMov)->delete();
-        DDetalleDocumento::where('id_referencia', $this->numMov)->delete();
-        Documento::where('id', $this->numMov)->delete();
-        }else{
-            MovimientoDeCaja::where('mov', $this->numMov)->delete();
-        }
-        session()->flash('message', 'Movimiento eliminado exitosamente.');
-        $this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
+        DB::beginTransaction(); // Iniciar la transacción
+        try {
+            // Eliminar el movimiento y los documentos asociados
+            if ($this->familias !== 'MOVIMIENTOS') {
+                Log::info("Eliminando documentos y movimientos relacionados con numMov: {$this->numMov}");
+                
+                MovimientoDeCaja::where('id_documentos', $this->numMov)->delete();
+                DDetalleDocumento::where('id_referencia', $this->numMov)->delete();
+                Documento::where('id', $this->numMov)->delete();
+            } else {
+                Log::info("Eliminando solo movimientos de caja con mov: {$this->numMov}");
+                
+                MovimientoDeCaja::where('mov', $this->numMov)->delete();
+            }
 
-        
-    
-      // Redireccionar como SPA
+            DB::commit(); // Confirmar la transacción
+            session()->flash('message', 'Movimiento eliminado exitosamente.');
+            Log::info("Movimiento eliminado exitosamente: numMov={$this->numMov}");
+            
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revertir la transacción en caso de error
+            Log::error("Error al eliminar el movimiento: {$e->getMessage()}");
+            session()->flash('error', 'Ocurrió un error al eliminar el movimiento.');
+        }
+
+        // Emitir el evento para actualizar la tabla
+        $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
+
+        // Redireccionar como SPA
         return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
     }
+
     
 
     // Cerrar el modal
