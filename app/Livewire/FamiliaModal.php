@@ -5,7 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Familia;
 use App\Models\TipoFamilia;
- use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;
+
 class FamiliaModal extends Component
 {
 
@@ -37,26 +38,35 @@ class FamiliaModal extends Component
         $this->validate();
 
         DB::transaction(function () {
+            // Verificar si la familia ya existe con la misma descripción y tipo de familia
+            $existingFamilia = Familia::where('descripcion', $this->nuevafamilia)
+                ->where('id_tipofamilias', $this->selectedTipoFamilia)
+                ->first();
+
+            if ($existingFamilia) {
+                session()->flash('error', 'Esta familia ya está registrada con la misma descripción y tipo.');
+                throw new \Exception('Familia duplicada.');
+            }
+
             // Bloquear fila para evitar lecturas concurrentes
             $this->newId = Familia::lockForUpdate()->max('id') + 1;
-    
+
             // Inserta la nueva familia
             Familia::create([
                 'id' => $this->newId,
                 'descripcion' => $this->nuevafamilia,
                 'id_tipofamilias' => $this->selectedTipoFamilia,
             ]);
-    
+
             // Emitir el evento para refrescar la tabla
             $this->dispatch('familia-created');
-    
+
             // Limpiar campos después de insertar
             $this->reset(['nuevafamilia', 'selectedTipoFamilia']);
-    
-            // Emitir un evento o mensaje de éxito (opcional)
+
+            // Emitir un evento o mensaje de éxito
             session()->flash('message', 'Familia creada exitosamente.');
         }, 5); // Tiempo de espera de la transacción (5 segundos)
-    
     }
 
     public function closeModal()

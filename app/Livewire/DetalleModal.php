@@ -63,6 +63,17 @@ class DetalleModal extends Component
         DB::beginTransaction();
 
         try {
+            // Verificar si ya existe un producto con la misma combinación de familia, subfamilia y descripción
+            $existingProducto = Detalle::where('id_familias', $this->familia_id)
+                ->where('id_subfamilia', $this->subfamilia_id)
+                ->where('descripcion', $this->nuevo_producto)
+                ->first();
+
+            if ($existingProducto) {
+                session()->flash('error', 'Ya existe un producto con la misma descripción en la familia y subfamilia seleccionadas.');
+                throw new \Exception('Producto duplicado.');
+            }
+
             $fam = (string) $this->familia_id;
             $subfam = str_pad((string) $this->subfamilia_id, 3, '0', STR_PAD_LEFT);  // Asegura que subfamilia tenga 3 caracteres
 
@@ -95,14 +106,15 @@ class DetalleModal extends Component
                 'id_cuenta' => $this->cuenta_id,
             ]);
 
-                // Generar un código hexadecimal único
-        do {
-            $codigoHex = strtoupper(str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT));
+            // Generar un código hexadecimal único
+            do {
+                $codigoHex = strtoupper(str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT));
 
-            // Verificar si el código ya existe en la tabla 'productos'
-            $existeCodigo = Producto::where('id', $codigoHex)->exists();
-            Log::info('Verificación de código hexadecimal', ['codigoHex' => $codigoHex, 'existe' => $existeCodigo]);
-        } while ($existeCodigo);  // Sigue generando códigos hasta encontrar uno único
+                // Verificar si el código ya existe en la tabla 'productos'
+                $existeCodigo = Producto::where('id', $codigoHex)->exists();
+                Log::info('Verificación de código hexadecimal', ['codigoHex' => $codigoHex, 'existe' => $existeCodigo]);
+            } while ($existeCodigo);  // Sigue generando códigos hasta encontrar uno único
+
             $descripcion = 'GENERAL';
             Producto::create([
                 'id' => $codigoHex,

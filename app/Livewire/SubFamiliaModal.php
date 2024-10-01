@@ -7,6 +7,7 @@ use App\Models\Familia;
 use Illuminate\Support\Facades\Log;
 use App\Models\SubFamilia;
 use Illuminate\Support\Facades\DB;
+
 class SubFamiliaModal extends Component
 {
     public $openModal = false;
@@ -28,41 +29,50 @@ class SubFamiliaModal extends Component
     ];
 
     public function insertNewSubFamilia()
-{
-    $this->validate();
+    {
+        $this->validate();
 
-    DB::transaction(function () {
-        // Bloquear fila para evitar concurrencia
-        $this->nuevoId = SubFamilia::lockForUpdate()->max('id') + 1;
+        DB::transaction(function () {
+            // Verificar si ya existe una subfamilia con la misma descripción para la familia seleccionada
+            $existingSubFamilia = SubFamilia::where('id_familias', $this->selectedFamilia)
+                ->where('desripcion', $this->nuevaSubfamilia)
+                ->first();
 
-        // Crear la nueva subfamilia
-        SubFamilia::create([
-            'id_familias' => $this->selectedFamilia,
-            'id' => $this->nuevoId,
-            'desripcion' => $this->nuevaSubfamilia,
-        ]);
+            if ($existingSubFamilia) {
+                session()->flash('error', 'Esta subfamilia ya está registrada bajo la familia seleccionada.');
+                throw new \Exception('Subfamilia duplicada.');
+            }
 
-        // Emitir el evento para refrescar la tabla
-        $this->dispatch('subfamilia-created');
+            // Bloquear fila para evitar concurrencia
+            $this->nuevoId = SubFamilia::lockForUpdate()->max('id') + 1;
 
-        // Limpiar campos después de insertar
-        $this->reset(['selectedFamilia', 'nuevaSubfamilia']);
+            // Crear la nueva subfamilia
+            SubFamilia::create([
+                'id_familias' => $this->selectedFamilia,
+                'id' => $this->nuevoId,
+                'desripcion' => $this->nuevaSubfamilia,
+            ]);
 
-        // Emitir un mensaje de éxito
-        session()->flash('message', 'SubFamilia creada exitosamente.');
-    }, 5); // Tiempo de espera de la transacción
-}
+            // Emitir el evento para refrescar la tabla
+            $this->dispatch('subfamilia-created');
+
+            // Limpiar campos después de insertar
+            $this->reset(['selectedFamilia', 'nuevaSubfamilia']);
+
+            // Emitir un mensaje de éxito
+            session()->flash('message', 'SubFamilia creada exitosamente.');
+        }, 5); // Tiempo de espera de la transacción
+    }
 
 
     public function mount()
     {
         $this->familia = Familia::all();
-        
     }
 
     public function render()
     {
-        
+
         return view('livewire.sub-familia-modal');
     }
 }

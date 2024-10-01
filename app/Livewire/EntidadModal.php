@@ -74,59 +74,84 @@ class EntidadModal extends Component
 
     public function submitEntidad()
     {
-        //$this->validate();
+        try {
+            DB::transaction(function () {
+                //$this->validate();
 
-        if ($this->entidad == '') {
-            session()->flash('error', 'El nombre esta vacio');
-            return;
+                if (empty($this->entidad)) {
+                    session()->flash('error', 'El nombre está vacío');
+                    throw new \Exception('El nombre de la entidad está vacío.');
+                }
+
+                // Verificar si la entidad ya existe con el mismo documento de identidad
+                $existingEntidadByDoc = Entidad::where('doc_ident', $this->docIdent)
+                    ->where('idt02doc', $this->tipoDocId)
+                    ->first();
+
+                if ($existingEntidadByDoc) {
+                    session()->flash('error', 'Esta entidad ya está registrada con el mismo número de documento.');
+                    throw new \Exception('Entidad ya registrada.');
+                }
+
+                // Verificar si la entidad ya existe con la misma descripción
+                $existingEntidadByDescripcion = Entidad::where('descripcion', $this->entidad)->first();
+
+                if ($existingEntidadByDescripcion) {
+                    session()->flash('error', 'Ya existe una entidad con la misma descripción.');
+                    throw new \Exception('Entidad con descripción duplicada.');
+                }
+
+                // Aplicamos el bloqueo pesimista
+                $entidad = Entidad::where('id', 'like', '100%')
+                    ->where('idt02doc', '1')
+                    ->lockForUpdate() // Bloqueo pesimista para evitar que alguien más edite este registro
+                    ->orderByRaw('CAST(id AS UNSIGNED) DESC')
+                    ->first();
+
+                // Sumar 1 al valor de id en PHP
+                $id = $entidad ? $entidad->id + 1 : null;
+
+                Log::info('Entidad creada', [
+                    'id' => $id,
+                    'descripcion' => $this->entidad,
+                    'estado_contribuyente' => '-',
+                    'estado_domicilio' => '-',
+                    'provincia' => '-',
+                    'distrito' => '-',
+                    'idt02doc' => '1'
+                ]);
+
+                Entidad::create([
+                    'id' => $id,
+                    'descripcion' => $this->entidad,
+                    'doc_ident' => $this->docIdent, // Asegúrate de guardar el documento de identidad
+                    'estado_contribuyente' => '-',
+                    'estado_domicilio' => '-',
+                    'provincia' => '-',
+                    'distrito' => '-',
+                    'idt02doc' => $this->tipoDocId
+                ]);
+
+                // Emitir evento para actualizar la tabla
+                $this->dispatch('entidad-created');
+
+                // Limpiar campos después de la inserción
+                $this->reset(['entidad', 'tipoDocId', 'docIdent']);
+
+                // Emitir un mensaje de éxito
+                session()->flash('message', 'Entidad creada exitosamente.');
+
+                // Cerrar el modal solo si no hay errores
+                $this->openModal = false;
+            });
+        } catch (\Exception $e) {
+            // Manejar el error, mostrar el mensaje y mantener el modal abierto
+            Log::error('Error al crear entidad: ' . $e->getMessage());
+            session()->flash('error', 'Ocurrió un error: ' . $e->getMessage());
+            $this->openModal = true; // Asegurar que el modal permanezca abierto
         }
-
-
-        $entidad = Entidad::where('id', 'like', '100%')
-            ->where('idt02doc', '1')
-            ->orderByRaw('CAST(id AS UNSIGNED) DESC')
-            ->first(); // Obtener el primer registro que coincide con los filtros
-
-        // Sumar 1 al valor de id en PHP
-        $id = $entidad ? $entidad->id + 1 : null;
-
-        Log::info('Entidad creada', [
-            'id' => $id,
-            'descripcion' => $this->entidad,
-            'estado_contribuyente' => '-',
-            'estado_domicilio' => '-',
-            'provincia' => '-',
-            'distrito' => '-',
-            'idt02doc' => '1'
-        ]);
-
-        Entidad::create([
-            'id' => $id,
-            'descripcion' => $this->entidad,
-            'estado_contribuyente' => '-',
-            'estado_domiclio' => '-',
-            'provincia' => '-',
-            'distrito' => '-',
-            'idt02doc' => '1'
-        ]);
-
-
-        // Emitir evento para actualizar la tabla
-        $this->dispatch('entidad-created');
-
-        // Limpiar campos después de la inserción
-        $this->reset(['entidad', 'tipoDocId', 'docIdent']);
-
-        // Emitir un mensaje de éxito
-        session()->flash('message', 'Entidad creada exitosamente.');
-
-   
-        // Cerrar el modal después del retraso
-        $this->openModal = false;
-
- 
-        // Tiempo de espera de la transacción (5 segundos)
     }
+
 
 
     public function hydrate(ApiService $apiService)
