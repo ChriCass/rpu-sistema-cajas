@@ -43,7 +43,7 @@
                     <x-input readonly label="Moneda:" wire:model="moneda" />
                 </div>
                 <div class="w-full md:w-4/12 px-2 flex items-center justify-end">
-                    @livewire('edit-cuadro-de-pendientes-ventas-modal', ['aperturaId' => $aperturaId,'numMov' => $numMov])
+                    @livewire('edit-cuadro-de-pendientes-ventas-modal', ['aperturaId' => $aperturaId,'numMov' => $numMov, 'contenedor' => $contenedor])
                 </div>
 
             </div>
@@ -113,7 +113,7 @@
                     <tbody>
                         @foreach ($contenedor as $index => $item)
                             <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">{{ $item['id'] }}</td>
+                                <td class="py-2 px-4 border-b border-gray-200">{{ $item['id_documentos'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['tdoc'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['id_entidades'] }}</td>
                                 <td class="py-2 px-4 border-b border-gray-200">{{ $item['RZ'] }}</td>
