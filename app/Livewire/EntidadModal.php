@@ -8,6 +8,7 @@ use Livewire\Attributes\On;
 use App\Services\ApiService;
 use Illuminate\Support\Facades\DB;
 use App\Models\Entidad;
+use Illuminate\Support\Facades\Log;
 
 class EntidadModal extends Component
 {
@@ -18,6 +19,7 @@ class EntidadModal extends Component
     public $tipoDocId;
     public $docIdent;
     public $desconozcoTipoDocumento = false;
+    public $desconozcoTipoDocumento1 = true;
 
     protected $apiService;
 
@@ -27,10 +29,26 @@ class EntidadModal extends Component
         $this->apiService = $apiService;
     }
 
+    public function updatedDesconozcoTipoDocumento($value)
+{
+    // Aquí puedes hacer algo cuando cambie el valor de desconozcoTipoDocumento
+    Log::info($value);
+    if ($value == 1) {
+        $value = true;
+        $this -> desconozcoTipoDocumento1 = false;
+        $this -> clearFields();
+    } else {
+        $value = false;
+        $this -> desconozcoTipoDocumento1 = true;
+        $this -> clearFields();
+    }
+}
+
+
+
     protected function rules()
     {
         return [
-            'entidad' => 'required|string|max:255',
             'tipoDocId' => 'required|in:1,6', // Solo puede ser DNI (1) o RUC (6)
             'docIdent' => 'required|numeric|unique:entidades,id|digits_between:8,11',
         ];
@@ -40,7 +58,6 @@ class EntidadModal extends Component
     protected function messages()
     {
         return [
-            'entidad.required' => 'El campo descripción de la entidad es obligatorio.',
             'tipoDocId.required' => 'Debe seleccionar un tipo de documento.',
             'tipoDocId.in' => 'El tipo de documento debe ser DNI o RUC.',
             'docIdent.required' => 'El número de documento es obligatorio.',
@@ -57,32 +74,50 @@ class EntidadModal extends Component
 
     public function submitEntidad()
     {
-        $this->validate();
+        //$this->validate();
     
-        // Iniciar una transacción para manejar concurrencia
-        DB::transaction(function () {
-            // Verifica si ya existe una entidad con el mismo RUC o DNI y crea si no existe
-            $entidad = Entidad::firstOrCreate(
-                ['id' => $this->docIdent],  // RUC o DNI como el ID de la entidad
-                [
-                    'descripcion' => $this->entidad, // Descripción ingresada
-                    'idt02doc' => $this->tipoDocId,  // Tipo de documento (DNI o RUC)
-                ]
-            );
+        if ($this -> entidad == ''){
+            session()->flash('error', 'El nombre esta vacio');
+            return;
+        }
+
+        
+        $entidad = Entidad::where('id', 'like', '100%')
+            ->where('idt02doc', '1')
+            ->orderByRaw('CAST(id AS UNSIGNED) DESC')
+            ->first(); // Obtener el primer registro que coincide con los filtros
+
+        // Sumar 1 al valor de id en PHP
+        $id = $entidad ? $entidad->id + 1 : null;
+
+        Log::info('Entidad creada', [
+            'id' => $id,
+            'descripcion' => $this->entidad,
+            'estado_contribuyente' => '-',
+            'estado_domicilio' => '-',
+            'provincia' => '-',
+            'distrito' => '-',
+            'idt02doc' => '1'
+        ]);
+            
+        Entidad::create(['id' => $id,
+                          'descripcion' => $this -> entidad,
+                          'estado_contribuyente' => '-',
+                          'estado_domiclio' => '-',
+                          'provincia' => '-',
+                          'distrito' => '-',
+                          'idt02doc' => '1' ]);
     
-            if ($entidad->wasRecentlyCreated) {
-                // Emitir evento para actualizar la tabla
-                $this->dispatch('entidad-created');
-    
-                // Limpiar campos después de la inserción
-                $this->reset(['entidad', 'tipoDocId', 'docIdent']);
-    
-                // Emitir un mensaje de éxito
-                session()->flash('message', 'Entidad creada exitosamente.');
-            } else {
-                session()->flash('error', 'La entidad con este RUC o DNI ya existe.');
-            }
-        }, 5); // Tiempo de espera de la transacción (5 segundos)
+        
+            // Emitir evento para actualizar la tabla
+        $this->dispatch('entidad-created');
+
+        // Limpiar campos después de la inserción
+        $this->reset(['entidad', 'tipoDocId', 'docIdent']);
+
+        // Emitir un mensaje de éxito
+        session()->flash('message', 'Entidad creada exitosamente.');
+        // Tiempo de espera de la transacción (5 segundos)
     }
     
 
@@ -111,7 +146,7 @@ class EntidadModal extends Component
 
         // Enviar al servicio API para validar el documento
         $response = $this->apiService->REntidad($this->tipoDocId, $this->docIdent);
-
+        Log::info($response);
         if ($response['success'] === '1') {
             $this->entidad = $response['desc'];
         } else {

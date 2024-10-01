@@ -30,7 +30,7 @@
                 
                 <!-- Input del ID del documento -->
                 <div class="w-full sm:w-4/12 px-4">
-                    <x-input wire:model.live="docIdent" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)" wire:keydown.enter="processDocIdent" label="Documento de Identidad"
+                    <x-input wire:model.live="docIdent" wire:keydown.enter="processDocIdent" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 11)" wire:keydown.enter="processDocIdent" label="Documento de Identidad"
                              class="w-full" :disabled="$desconozcoTipoDocumento" />
                     @error('docIdent')
                     @enderror
@@ -39,7 +39,7 @@
 
                 <!-- Input de nueva entidad -->
                 <div class="w-full sm:w-8/12 px-4">
-                    <x-input wire:model.live="entidad" label="Nueva entidad" class="w-full" />
+                    <x-input wire:model.live="entidad" label="Nueva entidad" class="w-full" :disabled="$desconozcoTipoDocumento1" oninput="this.value = this.value.toUpperCase()" />
                     @error('entidad')
                     @enderror
                 </div>
@@ -47,7 +47,7 @@
             
                 <x-slot name="footer" class="flex justify-end gap-x-4">
                     <x-button flat label="Cancelar" wire:click="$set('openModal', false)" />
-                    <x-button primary label="Aceptar" wire:click='submitEntidad'/>
+                    <x-button primary label="Aceptar" wire:click='submitEntidad' :disabled="$desconozcoTipoDocumento1"/>
                 </x-slot>
             </div>
         </x-card>
