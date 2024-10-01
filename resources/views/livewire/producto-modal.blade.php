@@ -1,5 +1,5 @@
 <div>
-    <x-button label="Nuevo" wire:click="showModal" primary />
+    <x-button label="Nuevo"  disabled  wire:click="showModal" primary />
 
     <x-modal name="persistentModal" wire:model="openModal" persistent>
         <x-card title="Registro de productos">
