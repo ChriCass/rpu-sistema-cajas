@@ -421,7 +421,10 @@ class EdRegistroDocumentosCxc extends Component
 
 
     public function submit()
-    {
+{
+    DB::beginTransaction(); // Iniciar una transacción para la concurrencia
+
+    try {
         // Validar los campos obligatorios
         $this->validate([
             'tipoDocumento' => 'required', // TextBox52
@@ -446,45 +449,51 @@ class EdRegistroDocumentosCxc extends Component
             'min' => 'El valor debe ser mayor a :min',
         ]);
 
-
+        // Comprobar si el documento tiene movimientos de caja
         $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
-                        ->where('id_documentos',$this->idcxc)
+                        ->where('id_documentos', $this->idcxc)
+                        ->lockForUpdate() // Bloqueo pesimista
                         ->get()
-                        ->toarray();
-        if(count($comprobacion) <> 0){
-            session()->flash('error', 'No se puede eliminar el documento de caja por que tiene movimientos de caja.');    
-            return $this->dispatch('cxc-updated');    
-        }
+                        ->toArray();
 
+        if (count($comprobacion) !== 0) {
+            session()->flash('error', 'No se puede eliminar el documento de caja porque tiene movimientos de caja.');
+            DB::rollBack(); // Revertir la transacción si hay un error
+            return $this->dispatch('cxc-updated');
+        }
 
         // Validar si el precio es 0
         if ($this->precio == 0) {
             session()->flash('error', 'No puede ser el monto cero');
+            DB::rollBack(); // Revertir la transacción si hay un error
             return;
         }
 
-        if($this -> validacionDet == '1'){
-            if($this -> porcentaje == '' || $this -> porcentaje == 0){
+        if ($this->validacionDet == '1') {
+            if ($this->porcentaje == '' || $this->porcentaje == 0) {
                 session()->flash('error', 'No puede ser el monto cero');
+                DB::rollBack(); // Revertir la transacción si hay un error
                 return;
-            }elseif($this -> montoDetraccion == ''|| $this -> montoDetraccion == 0){
+            } elseif ($this->montoDetraccion == '' || $this->montoDetraccion == 0) {
                 session()->flash('error', 'No puede ser el monto cero');
+                DB::rollBack(); // Revertir la transacción si hay un error
                 return;
             }
         }
 
-        if ($this -> familiaId == '001') { //Abelardo = Se hace la validacion de destinario
-            if($this->nuevoDestinatario == ''){
+        if ($this->familiaId == '001') { // Validar destinatario
+            if ($this->nuevoDestinatario == '') {
                 session()->flash('error', 'Tiene que tener un destinatario');
-            return;
+                DB::rollBack(); // Revertir la transacción si hay un error
+                return;
             }
         }
 
-
+        // Actualizar o crear el documento
         Documento::updateOrCreate(
-            ['id' => $this -> idcxc], // Condición de búsqueda
+            ['id' => $this->idcxc], // Condición de búsqueda
             [
-                'id_tipmov' => 1, // Valor fijo 2
+                'id_tipmov' => 1, // Valor fijo 1
                 'fechaEmi' => $this->fechaEmi,
                 'fechaVen' => $this->fechaVen,
                 'id_t10tdoc' => $this->tipoDocumento,
@@ -517,14 +526,17 @@ class EdRegistroDocumentosCxc extends Component
             ]
         );
 
-        $datos = $this->borrarRegistrosed($this -> idcxc);
+        // Borrar registros existentes relacionados
+        $datos = $this->borrarRegistrosed($this->idcxc);
         $movlibro = $datos['movlibro'];
 
-        $producto = Producto::select('id')
-                    -> where('id_detalle',$this->detalleId)
-                    -> where('descripcion','GENERAL')
-                    -> get()
-                    -> toarray();
+        // Procesar el producto
+        $producto = Producto::lockForUpdate() // Bloqueo pesimista para el producto
+                    ->select('id')
+                    ->where('id_detalle', $this->detalleId)
+                    ->where('descripcion', 'GENERAL')
+                    ->get()
+                    ->toArray();
 
         if ($this->centroDeCostos <> '') {
             Log::info('Paso');
@@ -535,51 +547,88 @@ class EdRegistroDocumentosCxc extends Component
         }
 
         Log::info('Centro de Costos:'.$centroDeCosts);
-                    
-        DDetalleDocumento::create(['id_referencia' => $this -> idcxc,
-                    'orden' => '1',
-                    'id_producto' => $producto[0]['id'],
-                    'id_tasas' => '1',
-                    'cantidad' => '1',
-                    'cu' => $this->precio,
-                    'total' => $this->precio,
-                    'id_centroDeCostos' => $centroDeCosts,]);
 
-        // Registrar log
+        // Crear el detalle del documento
+        DDetalleDocumento::create([
+            'id_referencia' => $this->idcxc,
+            'orden' => '1',
+            'id_producto' => $producto[0]['id'],
+            'id_tasas' => '1',
+            'cantidad' => '1',
+            'cu' => $this->precio,
+            'total' => $this->precio,
+            'id_centroDeCostos' => $centroDeCosts,
+        ]);
 
-        Log::info('Documento registrado exitosamente', ['documento_id' => $this -> idcxc]);
-           // Llamar a la función para registrar movimientos de caja
-        $this->registrarMovimientoCaja($this -> idcxc, $this->docIdent, $this->fechaEmi,$movlibro);
+        // Registrar log de documento exitoso
+        Log::info('Documento registrado exitosamente', ['documento_id' => $this->idcxc]);
+
+        // Registrar movimientos de caja
+        $this->registrarMovimientoCaja($this->idcxc, $this->docIdent, $this->fechaEmi, $movlibro);
+
         // Limpiar el formulario
         $this->resetForm();
 
-    
+        DB::commit(); // Confirmar la transacción
+
         session()->flash('message', 'Documento registrado con éxito.');
         $this->dispatch('cxc-updated');
-        // Emitir el evento para actualizar la tabla en `TablaDetalleApertura`
-        //$this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
-
-        //$this->dispatch('scroll-up');
-         
+    } catch (\Exception $e) {
+        DB::rollBack(); // Revertir la transacción en caso de error
+        Log::error('Error al registrar el documento', ['exception' => $e]);
+        session()->flash('error', 'Ocurrió un error al registrar el documento.');
     }
+}
 
-    public function borrarRegistrosed($idmov){
-        if ($this->familiaId == '002'){
+
+public function borrarRegistrosed($idmov)
+{
+    DB::beginTransaction(); // Iniciar una transacción
+
+    try {
+        $data = []; // Inicializar variable para almacenar datos
+
+        // Aplicar bloqueo pesimista para evitar conflictos de concurrencia
+        if ($this->familiaId == '002') {
             $datos = MovimientoDeCaja::select('mov')
-                    ->where('id_documentos',$idmov)
-                    ->where('id_libro','1')
-                    ->get()
-                    ->toarray();
-            $data['movlibro'] = $datos[0]['mov'];
+                ->where('id_documentos', $idmov)
+                ->where('id_libro', '1')
+                ->lockForUpdate() // Bloquear fila para evitar conflictos
+                ->get()
+                ->toArray();
+            
+            if (!empty($datos)) {
+                $data['movlibro'] = $datos[0]['mov'];
+            }
         }
-        MovimientoDeCaja::where('id_documentos',$idmov)->delete();
-        DDetalleDocumento::where('id_referencia',$idmov)->delete();
+
+        // Borrar movimientos de caja relacionados al documento
+        MovimientoDeCaja::where('id_documentos', $idmov)
+            ->lockForUpdate() // Bloquear filas para evitar conflictos
+            ->delete();
+
+        // Borrar detalles del documento
+        DDetalleDocumento::where('id_referencia', $idmov)
+            ->lockForUpdate() // Bloquear filas para evitar conflictos
+            ->delete();
+
+        DB::commit(); // Confirmar la transacción
+
         return $data;
 
+    } catch (\Exception $e) {
+        DB::rollBack(); // Revertir la transacción en caso de error
+        Log::error('Error al borrar registros', ['exception' => $e]);
+        throw $e; // Lanzar la excepción para que el flujo la maneje
     }
+}
 
-    public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $movLibro)
-    {
+
+public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $movLibro)
+{
+    DB::beginTransaction(); // Iniciar una transacción para asegurar atomicidad
+
+    try {
         // Log de variables iniciales
         Log::info('Iniciando registro de movimiento de caja', [
             'documentoId' => $documentoId,
@@ -589,15 +638,14 @@ class EdRegistroDocumentosCxc extends Component
             'serieNumero2' => $this->serieNumero2,
             'fechaEmi' => $fechaEmi,
             'familiaId' => $this->familiaId,
-            
         ]);
-    
+
         // Determinar si es una transferencia o no
         $lib = ($this->familiaId == '001') ? '5' : '1';
         Log::info('Determinado tipo de libro', ['lib' => $lib]);
-    
+
         // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
-        if ($this->familiaId == '001') { 
+        if ($this->familiaId == '001') {
             $cuentaId = 8; // Transferencias
             Log::info('Cuenta para transferencias asignada', ['cuentaId' => $cuentaId]);
         } else {
@@ -605,12 +653,12 @@ class EdRegistroDocumentosCxc extends Component
             $cuentaId = $cuentaDetalle->id_cuenta ?? null; // Cuenta de Logistica.detalle
             Log::info('Cuenta asignada desde Logistica.detalle', ['cuentaId' => $cuentaId]);
         }
-    
+
         // Calcular tipo de cambio si la moneda es USD
         if ($this->monedaId == 'USD') {
             $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaEmi)->first()->venta ?? 1;
             $precioConvertido = round($this->precio * $tipoCambio, 2);
-            if($this -> validacionDet == '1'){
+            if ($this->validacionDet == '1') {
                 $detraConvertido = round($this->montoDetraccion * $tipoCambio, 2);
                 $netoConvertido = round($this->montoNeto * $tipoCambio, 2);
             }
@@ -620,14 +668,16 @@ class EdRegistroDocumentosCxc extends Component
             ]);
         } else {
             $precioConvertido = $this->precio;
-            if($this -> validacionDet == '1'){
+            if ($this->validacionDet == '1') {
                 $detraConvertido = $this->montoDetraccion;
                 $netoConvertido = $this->montoNeto;
             }
             Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
         }
-    
-    
+
+        // Aplicar bloqueo pesimista en la tabla de movimientos para evitar conflictos de concurrencia
+        MovimientoDeCaja::lockForUpdate()->where('id_documentos', $documentoId)->first();
+
         // Registro en movimientosdecaja para ingresos
         if ($this->familiaId == '002') { // INGRESOS
             // Crear el primer registro en todos los casos
@@ -643,7 +693,7 @@ class EdRegistroDocumentosCxc extends Component
                 'glosa' => $this->observaciones,
             ]);
 
-            // Si $this->toggle es verdadero, crear el segundo registro
+            // Si $this->validacionDet es verdadero, crear el segundo registro
             if ($this->validacionDet == '1') {
                 MovimientoDeCaja::create([
                     'id_libro' => $lib,
@@ -663,14 +713,21 @@ class EdRegistroDocumentosCxc extends Component
                 'id_documentos' => $documentoId,
                 'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido
             ]);
-
         }
-    
-            
+
+        DB::commit(); // Confirmar la transacción
+
         // Confirmación de registro exitoso
         Log::info('Documento y movimiento de caja registrados exitosamente');
         session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');
+    } catch (\Exception $e) {
+        DB::rollBack(); // Revertir la transacción en caso de error
+        Log::error('Error al registrar movimientos de caja', ['exception' => $e]);
+        session()->flash('error', 'Ocurrió un error al registrar el documento y el movimiento de caja.');
+        throw $e; // Lanzar la excepción para que se maneje en el flujo de la aplicación
     }
+}
+
 
 
     public function render()
