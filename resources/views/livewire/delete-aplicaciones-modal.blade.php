@@ -10,9 +10,8 @@
                 <x-slot name="slot">
                     <p class="text-red-600 font-semibold">
                         Estás a punto de <b>eliminar la aplicación con los siguientes detalles:</b>
-                        @foreach ($detalles as $detalle)
-                            <br><b>ID de la aplicación:</b> {{$detalle['id']}} - {{$detalle['descripcion']}}
-                        @endforeach
+                            <br><b>Vaucher de la aplicación:</b> {{$detalles}}
+                        
                     </p>
                     
                     <p class="mt-2">Esta acción es <b>permanente</b> y no podrás deshacerla. Al eliminar esta aplicación, se perderán todos los registros asociados.</p>
@@ -23,7 +22,7 @@
             <!-- Footer con los botones de Cancelar y Eliminar -->
             <x-slot name="footer" class="flex justify-end gap-x-4">
                 <x-button flat negative label="Cancelar" wire:click="$set('openModal', false)" />
-                <x-button negative label="Eliminar" wire:click="deleteAplicacion" />
+                <x-button negative label="Eliminar" wire:click="deleteAplication" />
             </x-slot>
         </x-card>
     </x-modal>

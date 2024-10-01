@@ -64,7 +64,7 @@
 
 
      
-         @livewire('delete-aplicaciones-modal', ['detalles'=> $detalles])
+         @livewire('delete-aplicaciones-modal', ['detalles'=> $aplicacionesId])
  
 </div>
    
