@@ -7,10 +7,10 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          
 
-            @component('components.alert', ['type' => 'success', 'title' => 'esta es mi alerta!', 'message' => 'bienvenido usuario!'])
+            @component('components.alert', ['type' => 'success', 'title' => '¡Bienvenido!', 'message' => 'Estamos encantados de tenerte', 'username' => Auth::user()->name])
             @endcomponent
+
         </div>
     </div>
 </x-app-layout>
