@@ -16,6 +16,8 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use App\Models\TipoDocumentoIdentidad;
+use Livewire\Attributes\On;
+
 
 
 final class EntidadTable extends PowerGridComponent
@@ -98,17 +100,19 @@ final class EntidadTable extends PowerGridComponent
                 ->placeholder('Buscar...')
                 ->builder(function (Builder $builder, $value) {
                     if (!empty($value['value'])) {
-                        $builder->where('id', 'like', "%{$value['value']}%");
+                        $builder->where('entidades.id', 'like', "%{$value['value']}%");
                     }
                 }),
-            Filter::inputText('descripcion')
+                Filter::inputText('descripcion')
                 ->operators(['contains'])
                 ->placeholder('Buscar...')
                 ->builder(function (Builder $builder, $value) {
                     if (!empty($value['value'])) {
-                        $builder->where('descripcion', 'like', "%{$value['value']}%");
+                        // Especificar la tabla 'entidades' para evitar la ambigüedad
+                        $builder->where('entidades.descripcion', 'like', "%{$value['value']}%");
                     }
                 }),
+            
 
             // Filtro para Tipo de Documento con select
             Filter::select('abreviado', 'abreviado')
@@ -123,6 +127,16 @@ final class EntidadTable extends PowerGridComponent
                 }),
         ];
     }
+
+
+    #[On('entidad-created')]
+    public function refreshTable(): void
+    {
+        $this->fillData();
+    }
+    
+    
+
 
 
     /*  public function actions(Entidad $row): array

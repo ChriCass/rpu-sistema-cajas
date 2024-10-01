@@ -53,3 +53,13 @@
         </x-card>
     </x-modal>
 </div>
+
+
+<script>
+    Livewire.on('close-modal', () => {
+        // Esperar 3 segundos y luego cerrar el modal
+        setTimeout(() => {
+            @this.set('openModal', false);
+        }, 5000);
+    });
+</script>

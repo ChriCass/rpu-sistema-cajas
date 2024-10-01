@@ -18,8 +18,8 @@ class EntidadModal extends Component
     public $docs;
     public $tipoDocId;
     public $docIdent;
-    public $desconozcoTipoDocumento = false;
-    public $desconozcoTipoDocumento1 = true;
+    public $desconozcoTipoDocumento = true;
+    public $desconozcoTipoDocumento1 = false;
 
     protected $apiService;
 
@@ -30,19 +30,19 @@ class EntidadModal extends Component
     }
 
     public function updatedDesconozcoTipoDocumento($value)
-{
-    // Aquí puedes hacer algo cuando cambie el valor de desconozcoTipoDocumento
-    Log::info($value);
-    if ($value == 1) {
-        $value = true;
-        $this -> desconozcoTipoDocumento1 = false;
-        $this -> clearFields();
-    } else {
-        $value = false;
-        $this -> desconozcoTipoDocumento1 = true;
-        $this -> clearFields();
+    {
+        // Aquí puedes hacer algo cuando cambie el valor de desconozcoTipoDocumento
+        Log::info($value);
+        if ($value == 1) {
+            $value = true;
+            $this->desconozcoTipoDocumento1 = false;
+            $this->clearFields();
+        } else {
+            $value = false;
+            $this->desconozcoTipoDocumento1 = true;
+            $this->clearFields();
+        }
     }
-}
 
 
 
@@ -75,13 +75,13 @@ class EntidadModal extends Component
     public function submitEntidad()
     {
         //$this->validate();
-    
-        if ($this -> entidad == ''){
+
+        if ($this->entidad == '') {
             session()->flash('error', 'El nombre esta vacio');
             return;
         }
 
-        
+
         $entidad = Entidad::where('id', 'like', '100%')
             ->where('idt02doc', '1')
             ->orderByRaw('CAST(id AS UNSIGNED) DESC')
@@ -99,17 +99,19 @@ class EntidadModal extends Component
             'distrito' => '-',
             'idt02doc' => '1'
         ]);
-            
-        Entidad::create(['id' => $id,
-                          'descripcion' => $this -> entidad,
-                          'estado_contribuyente' => '-',
-                          'estado_domiclio' => '-',
-                          'provincia' => '-',
-                          'distrito' => '-',
-                          'idt02doc' => '1' ]);
-    
-        
-            // Emitir evento para actualizar la tabla
+
+        Entidad::create([
+            'id' => $id,
+            'descripcion' => $this->entidad,
+            'estado_contribuyente' => '-',
+            'estado_domiclio' => '-',
+            'provincia' => '-',
+            'distrito' => '-',
+            'idt02doc' => '1'
+        ]);
+
+
+        // Emitir evento para actualizar la tabla
         $this->dispatch('entidad-created');
 
         // Limpiar campos después de la inserción
@@ -117,9 +119,15 @@ class EntidadModal extends Component
 
         // Emitir un mensaje de éxito
         session()->flash('message', 'Entidad creada exitosamente.');
+
+   
+        // Cerrar el modal después del retraso
+        $this->openModal = false;
+
+ 
         // Tiempo de espera de la transacción (5 segundos)
     }
-    
+
 
     public function hydrate(ApiService $apiService)
     {
