@@ -25,9 +25,12 @@ use App\Models\CentroDeCostos;
 use App\Models\DDetalleDocumento;
 use App\Models\Cuenta;
 
+
 use App\Models\TipoDeComprobanteDePagoODocumento;
 
 use Illuminate\Support\Facades\Auth;
+
+use Illuminate\Support\Facades\DB;
 
 class RegistroDocumentosCxp extends Component
 {
@@ -326,143 +329,163 @@ class RegistroDocumentosCxp extends Component
     {
         // Validar los campos obligatorios
         $this->validate([
-            'tipoDocumento' => 'required', // TextBox52
-            'tipoDocDescripcion' => 'required', // TextBox53
-            'serieNumero1' => 'required', // TextBox2
-            'serieNumero2' => 'required', // TextBox3
-            'tipoDocId' => 'required', // ComboBox2
-            'docIdent' => 'required', // TextBox4
-            'entidad' => 'required', // TextBox5
-            'monedaId' => 'required', // ComboBox4
-            'tasaIgvId' => 'required', // ComboBox5
-            'fechaEmi' => 'required|date', // TextBox33
-            'fechaVen' => 'required|date', // TextBox34
-            'basImp' => 'required|numeric|min:0', // TextBox11
-            'igv' => 'required|numeric|min:0', // TextBox14
-            'noGravado' => 'required|numeric|min:0', // TextBox13
-            'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'tipoDocumento' => 'required',
+            'tipoDocDescripcion' => 'required',
+            'serieNumero1' => 'required',
+            'serieNumero2' => 'required',
+            'tipoDocId' => 'required',
+            'docIdent' => 'required',
+            'entidad' => 'required',
+            'monedaId' => 'required',
+            'tasaIgvId' => 'required',
+            'fechaEmi' => 'required|date',
+            'fechaVen' => 'required|date',
+            'basImp' => 'required|numeric|min:0',
+            'igv' => 'required|numeric|min:0',
+            'noGravado' => 'required|numeric|min:0',
+            'precio' => 'required|numeric|min:0.01',
+            'observaciones' => 'nullable|string|max:500',
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
             'min' => 'El valor debe ser mayor a :min',
         ]);
-
+    
         // Validar si el precio es 0
         if ($this->precio == 0) {
             session()->flash('error', 'No puede ser el monto cero');
             return;
         }
-
-        if($this -> validacionDet == '1'){
-            if($this -> porcentaje == '' || $this -> porcentaje == 0){
-                session()->flash('error', 'No puede ser el monto cero');
-                return;
-            }elseif($this -> montoDetraccion == ''|| $this -> montoDetraccion == 0){
-                session()->flash('error', 'No puede ser el monto cero');
-                return;
-            }
-        }
-
-        if ($this -> familiaId == '001') { //Abelardo = Se hace la validacion de destinario
-            if($this->nuevoDestinatario == ''){
-                session()->flash('error', 'Tiene que tener un destinatario');
-            return;
-            }
-        }
-
-        // Validar si el documento ya está registrado
-        $documentoExistente = Documento::where('id_entidades', $this->docIdent)
-            ->where('id_t10tdoc', $this->tipoDocumento)
-            ->where('serie', $this->serieNumero1)
-            ->where('numero', $this->serieNumero2)
-            ->where('id_tipmov','2')
-            ->first();
-
-        if ($documentoExistente) {
-            session()->flash('error', 'Documento ya registrado');
-            return;
-        }
-
-        Log::info('Prueba:'.$this -> montoDetraccion);
-
-        // Insertar el nuevo documento
-        $nuevoDocumento =Documento::create([
-            'id_tipmov' => 2,  ////cxp
-            'fechaEmi' => $this->fechaEmi,
-            'fechaVen' => $this->fechaVen,
-            'id_t10tdoc' => $this->tipoDocumento,
-            'id_t02tcom' => $this->tipoDocId,
-            'id_entidades' => $this->docIdent,
-            'id_t04tipmon' => $this->monedaId,
-            // Condicional para 'id_tasasIgv' basado en la tasa
-            'id_tasasIgv' => $this->tasaIgvId === 'No Gravado' ? 0 : ($this->tasaIgvId === '18%' ? 1 : ($this->tasaIgvId === '10%' ? 2 : null)),
-            'serie' => $this->serieNumero1,
-            'numero' => $this->serieNumero2,
-            'totalBi' => $this->totalBi ?? 0,
-            'descuentoBi' => $this->descuentoBi ?? 0,
-            'recargoBi' => $this->recargoBi ?? 0,
-            'basImp' => $this->basImp,
-            'IGV' => $this->igv,
-            'totalNg' => $this->totalNg ?? 0,
-            'descuentoNg' => $this->descuentoNg ?? 0,
-            'recargoNg' => $this->recargoNg ?? 0,
-            'noGravadas' => $this->noGravado,
-            'otroTributo' => $this->otroTributo ?? 0,
-            'precio' => $this->precio,
-            'detraccion' => $this->montoDetraccion ?? 0,
-            'montoNeto' => $this->montoNeto ?? 0,
-            'id_t10tdocMod' => $this->id_t10tdocMod ?? null,
-            'observaciones' => $this->observaciones,
-            'serieMod' => $this->serieMod ?? null,
-            'numeroMod' => $this->numeroMod ?? null,
-            'id_user' => $this->user ?? Auth::user()->id,
-            'fecha_Registro' => now(),
-            'id_dest_tipcaja' => $this->destinatarioVisible ? $this->nuevoDestinatario : null,
-        ]);
-
-        $producto = Producto::select('id')
-                    -> where('id_detalle',$this->detalleId)
-                    -> where('descripcion','GENERAL')
-                    -> get()
-                    -> toarray();
-
-        if ($this->centroDeCostos <> '') {
-            Log::info('Paso');
-            $centroDeCosts = $this->centroDeCostos;
-        } else {
-            Log::info('Es nulo');
-            $centroDeCosts = null;
-        }
-
-        Log::info('Centro de Costos:'.$centroDeCosts);
-                    
-        DDetalleDocumento::create(['id_referencia' => $nuevoDocumento->id,
-                    'orden' => '1',
-                    'id_producto' => $producto[0]['id'],
-                    'id_tasas' => '1',
-                    'cantidad' => '1',
-                    'cu' => $this->precio,
-                    'total' => $this->precio,
-                    'id_centroDeCostos' => $centroDeCosts,]);
-
-        // Registrar log
-
-        Log::info('Documento registrado exitosamente', ['documento_id' => $nuevoDocumento->id]);
-           // Llamar a la función para registrar movimientos de caja
-        $this->registrarMovimientoCaja($nuevoDocumento->id, $this->docIdent, $this->fechaEmi);
-        // Limpiar el formulario
-        $this->resetForm();
-
     
-        session()->flash('message', 'Documento registrado con éxito.');
-
-        // Emitir el evento para actualizar la tabla en `TablaDetalleApertura`
-        //$this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
-
-        //$this->dispatch('scroll-up');
-         
+        // Validación de detracción
+        if ($this->validacionDet == '1') {
+            if ($this->porcentaje == '' || $this->porcentaje == 0) {
+                session()->flash('error', 'No puede ser el monto cero');
+                return;
+            } elseif ($this->montoDetraccion == '' || $this->montoDetraccion == 0) {
+                session()->flash('error', 'No puede ser el monto cero');
+                return;
+            }
+        }
+    
+        // Validación del destinatario si la familiaId es '001'
+        if ($this->familiaId == '001') {
+            if ($this->nuevoDestinatario == '') {
+                session()->flash('error', 'Tiene que tener un destinatario');
+                return;
+            }
+        }
+    
+        // Iniciar una transacción para asegurar la atomicidad de las operaciones
+        DB::beginTransaction();
+    
+        try {
+            // Validar si el documento ya está registrado con bloqueo pesimista
+            $documentoExistente = Documento::where('id_entidades', $this->docIdent)
+                ->where('id_t10tdoc', $this->tipoDocumento)
+                ->where('serie', $this->serieNumero1)
+                ->where('numero', $this->serieNumero2)
+                ->where('id_tipmov', '2')
+                ->lockForUpdate() // Bloqueo pesimista
+                ->first();
+    
+            if ($documentoExistente) {
+                session()->flash('error', 'Documento ya registrado');
+                DB::rollBack();
+                return;
+            }
+    
+            Log::info('Prueba: ' . $this->montoDetraccion);
+    
+            // Insertar el nuevo documento
+            $nuevoDocumento = Documento::create([
+                'id_tipmov' => 2, // cxp
+                'fechaEmi' => $this->fechaEmi,
+                'fechaVen' => $this->fechaVen,
+                'id_t10tdoc' => $this->tipoDocumento,
+                'id_t02tcom' => $this->tipoDocId,
+                'id_entidades' => $this->docIdent,
+                'id_t04tipmon' => $this->monedaId,
+                'id_tasasIgv' => $this->tasaIgvId === 'No Gravado' ? 0 : ($this->tasaIgvId === '18%' ? 1 : ($this->tasaIgvId === '10%' ? 2 : null)),
+                'serie' => $this->serieNumero1,
+                'numero' => $this->serieNumero2,
+                'totalBi' => $this->totalBi ?? 0,
+                'descuentoBi' => $this->descuentoBi ?? 0,
+                'recargoBi' => $this->recargoBi ?? 0,
+                'basImp' => $this->basImp,
+                'IGV' => $this->igv,
+                'totalNg' => $this->totalNg ?? 0,
+                'descuentoNg' => $this->descuentoNg ?? 0,
+                'recargoNg' => $this->recargoNg ?? 0,
+                'noGravadas' => $this->noGravado,
+                'otroTributo' => $this->otroTributo ?? 0,
+                'precio' => $this->precio,
+                'detraccion' => $this->montoDetraccion ?? 0,
+                'montoNeto' => $this->montoNeto ?? 0,
+                'id_t10tdocMod' => $this->id_t10tdocMod ?? null,
+                'observaciones' => $this->observaciones,
+                'serieMod' => $this->serieMod ?? null,
+                'numeroMod' => $this->numeroMod ?? null,
+                'id_user' => $this->user ?? Auth::user()->id,
+                'fecha_Registro' => now(),
+                'id_dest_tipcaja' => $this->destinatarioVisible ? $this->nuevoDestinatario : null,
+            ]);
+    
+            // Obtener el producto con bloqueo pesimista
+            $producto = Producto::select('id')
+                ->where('id_detalle', $this->detalleId)
+                ->where('descripcion', 'GENERAL')
+                ->lockForUpdate() // Bloqueo pesimista
+                ->first();
+    
+            if ($this->centroDeCostos != '') {
+                Log::info('Paso');
+                $centroDeCosts = $this->centroDeCostos;
+            } else {
+                Log::info('Es nulo');
+                $centroDeCosts = null;
+            }
+    
+            Log::info('Centro de Costos: ' . $centroDeCosts);
+    
+            // Insertar el detalle del documento
+            DDetalleDocumento::create([
+                'id_referencia' => $nuevoDocumento->id,
+                'orden' => '1',
+                'id_producto' => $producto->id,
+                'id_tasas' => '1',
+                'cantidad' => '1',
+                'cu' => $this->precio,
+                'total' => $this->precio,
+                'id_centroDeCostos' => $centroDeCosts,
+            ]);
+    
+            // Registrar log
+            Log::info('Documento registrado exitosamente', ['documento_id' => $nuevoDocumento->id]);
+    
+            // Registrar movimientos de caja
+            $this->registrarMovimientoCaja($nuevoDocumento->id, $this->docIdent, $this->fechaEmi);
+    
+            // Confirmar la transacción
+            DB::commit();
+    
+            // Limpiar el formulario
+            $this->resetForm();
+    
+            session()->flash('message', 'Documento registrado con éxito.');
+    
+            // Emitir el evento para actualizar la tabla
+            //$this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
+            //$this->dispatch('scroll-up');
+    
+        } catch (\Exception $e) {
+            // Revertir la transacción en caso de error
+            DB::rollBack();
+            Log::error('Error al registrar el documento', ['exception' => $e]);
+            session()->flash('error', 'Ocurrió un error al registrar el documento.');
+        }
     }
+    
 
     public function resetForm()
     {
@@ -486,111 +509,127 @@ class RegistroDocumentosCxp extends Component
 
     public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi)
     {
-        // Log de variables iniciales
-        Log::info('Iniciando registro de movimiento de caja', [
-            'documentoId' => $documentoId,
-            'entidadId' => $entidadId,
-            'tipoDocumento' => $this->tipoDocumento,
-            'serieNumero1' => $this->serieNumero1,
-            'serieNumero2' => $this->serieNumero2,
-            'fechaEmi' => $fechaEmi,
-            'familiaId' => $this->familiaId,
-            
-        ]);
+        // Iniciar una transacción para asegurar la atomicidad
+        DB::beginTransaction();
     
-        // Determinar si es una transferencia o no
-        $lib = ($this->familiaId == '001') ? '5' : '2';
-        Log::info('Determinado tipo de libro', ['lib' => $lib]);
-    
-        // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
-        if ($this->familiaId == '001') { 
-            $cuentaId = 8; // Transferencias
-            Log::info('Cuenta para transferencias asignada', ['cuentaId' => $cuentaId]);
-        } else {
-            $cuentaDetalle = Detalle::find($this->detalleId);
-            $cuentaId = $cuentaDetalle->id_cuenta ?? null; // Cuenta de Logistica.detalle
-            Log::info('Cuenta asignada desde Logistica.detalle', ['cuentaId' => $cuentaId]);
-        }
-    
-        // Calcular tipo de cambio si la moneda es USD
-        if ($this->monedaId == 'USD') {
-            $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaEmi)->first()->venta ?? 1;
-            $precioConvertido = round($this->precio * $tipoCambio, 2);
-            if($this -> validacionDet == '1'){
-                $detraConvertido = round($this->montoDetraccion * $tipoCambio, 2);
-                $netoConvertido = round($this->montoNeto * $tipoCambio, 2);
-            }
-            Log::info('Tipo de cambio calculado', [
-                'tipoCambio' => $tipoCambio,
-                'precioConvertido' => $precioConvertido
+        try {
+            // Log de variables iniciales
+            Log::info('Iniciando registro de movimiento de caja', [
+                'documentoId' => $documentoId,
+                'entidadId' => $entidadId,
+                'tipoDocumento' => $this->tipoDocumento,
+                'serieNumero1' => $this->serieNumero1,
+                'serieNumero2' => $this->serieNumero2,
+                'fechaEmi' => $fechaEmi,
+                'familiaId' => $this->familiaId,
             ]);
-        } else {
-            $precioConvertido = $this->precio;
-            if($this -> validacionDet == '1'){
-                $detraConvertido = $this->montoDetraccion;
-                $netoConvertido = $this->montoNeto;
+    
+            // Determinar si es una transferencia o no
+            $lib = ($this->familiaId == '001') ? '5' : '2';
+            Log::info('Determinado tipo de libro', ['lib' => $lib]);
+    
+            // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle con bloqueo pesimista
+            if ($this->familiaId == '001') { 
+                $cuentaId = 8; // Transferencias
+                Log::info('Cuenta para transferencias asignada', ['cuentaId' => $cuentaId]);
+            } else {
+                $cuentaDetalle = Detalle::lockForUpdate()->find($this->detalleId);
+                $cuentaId = $cuentaDetalle->id_cuenta ?? null; // Cuenta de Logistica.detalle
+                Log::info('Cuenta asignada desde Logistica.detalle', ['cuentaId' => $cuentaId]);
             }
-            Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
-        }
     
-        // Obtener el último número de movimiento
-        $ultimoMovimiento = MovimientoDeCaja::where('id_libro', $lib)
-            ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
-            ->first();
-        $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
-        Log::info('Nuevo movimiento asignado', ['nuevoMov' => $nuevoMov]);
-
-        $tipoFamilia = Familia::select('id_tipofamilias')
-                    ->where('id',$this->familiaId)
-                    ->get()
-                    ->toarray();
+            // Calcular tipo de cambio si la moneda es USD con bloqueo pesimista
+            if ($this->monedaId == 'USD') {
+                $tipoCambio = TipoDeCambioSunat::lockForUpdate() // Bloqueo pesimista
+                    ->where('fecha', $this->fechaEmi)
+                    ->first()->venta ?? 1;
     
-        // Registro en movimientosdecaja para ingresos
-        if ($tipoFamilia[0]['id_tipofamilias'] == '2') {
-            // Crear el primer registro en todos los casos
-            MovimientoDeCaja::create([
-                'id_libro' => $lib,
-                'mov' => $nuevoMov,
-                'fec' => $fechaEmi,
-                'id_documentos' => $documentoId,
-                'id_cuentas' => $cuentaId,
-                'id_dh' => 2,
-                'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
-                'montodo' => null,
-                'glosa' => $this->observaciones,
-            ]);
-
-            // Si $this->toggle es verdadero, crear el segundo registro
-            if ($this->validacionDet == '1') {
+                $precioConvertido = round($this->precio * $tipoCambio, 2);
+                if ($this->validacionDet == '1') {
+                    $detraConvertido = round($this->montoDetraccion * $tipoCambio, 2);
+                    $netoConvertido = round($this->montoNeto * $tipoCambio, 2);
+                }
+                Log::info('Tipo de cambio calculado', [
+                    'tipoCambio' => $tipoCambio,
+                    'precioConvertido' => $precioConvertido
+                ]);
+            } else {
+                $precioConvertido = $this->precio;
+                if ($this->validacionDet == '1') {
+                    $detraConvertido = $this->montoDetraccion;
+                    $netoConvertido = $this->montoNeto;
+                }
+                Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
+            }
+    
+            // Obtener el último número de movimiento con bloqueo pesimista
+            $ultimoMovimiento = MovimientoDeCaja::where('id_libro', $lib)
+                ->lockForUpdate() // Bloqueo pesimista
+                ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
+                ->first();
+            $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
+            Log::info('Nuevo movimiento asignado', ['nuevoMov' => $nuevoMov]);
+    
+            // Obtener tipo de familia con bloqueo pesimista
+            $tipoFamilia = Familia::select('id_tipofamilias')
+                ->where('id', $this->familiaId)
+                ->lockForUpdate() // Bloqueo pesimista
+                ->first();
+    
+            // Registro en movimientos de caja para ingresos
+            if ($tipoFamilia && $tipoFamilia->id_tipofamilias == '2') {
+                // Crear el primer registro en todos los casos
                 MovimientoDeCaja::create([
                     'id_libro' => $lib,
                     'mov' => $nuevoMov,
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
-                    'id_cuentas' => 4,
+                    'id_cuentas' => $cuentaId,
                     'id_dh' => 2,
-                    'monto' => $detraConvertido,
+                    'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
                 ]);
-            }
-
-            // Registrar en el log
-            Log::info('Registro de ingresos en movimientosdecaja realizado', [
-                'id_documentos' => $documentoId,
-                'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido
-            ]);
-
-        }
     
-            
-        // Confirmación de registro exitoso
-        Log::info('Documento y movimiento de caja registrados exitosamente');
-        session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');
-
-        $this->dispatch('cxp-created');
+                // Si validacionDet es verdadero, crear el segundo registro
+                if ($this->validacionDet == '1') {
+                    MovimientoDeCaja::create([
+                        'id_libro' => $lib,
+                        'mov' => $nuevoMov,
+                        'fec' => $fechaEmi,
+                        'id_documentos' => $documentoId,
+                        'id_cuentas' => 4,
+                        'id_dh' => 2,
+                        'monto' => $detraConvertido,
+                        'montodo' => null,
+                        'glosa' => $this->observaciones,
+                    ]);
+                }
+    
+                // Registrar en el log
+                Log::info('Registro de ingresos en movimientos de caja realizado', [
+                    'id_documentos' => $documentoId,
+                    'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido
+                ]);
+            }
+    
+            // Confirmar la transacción
+            DB::commit();
+    
+            // Confirmación de registro exitoso
+            Log::info('Documento y movimiento de caja registrados exitosamente');
+            session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');
+    
+            $this->dispatch('cxp-created');
+    
+        } catch (\Exception $e) {
+            // Revertir la transacción en caso de error
+            DB::rollBack();
+            Log::error('Error al registrar movimiento de caja', ['exception' => $e]);
+            session()->flash('error', 'Ocurrió un error al registrar movimiento de caja.');
+        }
     }
-
+    
 
 
     public function render()
