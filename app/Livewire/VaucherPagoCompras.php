@@ -11,6 +11,8 @@ use App\Models\TipoDeCambioSunat;
 use App\Models\MovimientoDeCaja;
 use App\Models\Cuenta;
 use App\Models\TipoDeCaja;
+use Illuminate\Support\Facades\DB;
+
 
 class VaucherPagoCompras extends Component
 {
@@ -188,7 +190,7 @@ class VaucherPagoCompras extends Component
     public function submit()
     {
         Log::info('Iniciando el proceso de submit en VaucherPagoCompras.');
-
+    
         // Validación de campos
         if (empty($this->fechaApertura) || empty($this->contenedor)) {
             Log::warning('Falta llenar campos: fecha o contenedor están vacíos.');
@@ -201,64 +203,48 @@ class VaucherPagoCompras extends Component
             session()->flash('error', 'Debe haber más de un detalle en la transacción.');
             return;
         }
-
+    
         Log::info('Campos validados correctamente.');
-
-
-        // Obtener idapt de la apertura
+    
+        DB::beginTransaction(); // Iniciar transacción para asegurar atomicidad
+    
         try {
+            // Obtener idapt de la apertura
             $idapt = $this->aperturaId;
             Log::info("idapt obtenido correctamente: {$idapt}");
-        } catch (\Exception $e) {
-            Log::error('Error obteniendo idapt: ' . $e->getMessage());
-            session()->flash('error', 'Error al obtener la apertura.');
-            return;
-        }
-
-        // Obtener el número de movimiento (movc)
-        try {
+    
+            // Obtener el número de movimiento (movc) con bloqueo pesimista
             $movc = MovimientoDeCaja::where('id_apertura', $idapt)
+                ->lockForUpdate() // Bloquear para evitar concurrencia
                 ->orderBy('mov', 'desc')
                 ->first()
                 ->mov ?? 1;
             $movc++; // Incrementa para el siguiente movimiento
             Log::info("Número de movimiento generado correctamente: {$movc}");
-        } catch (\Exception $e) {
-            Log::error('Error obteniendo movc: ' . $e->getMessage());
-            session()->flash('error', 'Error al generar el número de movimiento.');
-            return;
-        }
-
-        // Si la moneda no es PEN, calcular el tipo de cambio
-        $tipoCambio = 1;
-        if ($this->moneda !== 'PEN') {
-            try {
-                $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaApertura)->value('venta');
+    
+            // Si la moneda no es PEN, calcular el tipo de cambio
+            $tipoCambio = 1;
+            if ($this->moneda !== 'PEN') {
+                $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaApertura)->value('venta') ?? 1;
                 Log::info("Tipo de cambio obtenido: {$tipoCambio}");
-            } catch (\Exception $e) {
-                Log::error('Error obteniendo el tipo de cambio: ' . $e->getMessage());
-                session()->flash('error', 'Error al obtener el tipo de cambio.');
-                return;
             }
-        }
-        Log::info($this->contenedor);
-
-        // Procesar cada detalle en el contenedor
-        try {
+            Log::info($this->contenedor);
+    
+            // Procesar cada detalle en el contenedor
             foreach ($this->contenedor as $detalle) {
-
                 $iddoc = $detalle['id_documentos'] ?? 'NULL';
                 $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
-                Log::info(DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'));
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
+    
                 // Obtener la cuenta
                 $cta = Cuenta::where('Descripcion', $detalle['Descripcion'])->firstOrFail()->id;
                 Log::info("Cuenta obtenida: {$cta}");
-
+    
                 // Determinar si es Debe o Haber y calcular el monto
                 $dh = 1; // Debe
                 $monto = $detalle['monto'];
-                // Insertar el movimiento en la base de datoss
+    
+                // Insertar el movimiento en la base de datos
                 MovimientoDeCaja::create([
                     'id_libro' => 3,
                     'id_apertura' => $idapt,
@@ -271,67 +257,41 @@ class VaucherPagoCompras extends Component
                     'montodo' => null,
                     'glosa' => $glo,
                 ]);
-
+    
                 Log::info("Movimiento de caja insertado: ID Cuenta: {$cta}, Debe/Haber: {$dh}, Monto: {$monto}");
             }
-
-            $ctaCaja = Cuenta::where('Descripcion', $this->tipoCaja['descripcion'])
-                ->get()
-                ->toarray();
-
-            Log::info($ctaCaja);
-
+    
+            // Crear el movimiento de caja correspondiente al pago de CXP
+            $ctaCaja = Cuenta::where('Descripcion', $this->tipoCaja['descripcion'])->firstOrFail()->id;
+            Log::info("Cuenta de caja obtenida: {$ctaCaja}");
+    
             MovimientoDeCaja::create([
                 'id_libro' => 3,
                 'id_apertura' => $idapt,
                 'mov' => $movc,
                 'fec' => DateTime::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d'),
                 'id_documentos' => null,
-                'id_cuentas' => $ctaCaja[0]['id'],
+                'id_cuentas' => $ctaCaja,
                 'id_dh' => 2,
                 'monto' => $this->haber,
                 'montodo' => null,
                 'glosa' => 'PAGO DE CXP',
             ]);
+    
+            DB::commit(); // Confirmar la transacción
+    
+            // Si todo salió bien
+            session()->flash('message', 'Transacción Exitosa.');
+            return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
+    
+            Log::info('Transacción procesada exitosamente.');
         } catch (\Exception $e) {
-            Log::error('Error insertando movimiento de caja: ' . $e->getMessage());
-            session()->flash('error', 'Error al procesar los detalles.');
-            return;
+            DB::rollBack(); // Revertir la transacción en caso de error
+            Log::error('Error en el proceso de submit: ' . $e->getMessage());
+            session()->flash('error', 'Error al procesar la transacción.');
         }
-
-        /* 
-        // Cálculo del balance
-        $this->balance = $this->TotalDebe - $this->TotalHaber;
-        Log::info("Balance calculado: {$this->balance}");
-
-        if ($this->balance != 0) {
-            Log::warning("El balance no cuadra: {$this->balance}");
-            session()->flash('error', 'El asiento no cuadra');
-            return;
-        }
-        */
-
-        // Si todo salió bien
-        session()->flash('message', 'Transacción Exitosa.');
-       
-        // Redireccionar como SPA
-        return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
-        Log::info('Transacción procesada exitosamente.');
-
-        // Resetear los campos después de procesar la transacción
-        $this->reset(['fechaApertura', 'contenedor', 'debe', 'haber', 'balance']);
-        ///  Log::info('Formulario reseteado.');
-        ///  $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
-
-        // Lógica de procesamiento (puedes dejar el resto de la lógica tal como está)
-
-        // Si todo salió bien
-        
-     //   Log::info('Transacción procesada exitosamente.');
-
-       
-       
     }
+    
 
 
     public function render()
