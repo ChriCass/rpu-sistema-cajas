@@ -18,6 +18,8 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use App\Models\Mes;
  use App\Models\TipoDeCaja;
+
+ 
 final class AperturaTable extends PowerGridComponent
 {
     use WithExport;
@@ -76,6 +78,7 @@ final class AperturaTable extends PowerGridComponent
             ->add('fecha_formatted');
     }
 
+    
     public function columns(): array
     {
         return [
@@ -136,6 +139,11 @@ final class AperturaTable extends PowerGridComponent
                 
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
                 ->route('apertura.edit', ['aperturaId' => $row->id] ),
+                Button::add('edit')
+                ->slot('Borrar')
+                ->id()
+                ->class('bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded')
+                ->openModal('delete-apertura-principal-modal', ['aperturaId' => $row->id])
         ];
     }
 }

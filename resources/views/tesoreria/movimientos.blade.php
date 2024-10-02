@@ -6,15 +6,30 @@
     </x-slot>
 
     <div class="max-w-screen-xl mx-auto px-4 mt-12">
-        <div class="flex flex-wrap -mx-4">
+   
             <div class="w-full w-6/12 px-4 mb-4">
-                <div class="bg-white rounded-md p-4 shadow-lg">
+                
+                 <x-card>
+                   
+                        @if (session()->has('message'))
+                        <x-alert title="Felicidades!" positive>
+                            {{ session('message') }}
+                        </x-alert>
+                    @elseif (session()->has('error'))
+                        <x-alert title="Error!" negative>
+                            {{ session('error') }}
+                        </x-alert>
+                    @endif
+
                     @livewire('apertura-table')
-                </div>
+                
+                 </x-card>
+                    
+                    
                
             </div>
 
-        </div>
+        
         <div class="w-full px-4 mb-4">
           <div class="flex justify-center">
             @livewire('movimiento-modal')
