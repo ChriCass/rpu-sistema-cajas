@@ -93,10 +93,10 @@ class ReporteCajaView extends Component
         FROM  movimientosdecaja
         WHERE id_cuentas = ? AND fec < ?
     ", [$this->id_caja, $fecha_apertura])[0]->saldo_inicial ?? 0; */
-
+        Log::info('id caja y fec valores', ['id caja'=> $this->id_caja, 'fec' => $fecha_apertura]);
         $this->saldo_inicial = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto"))
-            ->where('id_cuentas', $this->id_caja)
-            ->where('fec', '<', $fecha_apertura)
+            ->where('id_cuentas', '5')
+            ->where('fec', '<','2024-05-20')
             ->value('monto'); // Esto obtiene el valor directo de la consulta
 
         $this->saldo_inicial = number_format($this->saldo_inicial ?? 0, 2, '.', '');
