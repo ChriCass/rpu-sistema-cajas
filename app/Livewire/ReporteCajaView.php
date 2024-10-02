@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Mes;
 use App\Models\TipoDeCaja;
 use App\Models\Apertura;
+use App\Models\Cuenta;
 use App\Models\MovimientoDeCaja;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,16 @@ class ReporteCajaView extends Component
             'numero' => $this->numero,
         ]);
 
+        $desc = TipoDeCaja::select('descripcion')
+                        -> where('id',$this->id_caja)
+                        ->get()
+                        ->toarray();
+
+        $idcuenta = Cuenta::select('id')
+                        ->where('descripcion',$desc[0]['descripcion'])
+                        ->get()
+                        ->toarray();
+
         // Obtener la apertura en base a los datos seleccionados
         $apertura = Apertura::where('id_tipo', $this->id_caja)
             ->where('id_mes', $this->mes)
@@ -95,8 +106,8 @@ class ReporteCajaView extends Component
     ", [$this->id_caja, $fecha_apertura])[0]->saldo_inicial ?? 0; */
         Log::info('id caja y fec valores', ['id caja'=> $this->id_caja, 'fec' => $fecha_apertura]);
         $this->saldo_inicial = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto"))
-            ->where('id_cuentas', '5')
-            ->where('fec', '<','2024-05-20')
+            ->where('id_cuentas', $idcuenta[0]['id'])
+            ->where('fec', '<', $fecha_apertura)
             ->value('monto'); // Esto obtiene el valor directo de la consulta
 
         $this->saldo_inicial = number_format($this->saldo_inicial ?? 0, 2, '.', '');
@@ -142,7 +153,7 @@ FROM (
 			(select id_referencia,id_detalle from d_detalledocumentos left join l_productos on d_detalledocumentos.id_producto = l_productos.id) 
 			INN1 ON documentos.id = INN1.id_referencia
         WHERE 
-            id_cuentas <> ? 
+            id_cuentas <> ?
             AND id_apertura = ?
     ) CO1
     LEFT JOIN 
@@ -156,7 +167,7 @@ LEFT JOIN
     entidades ON CO2.id_entidades = entidades.id
 ORDER BY 
     CO2.mov;
-    ", [$this->id_caja, $apertura->id]);
+    ", [$idcuenta[0]['id'], $apertura->id]);
 
         // Convertir a una colección
         $this->movimientos = collect($raw_movimientos);
