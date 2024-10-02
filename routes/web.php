@@ -20,6 +20,12 @@ use App\Livewire\AplicacionDetail;
 use App\Livewire\EdRegistroDocumentosCxc;
 
 
+use App\Livewire\MatrizDeCobrosView;
+use App\Livewire\MatrizDePagosView;
+use App\Livewire\ReporteCajaView;
+use App\Livewire\ReporteCajaXMesView;
+use App\Livewire\ReporteCajaXAñoView;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +111,13 @@ Route::middleware([
     Route::prefix('aplicaciones/{aplicacionesId}')->group(function (){
         Route::get('/', AplicacionDetail::class)->name('aplicacion.show');
     });
+
+    Route::get('/reportes/matriz-cobros', MatrizDeCobrosView::class)->name('reportes.matriz.cobros');
+    Route::get('/reportes/matriz-pagos', MatrizDePagosView::class)->name('reportes.matriz.pagos');
+
+    Route::get('/reportes/reporte-caja', ReporteCajaView::class)->name('reportes.reporte.caja');
+    Route::get('/reportes/reporte-caja-mes', ReporteCajaXMesView::class)->name('reportes.reporte.caja.mes');
+    Route::get('/reportes/reporte-caja-anio', ReporteCajaXAñoView::class)->name('reportes.reporte.caja.anio');
 
  
 });

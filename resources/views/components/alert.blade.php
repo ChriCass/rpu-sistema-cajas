@@ -17,7 +17,7 @@
   }
 @endphp
 
-<div x-data="{ show: true }" x-show="show" class="relative">
+<div x-data="{ show: true }" x-show="show" class="relative mb-4">
   <div class="{{ $class }} px-4 py-3 rounded relative" role="alert">
     <strong class="font-bold">{{ $title }}</strong>
     <span class="block sm:inline">{{ $message }}, {{ $username }}!</span>
