@@ -77,14 +77,14 @@ class EntidadModal extends Component
         try {
             DB::transaction(function () {
                 //$this->validate();
-
+                $this->tipoDocId = $this->tipoDocId ?? 1;
                 if (empty($this->entidad)) {
                     session()->flash('error', 'El nombre está vacío');
                     throw new \Exception('El nombre de la entidad está vacío.');
                 }
 
                 // Verificar si la entidad ya existe con el mismo documento de identidad
-                $existingEntidadByDoc = Entidad::where('doc_ident', $this->docIdent)
+                $existingEntidadByDoc = Entidad::where('id', $this->docIdent)
                     ->where('idt02doc', $this->tipoDocId)
                     ->first();
 

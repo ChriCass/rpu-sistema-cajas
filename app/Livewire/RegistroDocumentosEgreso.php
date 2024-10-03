@@ -649,10 +649,8 @@ public function updatedNoGravado()
     
             session()->flash('message', 'Documento registrado con éxito.');
     
-            // Emitir el evento para actualizar la tabla en `TablaDetalleApertura`
-            $this->dispatch('actualizar-tabla-apertura', $this->aperturaId); 
-    
-            $this->dispatch('scroll-up');
+            // Redireccionar como SPA
+        return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
     
         } catch (\Exception $e) {
             DB::rollBack();

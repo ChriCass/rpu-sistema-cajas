@@ -632,8 +632,8 @@ public function updatedNoGravado()
             // Limpiar el formulario y emitir eventos
             $this->resetForm();
             session()->flash('message', 'Documento registrado con éxito.');
-            $this->dispatch('actualizar-tabla-apertura', $this->aperturaId);
-            $this->dispatch('scroll-up');
+          // Redireccionar como SPA
+        return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
     
         } catch (\Exception $e) {
             DB::rollBack();
