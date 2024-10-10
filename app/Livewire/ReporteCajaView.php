@@ -10,7 +10,7 @@ use App\Models\Cuenta;
 use App\Models\MovimientoDeCaja;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-
+use Barryvdh\DomPDF\Facade\Pdf; // Asegúrate de importar la clase correcta
 
 
 class ReporteCajaView extends Component
@@ -65,14 +65,14 @@ class ReporteCajaView extends Component
         ]);
 
         $desc = TipoDeCaja::select('descripcion')
-                        -> where('id',$this->id_caja)
-                        ->get()
-                        ->toarray();
+            ->where('id', $this->id_caja)
+            ->get()
+            ->toarray();
 
         $idcuenta = Cuenta::select('id')
-                        ->where('descripcion',$desc[0]['descripcion'])
-                        ->get()
-                        ->toarray();
+            ->where('descripcion', $desc[0]['descripcion'])
+            ->get()
+            ->toarray();
 
         // Obtener la apertura en base a los datos seleccionados
         $apertura = Apertura::where('id_tipo', $this->id_caja)
@@ -104,7 +104,7 @@ class ReporteCajaView extends Component
         FROM  movimientosdecaja
         WHERE id_cuentas = ? AND fec < ?
     ", [$this->id_caja, $fecha_apertura])[0]->saldo_inicial ?? 0; */
-        Log::info('id caja y fec valores', ['id caja'=> $this->id_caja, 'fec' => $fecha_apertura]);
+        Log::info('id caja y fec valores', ['id caja' => $this->id_caja, 'fec' => $fecha_apertura]);
         $this->saldo_inicial = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto"))
             ->where('id_cuentas', $idcuenta[0]['id'])
             ->where('fec', '<', $fecha_apertura)
@@ -185,6 +185,43 @@ ORDER BY
 
         session()->flash('message', 'Reporte procesado correctamente.');
     }
+
+    public function exportarPDF()
+    {
+        // Obtener el mes como objeto y luego su descripción
+        $descripcion_fecha = Mes::where('id', $this->mes)->first(); 
+        $mes = $descripcion_fecha->descripcion;
+    
+        // Obtener la descripción de la caja
+        $desc = TipoDeCaja::select('descripcion')
+            ->where('id', $this->id_caja)
+            ->first(); // Cambiado a first()
+    
+        // Obtener el ID de la cuenta
+        $idcuenta = Cuenta::select('id')
+            ->where('descripcion', $desc->descripcion)
+            ->first(); // Cambiado a first()
+    
+        $datos = [
+            'movimientos' => $this->movimientos,
+            'saldo_inicial' => $this->saldo_inicial,
+            'variacion' => $this->variacion,
+            'saldo_final' => $this->saldo_final,
+            'año' => $this->año,
+            'mes' => $mes,
+            'id_caja' => $desc->descripcion
+        ];
+    
+        // Generar el PDF a partir de una vista de Blade
+        $pdf = Pdf::loadView('pdf.reporte_caja', $datos)->setPaper('a3', 'landscape');
+    
+        // Retornar el PDF como descarga
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            'reporte_caja.pdf'
+        );
+    }
+    
 
     public function render()
     {
