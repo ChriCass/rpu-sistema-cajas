@@ -11,6 +11,8 @@ use App\Models\MovimientoDeCaja;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf; // Asegúrate de importar la clase correcta
+use App\Exports\CajaExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class ReporteCajaView extends Component
@@ -29,7 +31,7 @@ class ReporteCajaView extends Component
     public $saldo_final;
     public $movimientos;
     public $movimientos_encontrados = false;
-
+    public $exportarExcel =false;
     public function mount()
     {
         $this->meses = Mes::all();
@@ -184,43 +186,81 @@ ORDER BY
         Log::info('Saldo final calculado.', ['saldo_final' => $this->saldo_final]);
 
         session()->flash('message', 'Reporte procesado correctamente.');
+        $this->exportarExcel = true;
     }
 
     public function exportarPDF()
     {
-        // Obtener el mes como objeto y luego su descripción
-        $descripcion_fecha = Mes::where('id', $this->mes)->first(); 
-        $mes = $descripcion_fecha->descripcion;
-    
-        // Obtener la descripción de la caja
-        $desc = TipoDeCaja::select('descripcion')
-            ->where('id', $this->id_caja)
-            ->first(); // Cambiado a first()
-    
-        // Obtener el ID de la cuenta
-        $idcuenta = Cuenta::select('id')
-            ->where('descripcion', $desc->descripcion)
-            ->first(); // Cambiado a first()
-    
-        $datos = [
-            'movimientos' => $this->movimientos,
-            'saldo_inicial' => $this->saldo_inicial,
-            'variacion' => $this->variacion,
-            'saldo_final' => $this->saldo_final,
-            'año' => $this->año,
-            'mes' => $mes,
-            'id_caja' => $desc->descripcion
-        ];
-    
-        // Generar el PDF a partir de una vista de Blade
-        $pdf = Pdf::loadView('pdf.reporte_caja', $datos)->setPaper('a3', 'landscape');
-    
-        // Retornar el PDF como descarga
-        return response()->streamDownload(
-            fn() => print($pdf->output()),
-            'reporte_caja.pdf'
-        );
+        try {
+            // Obtener el mes como objeto y luego su descripción
+            $descripcion_fecha = Mes::where('id', $this->mes)->first(); 
+            $mes = $descripcion_fecha->descripcion;
+        
+            // Obtener la descripción de la caja
+            $desc = TipoDeCaja::select('descripcion')
+                ->where('id', $this->id_caja)
+                ->first();
+        
+            // Obtener el ID de la cuenta
+            $idcuenta = Cuenta::select('id')
+                ->where('descripcion', $desc->descripcion)
+                ->first();
+        
+            $datos = [
+                'movimientos' => $this->movimientos,
+                'saldo_inicial' => $this->saldo_inicial,
+                'variacion' => $this->variacion,
+                'saldo_final' => $this->saldo_final,
+                'año' => $this->año,
+                'mes' => $mes,
+                'id_caja' => $desc->descripcion,
+            ];
+        
+            // Generar el PDF a partir de una vista de Blade
+            $pdf = Pdf::loadView('pdf.reporte_caja', $datos)->setPaper('a3', 'landscape');
+        
+            // Retornar el PDF como descarga
+            return response()->streamDownload(
+                fn() => print($pdf->output()),
+                'reporte_caja.pdf'
+            );
+        } catch (\Exception $e) {
+            // Log para registrar el error
+            Log::error("Error al exportar el PDF: " . $e->getMessage());
+            
+            // Retornar un mensaje de error a la sesión
+            session()->flash('error', 'Ocurrió un error al generar el PDF.');
+            
+            // Redirigir o retornar una respuesta, si es necesario
+            return redirect()->back();
+        }
     }
+    
+
+
+    public function exportCaja()
+    {
+        try {
+            // Verificar si la exportación está permitida
+            if (!$this->exportarExcel) {
+                session()->flash('error', 'La exportación no está permitida.');
+                return;
+            }
+    
+            // Verificar si hay movimientos para exportar
+            if (empty($this->movimientos)) {
+                session()->flash('error', 'No hay datos para exportar.');
+                return;
+            }
+    
+            // Crear la exportación con los datos del procedimiento almacenado
+            return Excel::download(new CajaExport($this->movimientos), 'caja.xlsx');
+        } catch (\Exception $e) {
+            Log::info("Error al exportar la caja: " . $e->getMessage());
+            session()->flash('error', 'Ocurrió un error al exportar el archivo.');
+        }
+    }
+    
     
 
     public function render()
