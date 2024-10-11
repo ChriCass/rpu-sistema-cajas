@@ -72,7 +72,7 @@
                 </button>
             
                 <!-- Botón de Exportar en Excel -->
-                <button wire:click="exportarExcel"
+                <button wire:click="exportCaja"
                     class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

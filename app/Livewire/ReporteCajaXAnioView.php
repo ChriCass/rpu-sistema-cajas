@@ -10,7 +10,9 @@ use App\Models\Cuenta;
 use App\Models\MovimientoDeCaja;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-
+use App\Exports\CajaxAnioExport;
+ 
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteCajaXAnioView extends Component
 {
@@ -28,7 +30,7 @@ class ReporteCajaXAnioView extends Component
     public $saldo_final;
     public $movimientos;
     public $movimientos_encontrados = false;
-
+    public $exportarExcel =false;
     public function mount()
     {
         $this->meses = Mes::all();
@@ -171,7 +173,7 @@ ORDER BY
             // Calcular los saldos y obtener los movimientos
             $this->calcularSaldos();
 
-            // Si todo salió bien, mostrar un mensaje de éxito
+            $this->exportarExcel = true;
             session()->flash('message', 'Reporte procesado exitosamente');
         } catch (\Exception $e) {
             // En caso de error, mostrar un mensaje de error
@@ -179,6 +181,32 @@ ORDER BY
             session()->flash('error', 'Hubo un error al procesar el reporte');
         }
     }
+
+    public function exportCaja()
+    {
+        try {
+            // Verificar si la exportación está permitida
+            if (!$this->exportarExcel) {
+                session()->flash('error', 'La exportación no está permitida.');
+                return;
+            }
+    
+            // Verificar si hay movimientos para exportar
+            if (empty($this->movimientos)) {
+                session()->flash('error', 'No hay datos para exportar.');
+                return;
+            }
+    
+            // Crear la exportación con los datos del procedimiento almacenado
+            return Excel::download(new CajaxAnioExport($this->movimientos), 'cajaxaño.xlsx');
+        } catch (\Exception $e) {
+            Log::info("Error al exportar la caja: " . $e->getMessage());
+            session()->flash('error', 'Ocurrió un error al exportar el archivo.');
+        }
+    }
+    
+    
+
 
 
 
