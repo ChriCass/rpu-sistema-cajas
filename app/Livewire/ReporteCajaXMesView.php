@@ -143,7 +143,7 @@ class ReporteCajaXMesView extends Component
         WHERE 
             aperturas.id_mes = ? AND aperturas.año = ?
         ORDER BY 
-            CO2.mov
+            aperturas.numero
     ", [$idcuenta[0]['id'], $this->mes, $this->año]);
 
     Log::info('movimientos', ['movimientos'=> $movimientos]);

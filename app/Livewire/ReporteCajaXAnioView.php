@@ -141,7 +141,7 @@ LEFT JOIN
 WHERE 
 	aperturas.año = ?
 ORDER BY 
-    CO2.mov;
+    aperturas.id_mes,aperturas.numero;
          ", [$idcuenta[0]['id'], $this->año]);
 
         return collect($movimientos); // Convertir a colección
