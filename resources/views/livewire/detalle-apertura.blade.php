@@ -14,7 +14,7 @@
                   option-label="descripcion" option-value="id" />
           </div>
           <div class="w-full sm:w-1/12 px-2">
-              <x-maskable readonly wire:model="numero" label="N:" mask="#" />
+              <x-maskable readonly wire:model="numero" label="N:" mask="###" />
           </div>
           <div class="w-full sm:w-2/12 px-2">
               <x-input readonly wire:model="fecha" label="Fecha:"   without-time

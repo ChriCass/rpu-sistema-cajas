@@ -24,6 +24,8 @@ final class AperturaTable extends PowerGridComponent
 {
     use WithExport;
 
+    
+
     public function setUp(): array
     {
       
@@ -112,7 +114,9 @@ final class AperturaTable extends PowerGridComponent
 
 
     public function filters(): array
-    {
+    {   
+
+       
         return [
             Filter::select('id_mes')
                 ->dataSource(Mes::all())

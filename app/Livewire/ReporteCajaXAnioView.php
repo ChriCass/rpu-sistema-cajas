@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\CajaxAnioExport;
  
 use Maatwebsite\Excel\Facades\Excel;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class ReporteCajaXAnioView extends Component
 {
     public $cajas;
@@ -82,7 +82,7 @@ class ReporteCajaXAnioView extends Component
         ->toarray();
 
         $movimientos = DB::select("
-             SELECT 
+             SELECT  
 	aperturas.id_mes,
     aperturas.numero as numero_apertura,
     aperturas.fecha,
@@ -141,7 +141,8 @@ LEFT JOIN
 WHERE 
 	aperturas.año = ?
 ORDER BY 
-    aperturas.id_mes,aperturas.numero;
+    aperturas.id_mes,aperturas.numero
+     ;
          ", [$idcuenta[0]['id'], $this->año]);
 
         return collect($movimientos); // Convertir a colección
@@ -207,7 +208,49 @@ ORDER BY
     
     
 
-
+    public function exportarPDF()
+    {
+        try {
+            
+        
+            // Obtener la descripción de la caja
+            $desc = TipoDeCaja::select('descripcion')
+                ->where('id', $this->id_caja)
+                ->first();
+        
+            // Obtener el ID de la cuenta
+            $idcuenta = Cuenta::select('id')
+                ->where('descripcion', $desc->descripcion)
+                ->first();
+        
+            $datos = [
+                'movimientos' => $this->movimientos,
+                'saldo_inicial' => $this->saldo_inicial,
+                'variacion' => $this->variacion,
+                'saldo_final' => $this->saldo_final,
+                'año' => $this->año,
+                'id_caja' => $desc->descripcion,
+            ];
+        
+            // Generar el PDF a partir de una vista de Blade
+            $pdf = Pdf::loadView('pdf.reporte_caja_anio', $datos)->setPaper('a2', 'landscape');
+        
+            // Retornar el PDF como descarga
+            return response()->streamDownload(
+                fn() => print($pdf->output()),
+                'reporte_caja_anio.pdf'
+            );
+        } catch (\Exception $e) {
+            // Log para registrar el error
+            Log::error("Error al exportar el PDF: " . $e->getMessage());
+            
+            // Retornar un mensaje de error a la sesión
+            session()->flash('error', 'Ocurrió un error al generar el PDF.');
+            
+            // Redirigir o retornar una respuesta, si es necesario
+            return redirect()->back();
+        }
+    }
 
 
     public function render()

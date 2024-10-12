@@ -32,7 +32,7 @@
                     @enderror
                 </div>
                 <div class="w-full mt-3  sm:w-3/12 px-4">
-                    <x-maskable  wire:model="nuevo_numero" label="Numero" mask="#"  />
+                    <x-maskable  wire:model="nuevo_numero" label="Numero" mask="###"  />
                     @error('nuevo_numero')
                     @enderror
                 </div>
