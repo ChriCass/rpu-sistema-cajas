@@ -891,6 +891,7 @@ class EdRegistroDocumentosIngreso extends Component
             // Obtener y registrar la apertura relacionada con bloqueo pesimista
             $apertura = Apertura::lockForUpdate() // Bloqueo pesimista
                 ->where('numero', $this->apertura->numero)
+                ->where('id_tipo',$this->apertura->id_tipo)
                 ->whereHas('mes', function ($query) {
                     $query->where('descripcion', $this->apertura->mes->descripcion);
                 })

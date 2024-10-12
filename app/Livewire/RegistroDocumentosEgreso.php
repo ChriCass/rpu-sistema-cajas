@@ -738,9 +738,10 @@ public function updatedNoGravado()
                     'monto' => $precioConvertido
                 ]);
             }
-    
+
             // Obtener y registrar la apertura relacionada con bloqueo pesimista
             $apertura = Apertura::where('numero', $this->apertura->numero)
+                ->where('id_tipo',$this->apertura->id_tipo)
                 ->whereHas('mes', function ($query) {
                     $query->where('descripcion', $this->apertura->mes->descripcion);
                 })
@@ -748,6 +749,7 @@ public function updatedNoGravado()
                 ->lockForUpdate()
                 ->first();
     
+
             if ($apertura) {
                 // Obtener el último movimiento de apertura con bloqueo pesimista
                 $ultimoMovimientoApertura = MovimientoDeCaja::where('id_apertura', $apertura->id)

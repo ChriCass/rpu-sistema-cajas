@@ -55,7 +55,8 @@ final class AperturaTable extends PowerGridComponent
                 'aperturas.id_tipo',
                 DB::raw("DATE_FORMAT(aperturas.fecha, '%d/%m/%Y') as fecha_formatted")
             ])
-            ->orderBy('aperturas.id', 'ASC');
+            ->orderBy('aperturas.id_mes', 'ASC')
+            ->orderBy('aperturas.numero', 'ASC');
     }
 
     public function relationSearch(): array
