@@ -88,7 +88,6 @@ class ApiService
 
             return $data;
         }
-        
         // Obtener los primeros 10 dígitos del RUC
         $ruc_base = substr($ruc, 0, 10);
         
@@ -103,9 +102,11 @@ class ApiService
         
         // Obtener el residuo de la división entre 11
         $residuo = $suma % 11;
-        
+        Log::info('Paso Aqui:'.$residuo);
+
         // Calcular el dígito verificador
         $digito_verificador = $residuo == 10 ? 0 : 11 - $residuo;
+        $digito_verificador = ($digito_verificador == 11) ? $digito_verificador-10 : $digito_verificador;
         
         // Comparar el dígito verificador calculado con el dígito final del RUC
         if($digito_verificador == $ruc[10]){
