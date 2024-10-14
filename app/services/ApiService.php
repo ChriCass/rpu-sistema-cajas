@@ -105,8 +105,7 @@ class ApiService
         Log::info('Paso Aqui:'.$residuo);
 
         // Calcular el dígito verificador
-        $digito_verificador = $residuo == 10 ? 0 : 11 - $residuo;
-        $digito_verificador = ($digito_verificador == 11) ? $digito_verificador-10 : $digito_verificador;
+        $digito_verificador = $residuo == 0 ? 0 : 11 - $residuo;
         
         // Comparar el dígito verificador calculado con el dígito final del RUC
         if($digito_verificador == $ruc[10]){
