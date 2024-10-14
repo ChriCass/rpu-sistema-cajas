@@ -108,27 +108,32 @@ class ReporteCajaXMesView extends Component
                 CO1.numero,
                 CO1.monto,
                 CO1.glosa 
-            FROM (
+            FROM (                
                 SELECT 
-                    movimientosdecaja.id_apertura,
-                    movimientosdecaja.mov,
-                    movimientosdecaja.id_documentos,
-                    INN1.id_detalle,
-                    documentos.id_entidades,
-                    CONCAT(documentos.serie, '-', documentos.numero) AS numero,
-                    IF(id_dh = '2', monto, monto * -1) AS monto,
-                    glosa
-                FROM 
-                    movimientosdecaja
-                LEFT JOIN 
-                    documentos ON movimientosdecaja.id_documentos = documentos.id
-                LEFT JOIN 
-                    (select id_referencia, id_detalle from d_detalledocumentos 
-                     left join l_productos on d_detalledocumentos.id_producto = l_productos.id) INN1 
-                    ON documentos.id = INN1.id_referencia
-                WHERE 
-                    id_cuentas <> ? 
-                    AND id_apertura IS NOT NULL
+					aperturas.id_tipo,
+					movimientosdecaja.id_apertura,
+					movimientosdecaja.mov,
+					movimientosdecaja.id_documentos,
+					INN1.id_detalle,
+					documentos.id_entidades,
+					CONCAT(documentos.serie, '-', documentos.numero) AS numero,
+					id_cuentas,
+					IF(id_dh = '2', monto, monto * -1) AS monto,
+					glosa
+				FROM 
+					movimientosdecaja
+				LEFT JOIN 
+					documentos ON movimientosdecaja.id_documentos = documentos.id
+				LEFT JOIN 
+					(select id_referencia, id_detalle from d_detalledocumentos 
+					 left join l_productos on d_detalledocumentos.id_producto = l_productos.id) INN1 
+					ON documentos.id = INN1.id_referencia
+				LEFT JOIN 
+					aperturas on movimientosdecaja.id_apertura = aperturas.id
+				WHERE 
+					id_cuentas <> ?
+					AND id_apertura IS NOT NULL 
+					AND id_tipo = ?
             ) CO1
             LEFT JOIN 
                 detalle ON CO1.id_detalle = detalle.id
@@ -145,14 +150,14 @@ class ReporteCajaXMesView extends Component
             aperturas.id_mes = ? AND aperturas.año = ?
         ORDER BY 
             aperturas.numero
-    ", [$idcuenta[0]['id'], $this->mes, $this->año]);
+    ", [$idcuenta[0]['id'], $this->id_caja,$this->mes, $this->año]);
 
     Log::info('movimientos', ['movimientos'=> $movimientos]);
         return $movimientos;
     }
 
     // Método para calcular saldos
-    public function calcularSaldos()
+    public function calcularSaldos()        
     {
         // Obtener el saldo inicial
         $this->saldo_inicial = $this->obtenerSaldoInicial();

@@ -82,68 +82,73 @@ class ReporteCajaXAnioView extends Component
         ->toarray();
 
         $movimientos = DB::select("
-             SELECT  
-	aperturas.id_mes,
-    aperturas.numero as numero_apertura,
-    aperturas.fecha,
-    mov AS id_documentos,
-    familias.descripcion AS familia_descripcion,
-    subfamilias.desripcion AS subfamilia_descripcion,
-    CO2.descripcion AS detalle_descripcion,
-    entidades.descripcion AS descripcion,
-    CO2.numero as numero_serie, 
-    monto, 
-    glosa
-FROM (
-    SELECT 
-		CO1.id_apertura,
-        CO1.mov,
-        id_documentos,
-        detalle.id_familias,
-        detalle.id_subfamilia,
-        detalle.descripcion,
-        CO1.id_entidades,
-        CO1.numero,
-        CO1.monto,
-        CO1.glosa 
-    FROM (
-        SELECT 
-			movimientosdecaja.id_apertura,
-            movimientosdecaja.mov,
-            movimientosdecaja.id_documentos,
-            INN1.id_detalle,
-            documentos.id_entidades,
-            CONCAT(documentos.serie, '-', documentos.numero) AS numero,
-            IF(id_dh = '2', monto, monto * -1) AS monto,
+             SELECT 
+			aperturas.id_mes,
+            aperturas.numero as numero_apertura,
+            aperturas.fecha,
+            mov AS id_documentos,
+            familias.descripcion AS familia_descripcion,
+            subfamilias.desripcion AS subfamilia_descripcion,
+            CO2.descripcion AS detalle_descripcion,
+            entidades.descripcion AS descripcion,
+            CO2.numero as numero_serie, 
+            monto, 
             glosa
-        FROM 
-            movimientosdecaja
+        FROM (
+            SELECT 
+                CO1.id_apertura,
+                CO1.mov,
+                id_documentos,
+                detalle.id_familias,
+                detalle.id_subfamilia,
+                detalle.descripcion,
+                CO1.id_entidades,
+                CO1.numero,
+                CO1.monto,
+                CO1.glosa 
+            FROM (                
+                SELECT 
+					aperturas.id_tipo,
+					movimientosdecaja.id_apertura,
+					movimientosdecaja.mov,
+					movimientosdecaja.id_documentos,
+					INN1.id_detalle,
+					documentos.id_entidades,
+					CONCAT(documentos.serie, '-', documentos.numero) AS numero,
+					id_cuentas,
+					IF(id_dh = '2', monto, monto * -1) AS monto,
+					glosa
+				FROM 
+					movimientosdecaja
+				LEFT JOIN 
+					documentos ON movimientosdecaja.id_documentos = documentos.id
+				LEFT JOIN 
+					(select id_referencia, id_detalle from d_detalledocumentos 
+					 left join l_productos on d_detalledocumentos.id_producto = l_productos.id) INN1 
+					ON documentos.id = INN1.id_referencia
+				LEFT JOIN 
+					aperturas on movimientosdecaja.id_apertura = aperturas.id
+				WHERE 
+					id_cuentas <> ? 
+					AND id_apertura IS NOT NULL 
+					AND id_tipo = ?
+            ) CO1
+            LEFT JOIN 
+                detalle ON CO1.id_detalle = detalle.id
+        ) CO2
         LEFT JOIN 
-            documentos ON movimientosdecaja.id_documentos = documentos.id
+            familias ON CO2.id_familias = familias.id
         LEFT JOIN 
-			(select id_referencia,id_detalle from d_detalledocumentos left join l_productos on d_detalledocumentos.id_producto = l_productos.id) 
-			INN1 ON documentos.id = INN1.id_referencia
+            subfamilias ON CONCAT(CO2.id_familias, CO2.id_subfamilia) = CONCAT(subfamilias.id_familias, subfamilias.id)
+        LEFT JOIN 
+            entidades ON CO2.id_entidades = entidades.id
+        LEFT JOIN
+            aperturas ON CO2.id_apertura = aperturas.id
         WHERE 
-            id_cuentas <> ?
-            AND id_apertura is not null
-    ) CO1
-    LEFT JOIN 
-        detalle ON CO1.id_detalle = detalle.id
-) CO2
-LEFT JOIN 
-    familias ON CO2.id_familias = familias.id
-LEFT JOIN 
-    subfamilias ON CONCAT(CO2.id_familias, CO2.id_subfamilia) = CONCAT(subfamilias.id_familias, subfamilias.id)
-LEFT JOIN 
-    entidades ON CO2.id_entidades = entidades.id
-LEFT JOIN
-	aperturas on CO2.id_apertura = aperturas.id
-WHERE 
-	aperturas.año = ?
-ORDER BY 
-    aperturas.id_mes,aperturas.numero
-     ;
-         ", [$idcuenta[0]['id'], $this->año]);
+			aperturas.año = ?
+        ORDER BY 
+            aperturas.id_mes,aperturas.numero
+         ", [$idcuenta[0]['id'],$this->id_caja, $this->año]);
 
         return collect($movimientos); // Convertir a colección
     }
