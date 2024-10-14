@@ -744,7 +744,7 @@ public function updatedNoGravado()
                 'id_libro' => 3,
                 'id_apertura' => $apertura->id,
                 'mov' => $nuevoMovApertura,
-                'fec' => $fechaEmi,
+                'fec' => $apertura->fecha,
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuenta->id, // Cuenta seleccionada de la apertura
                 'id_dh' => 1,
@@ -758,7 +758,7 @@ public function updatedNoGravado()
                 'id_libro' => 3,
                 'id_apertura' => $apertura->id,
                 'mov' => $nuevoMovApertura,
-                'fec' => $fechaEmi,
+                'fec' => $apertura->fecha,
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuentaId,
                 'id_dh' => 2,

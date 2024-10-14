@@ -748,8 +748,7 @@ public function updatedNoGravado()
                 ->where('año', $this->apertura->año)
                 ->lockForUpdate()
                 ->first();
-    
-
+            
             if ($apertura) {
                 // Obtener el último movimiento de apertura con bloqueo pesimista
                 $ultimoMovimientoApertura = MovimientoDeCaja::where('id_apertura', $apertura->id)
@@ -775,7 +774,7 @@ public function updatedNoGravado()
                     'id_libro' => 3,
                     'id_apertura' => $apertura->id,
                     'mov' => $nuevoMovApertura,
-                    'fec' => $fechaEmi,
+                    'fec' => $apertura->fecha,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
                     'id_dh' => 1,
@@ -789,7 +788,7 @@ public function updatedNoGravado()
                     'id_libro' => 3,
                     'id_apertura' => $apertura->id,
                     'mov' => $nuevoMovApertura,
-                    'fec' => $fechaEmi,
+                    'fec' => $apertura->fecha,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuenta->id, // Cuenta seleccionada de la apertura
                     'id_dh' => 2,
