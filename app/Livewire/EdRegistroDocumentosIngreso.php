@@ -845,7 +845,7 @@ class EdRegistroDocumentosIngreso extends Component
     
             // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle con bloqueo pesimista
             if ($this->familiaId == '001') { 
-                $cuentaId = 8; // Transferencias
+                $cuentaId = 9; // Transferencias
                 Log::info('Cuenta para transferencias asignada', ['cuentaId' => $cuentaId]);
             } else {
                 $cuentaDetalle = Detalle::lockForUpdate()->find($this->detalleId);

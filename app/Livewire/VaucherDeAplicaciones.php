@@ -59,8 +59,11 @@ class VaucherDeAplicaciones extends Component
 
         // Agregar los nuevos detalles recibidos al contenedor
         foreach ($detallesSeleccionados as $detalle) {
+            $idtc = Cuenta:: where('descripcion',$detalle['Descripcion'])
+                            -> get()
+                            -> toarray();
             // Asignar valores a las columnas dependiendo del tipo de cuenta
-            if ($detalle['Descripcion'] === 'CUENTAS POR COBRAR' || $detalle['Descripcion'] === 'DETRACCIONES POR COBRAR') {
+            if ($idtc[0]['id_tcuenta'] == '2') {
                 $detalle['montodebe'] = null;
                 $detalle['montohaber'] = $detalle['monto'];
             } else {
@@ -150,6 +153,14 @@ class VaucherDeAplicaciones extends Component
         DB::beginTransaction();
     
         try {
+
+            $mov = MovimientoDeCaja::where('id_libro', '4')
+                        ->distinct('mov')
+                        ->orderBy('mov', 'desc')
+                        ->limit(1)
+                        ->value('mov');
+            $mov = $mov + 1;
+
             foreach ($this->contenedor as $detalle) {
                 // Obtener la cuenta con bloqueo pesimista
                 $cuenta = Cuenta::where('descripcion', $detalle['cuenta'])
@@ -158,11 +169,12 @@ class VaucherDeAplicaciones extends Component
     
                 $monto = ($detalle['montodebe'] !== null) ? $detalle['montodebe'] : $detalle['montohaber'];
                 $id_dh = ($detalle['montodebe'] !== null) ? 1 : 2;
-    
+
+            
                 // Crear movimiento de caja
                 MovimientoDeCaja::create([
                     'id_libro' => 4,
-                    'mov' => $this->aplicacionesId ?? 1,
+                    'mov' => $mov?? 1,
                     'fec' => $this->fecha,
                     'id_documentos' => $detalle['id'],
                     'id_cuentas' => $cuenta->id,

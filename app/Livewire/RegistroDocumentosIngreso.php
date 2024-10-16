@@ -661,7 +661,7 @@ public function updatedNoGravado()
     
         // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
         if ($this->familiaId == '001') { 
-            $cuentaId = 8; // Transferencias
+            $cuentaId = 9; // Transferencias
             Log::info('Cuenta para transferencias asignada', ['cuentaId' => $cuentaId]);
         } else {
             $cuentaDetalle = Detalle::lockForUpdate()->find($this->detalleId); // Bloqueo pesimista

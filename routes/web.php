@@ -25,6 +25,7 @@ use App\Livewire\MatrizDePagosView;
 use App\Livewire\ReporteCajaView;
 use App\Livewire\ReporteCajaXMesView;
 use App\Livewire\ReporteCajaXAnioView;
+use App\Livewire\ResultadoPorCentroDeCostos;
 
 
 /*
@@ -118,6 +119,7 @@ Route::middleware([
     Route::get('/reportes/reporte-caja', ReporteCajaView::class)->name('reportes.reporte.caja');
     Route::get('/reportes/reporte-caja-mes', ReporteCajaXMesView::class)->name('reportes.reporte.caja.mes');
     Route::get('/reportes/reporte-caja-anio', ReporteCajaXAnioView::class)->name('reportes.reporte.caja.anio');
+    Route::get('/reportes/Resultado-Por-Centro-De-Costos', ResultadoPorCentroDeCostos::class)->name('resultado.por.centro.de.costos');
 
  
 });
