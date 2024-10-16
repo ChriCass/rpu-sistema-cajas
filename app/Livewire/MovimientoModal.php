@@ -7,6 +7,8 @@ use App\Models\TipoDeCaja;
 use App\Models\Mes;
 use App\Models\Apertura;
  use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 class MovimientoModal extends Component
 {     
     public $openModal = false;
@@ -36,24 +38,37 @@ class MovimientoModal extends Component
         'nuevo_numero.required' => 'El campo número es obligatorio.',
     ];
 
-    public function insertNewApertura()
+  
+public function insertNewApertura()
 {
     // Validar los datos
+    Log::info('Iniciando la validación de los datos para una nueva apertura.');
     $this->validate();
 
     // Asegurarse de que la fecha esté en formato yyyy-mm-dd
     try {
         $this->nueva_fecha = date('Y-m-d', strtotime($this->nueva_fecha));
+        Log::info('Fecha formateada correctamente.', ['fecha' => $this->nueva_fecha]);
     } catch (\Exception $e) {
+        Log::error('Error al formatear la fecha.', ['error' => $e->getMessage()]);
         session()->flash('error', 'Ocurrió un error al formatear la fecha.');
         return;
     }
 
     DB::beginTransaction();
+    Log::info('Transacción iniciada para insertar nueva apertura.');
 
     try {
         // Verificar si la apertura ya existe en la base de datos
-        $existingApertura = Apertura::lockForUpdate() // Bloqueo para evitar concurrencia
+        Log::info('Verificando si la apertura ya existe.', [
+            'id_tipo' => $this->tipo_caja,
+            'año' => $this->nuevo_año,
+            'id_mes' => $this->nuevo_mes,
+            'numero' => $this->nuevo_numero,
+            'fecha' => $this->nueva_fecha,
+        ]);
+
+        $existingApertura = Apertura::lockForUpdate()
             ->where('id_tipo', $this->tipo_caja)
             ->where('año', $this->nuevo_año)
             ->where('id_mes', $this->nuevo_mes)
@@ -62,9 +77,16 @@ class MovimientoModal extends Component
             ->first();
 
         if ($existingApertura) {
-            // Emitir mensaje de error si la apertura ya existe
+            Log::warning('La apertura ya existe en la base de datos.', [
+                'id_tipo' => $this->tipo_caja,
+                'año' => $this->nuevo_año,
+                'id_mes' => $this->nuevo_mes,
+                'numero' => $this->nuevo_numero,
+                'fecha' => $this->nueva_fecha,
+            ]);
             session()->flash('error', 'La apertura ya existe en la base de datos.');
             DB::rollBack();
+            Log::info('Transacción revertida debido a duplicidad.');
             return;
         }
 
@@ -77,25 +99,32 @@ class MovimientoModal extends Component
             'fecha' => $this->nueva_fecha,
         ]);
 
-        // Confirmar la transacción
         DB::commit();
+        Log::info('Apertura creada y transacción confirmada.', [
+            'id_tipo' => $this->tipo_caja,
+            'numero' => $this->nuevo_numero,
+            'año' => $this->nuevo_año,
+            'id_mes' => $this->nuevo_mes,
+            'fecha' => $this->nueva_fecha,
+        ]);
 
         // Emitir el evento para refrescar la tabla
         $this->dispatch('apertura-created');
+        Log::info('Evento "apertura-created" emitido.');
 
         // Limpiar campos después de insertar
         $this->reset(['tipo_caja', 'nuevo_numero', 'nuevo_año', 'nuevo_mes', 'nueva_fecha']);
+        Log::info('Campos reseteados tras la creación de la apertura.');
 
         // Emitir un evento o mensaje de éxito
         session()->flash('message', 'Apertura creada exitosamente.');
 
     } catch (\Exception $e) {
         DB::rollBack();
-        // Emitir mensaje de error en caso de excepción
+        Log::error('Error al crear la apertura.', ['error' => $e->getMessage()]);
         session()->flash('error', 'Ocurrió un error al crear la apertura.');
     }
 }
-    
     
     public function mount()
     {

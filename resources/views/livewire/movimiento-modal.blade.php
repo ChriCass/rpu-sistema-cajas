@@ -38,7 +38,7 @@
                 </div>
                 <div class="w-full sm:w-9/12 mt-3  px-4">
                     <x-datetime-picker wire:model="nueva_fecha"  label="Fecha" placeholder="Nueva Fecha"
-                    without-time :min="now()->subDays(7)->hours(12)->minutes(30)" :max="now()->addDays(7)->hours(12)->minutes(30)" />
+                    without-time   />
                     @error('nueva_fecha')
                     @enderror
                 </div>
