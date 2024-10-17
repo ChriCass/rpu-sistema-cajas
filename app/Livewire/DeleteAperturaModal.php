@@ -40,7 +40,9 @@ class DeleteAperturaModal extends Component
             } else {
                 Log::info("Eliminando solo movimientos de caja con mov: {$this->numMov}");
                 
-                MovimientoDeCaja::where('mov', $this->numMov)->delete();
+                MovimientoDeCaja::where('mov', $this->numMov)
+                                ->where('id_apertura', $this->aperturaId)
+                                ->delete();
             }
 
             DB::commit(); // Confirmar la transacción

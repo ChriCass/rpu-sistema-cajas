@@ -101,10 +101,10 @@ class EditVaucherDePago extends Component
         WHERE movimientosdecaja.mov = :numMov
         AND movimientosdecaja.id_libro = '3'
         AND movimientosdecaja.id_apertura = :aperturaId
-        AND documentos.id_tipmov = '2'
+        AND documentos.id_tipmov in ('1','2')
     ) AS CON1
     LEFT JOIN tabla10_tipodecomprobantedepagoodocumento ON CON1.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id
-    LEFT JOIN entidades ON CON1.id_entidades = entidades.id
+    LEFT JOIN entidades ON CON1.id_entidades = entidades.id 
 ", ['numMov' => $this->numMov, 'aperturaId' => $this->aperturaId]);
 
 
@@ -237,6 +237,7 @@ class EditVaucherDePago extends Component
             // Eliminar movimientos previos relacionados al numMov
             MovimientoDeCaja::where('id_libro', '3')
                 ->where('mov', $this->numMov)
+                ->where('id_apertura',$this->aperturaId)
                 ->delete();
     
             // Obtener idapt de la apertura
@@ -261,7 +262,7 @@ class EditVaucherDePago extends Component
     
             // Procesar cada detalle en el contenedor
             foreach ($this->contenedor as $detalle) {
-                $iddoc = $detalle['id'] ?? 'NULL';
+                $iddoc = $detalle['id_documentos'] ?? 'NULL';
                 $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
     
