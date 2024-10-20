@@ -36,6 +36,7 @@
 
             <!-- Tabla con cabeceras -->
             <div class="overflow-x-auto">
+                @if (!empty($movimientos))
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead class="bg-gray-200">
                         <tr>
@@ -90,6 +91,13 @@
                     </tbody>
                     
                 </table>
+                @else
+                <div class="bg-yellow-100 text-yellow-800 px-6 py-4 rounded-lg shadow-lg text-center">
+                    <h2 class="text-xl font-bold mb-2">Nada que mostrar</h2>
+                    <p>Prueba procesando alguno para ver resultados aquí.</p>
+                </div>
+            @endif
+            
             </div>
 
             <!-- Flecha de regresar -->
