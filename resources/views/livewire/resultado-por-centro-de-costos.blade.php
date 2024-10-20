@@ -58,14 +58,14 @@
                     <span>Exportar en PDF</span>
                 </button>
             
-                <!-- Botón de Exportar en Excel -->
-                <button wire:click="exportCaja"
+                <!-- Botón de Exportar en Excel 
+                <button wire:click="exportarCentroCostos"
                     class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 17l-4-4 4-4m-4 4H4" />
                     </svg>
-                    <span>Exportar en Excel</span>
+                    <span>Exportar en Excel</span> -->
                 </button>
             </div>
             
@@ -79,7 +79,7 @@
 
                 @if (session()->has('error'))
                     <x-alert title="¡Error!" negative>
-                        <x-slot name="slot" class="italic mb-3">
+                        <x-slot name="slot" class="italic mb-5">
                             {{ session('error') }}
                         </x-slot>
                     </x-alert>
