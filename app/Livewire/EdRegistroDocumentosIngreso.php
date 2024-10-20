@@ -82,67 +82,82 @@ class EdRegistroDocumentosIngreso extends Component
     protected $apiService; // Abelardo = Cree un service para el Api de busqueda de Ruc 
     // Add a method to calculate the price
     // Function to calculate IGV based on base imponible and tasa
+    protected $tasaIgvMapping = [
+        '18%' => 0.18,
+        '10%' => 0.10,
+        'No Gravado' => 0.00,
+    ];
+    
     public function calculateIgv()
     {
-        // Ensure the baseImponible is not null or zero
-        if (!$this->basImp || !$this->tasaIgvId) {
+        // Convertir base imponible a número flotante para evitar errores
+        $baseImponible = floatval($this->basImp);
+    
+        // Si la base imponible o la tasa de IGV no son válidas, asignar IGV a 0
+        if ($baseImponible <= 0 || !$this->tasaIgvId) {
+            $this->igv = 0;
             return;
         }
-
-        // Calculate IGV based on the selected tasa
-        switch ($this->tasaIgvId) {
-            case '18%':
-                $this->igv = round($this->basImp * 0.18, 2);
-                break;
-            case '10%':
-                $this->igv = round($this->basImp * 0.10, 2);
-                break;
-            case 'No Gravado':
-            default:
-                $this->igv = 0; // No IGV applied
-                break;
-        }
+    
+        // Obtener la tasa correspondiente, con un valor predeterminado de 0 si no existe
+        $tasa = $this->tasaIgvMapping[$this->tasaIgvId] ?? 0;
+        $this->igv = round($baseImponible * $tasa, 2);
     }
-
+    
+    
     // Function to calculate the total price dynamically
     public function calculatePrecio()
     {
-        if (is_numeric($this->basImp) && is_numeric($this->igv) && is_numeric($this->otrosTributos) && is_numeric($this->noGravado)) {
-            $this->precio = round($this->basImp + $this->igv + $this->otrosTributos + $this->noGravado, 2);
-        }
+        // Convertir los valores a números flotantes para evitar errores de tipo
+        $baseImponible = floatval($this->basImp);
+        $igv = floatval($this->igv);
+        $otrosTributos = floatval($this->otrosTributos);
+        $noGravado = floatval($this->noGravado);
+    
+        // Calcular el precio total y redondearlo a 2 decimales
+        $this->precio = round($baseImponible + $igv + $otrosTributos + $noGravado, 2);
     }
-
+    
     // Livewire hooks for triggering the functions when fields are updated
-    public function updatedBasImp()
+    public function updatedBasImp($value)
     {
-        // Calculate IGV based on the updated base imponible
+        // Verificar si el valor ingresado es numérico, de lo contrario asignar 0
+        $this->basImp = is_numeric($value) ? $value : 0;
+    
+        // Recalcular IGV y precio con los nuevos valores
         $this->calculateIgv();
-
-        // Calculate the total price
         $this->calculatePrecio();
     }
-
-    public function updatedTasaIgvId()
-    {
+    
+    public function updatedTasaIgvId($value)
+    {   
         // Recalculate IGV based on the updated tasa
         $this->calculateIgv();
-
+    
         // Recalculate the total price
         $this->calculatePrecio();
     }
-
-    public function updatedOtrosTributos()
+    
+    public function updatedOtrosTributos($value)
     {
         // Recalculate the total price whenever otros tributos is updated
         $this->calculatePrecio();
     }
-
-    public function updatedNoGravado()
+    
+    public function updatedNoGravado($value)
     {
         // Recalculate the total price whenever no gravado is updated
         $this->calculatePrecio();
     }
-
+    public function updatedIgv($value)
+    {
+        // Asegurarse de que el valor ingresado es numérico; si no, asignar 0
+        $this->igv = is_numeric($value) ? floatval($value) : 0;
+    
+        // Recalcular el precio total
+        $this->calculatePrecio();
+    }
+    
 
     public function mount($aperturaId, ApiService $apiService,$numeroMovimiento)
     {

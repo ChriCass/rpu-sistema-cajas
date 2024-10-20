@@ -46,12 +46,12 @@ class ResultadoPorCentroDeCostos extends Component
 
     public function procesarReporte()
     {
-        if (empty($this->centroDeCosto) || empty($this->año)) {
+        if ( empty($this->año)) {
             Log::warning('Campos faltantes: Centro de Costo o Año no seleccionados.', [
                 'centroDeCosto' => $this->centroDeCosto,
                 'año' => $this->año,
             ]);
-            session()->flash('error', 'Todos los campos son requeridos: Año y Centro de Costos.');
+            session()->flash('error', 'El año es obligatorio.');
             return;
         }
     

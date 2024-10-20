@@ -178,19 +178,31 @@
                         <tr>
                             <td> </td>
                             <td> </td>
-                            <td>TOTAL INGRESOS</td>
-                            <td>{{ number_format($totalesIngresos['enero'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['febrero'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['marzo'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['abril'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['mayo'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['junio'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['julio'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['agosto'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['septiembre'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['octubre'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['noviembre'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesIngresos['diciembre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">TOTAL INGRESOS</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['enero'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['febrero'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['marzo'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['abril'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['mayo'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['junio'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['julio'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['agosto'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['septiembre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['octubre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['noviembre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesIngresos['diciembre'] ?? 0, 2, '.', ',') }}</td>
                         </tr>
                         @foreach ($movimientos1 as $movimiento)
                             <tr>
@@ -214,48 +226,60 @@
                         <tr>
                             <td> </td>
                             <td> </td>
-                            <td>TOTAL SALIDAS</td>
-                            <td>{{ number_format($totalesEgresos['enero'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['febrero'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['marzo'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['abril'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['mayo'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['junio'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['julio'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['agosto'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['septiembre'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['octubre'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['noviembre'] ?? 0, 2, '.', ',') }}</td>
-                            <td>{{ number_format($totalesEgresos['diciembre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">TOTAL SALIDAS</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['enero'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['febrero'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['marzo'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['abril'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['mayo'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['junio'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['julio'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['agosto'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['septiembre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['octubre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['noviembre'] ?? 0, 2, '.', ',') }}</td>
+                            <td style="font-weight: bold">
+                                {{ number_format($totalesEgresos['diciembre'] ?? 0, 2, '.', ',') }}</td>
 
                         </tr>
                         <tr>
                             <td> </td>
                             <td> </td>
-                            <td>UTILIDAD/PERDIDA</td>
-                            <td>{{ number_format(($totalesIngresos['enero'] ?? 0) + ($totalesEgresos['enero'] ?? 0), 2, '.', ',') }}
+                            <td     style="font-weight: bold">UTILIDAD/PERDIDA</td>
+                            <td     style="font-weight: bold">{{ number_format(($totalesIngresos['enero'] ?? 0) + ($totalesEgresos['enero'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['febrero'] ?? 0) + ($totalesEgresos['febrero'] ?? 0), 2, '.', ',') }}
+                            <td     style="font-weight: bold">{{ number_format(($totalesIngresos['febrero'] ?? 0) + ($totalesEgresos['febrero'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['marzo'] ?? 0) + ($totalesEgresos['marzo'] ?? 0), 2, '.', ',') }}
+                            <td     style="font-weight: bold">{{ number_format(($totalesIngresos['marzo'] ?? 0) + ($totalesEgresos['marzo'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['abril'] ?? 0) + ($totalesEgresos['abril'] ?? 0), 2, '.', ',') }}
+                            <td     style="font-weight: bold">{{ number_format(($totalesIngresos['abril'] ?? 0) + ($totalesEgresos['abril'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td
+                            <td     style="font-weight: bold"
                                 {{ number_format(($totalesIngresos['mayo'] ?? 0) + ($totalesEgresos['mayo'] ?? 0), 2, '.', ',') }}</td>
-                            <td>{{ number_format(($totalesIngresos['junio'] ?? 0) + ($totalesEgresos['junio'] ?? 0), 2, '.', ',') }}
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['junio'] ?? 0) + ($totalesEgresos['junio'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['julio'] ?? 0) + ($totalesEgresos['julio'] ?? 0), 2, '.', ',') }}
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['julio'] ?? 0) + ($totalesEgresos['julio'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['agosto'] ?? 0) + ($totalesEgresos['agosto'] ?? 0), 2, '.', ',') }}
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['agosto'] ?? 0) + ($totalesEgresos['agosto'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['septiembre'] ?? 0) + ($totalesEgresos['septiembre'] ?? 0), 2, '.', ',') }}
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['septiembre'] ?? 0) + ($totalesEgresos['septiembre'] ?? 0), 2, '.', ',') }}
                             </td>
-                            <td>{{ number_format(($totalesIngresos['octubre'] ?? 0) + ($totalesEgresos['octubre'] ?? 0), 2, '.', ',') }}
-                            </td>
-                            <td>{{ number_format(($totalesIngresos['noviembre'] ?? 0) + ($totalesEgresos['noviembre'] ?? 0), 2, '.', ',') }}
-                            </td>
-                            <td>{{ number_format(($totalesIngresos['diciembre'] ?? 0) + ($totalesEgresos['diciembre'] ?? 0), 2, '.', ',') }}
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['octubre'] ?? 0) + ($totalesEgresos['octubre'] ?? 0), 2, '.', ',') }}
+                            </td   style="font-weight: bold">
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['noviembre'] ?? 0) + ($totalesEgresos['noviembre'] ?? 0), 2, '.', ',') }}
+                            </td   style="font-weight: bold">
+                            <td   style="font-weight: bold">{{ number_format(($totalesIngresos['diciembre'] ?? 0) + ($totalesEgresos['diciembre'] ?? 0), 2, '.', ',') }}
                             </td>
 
                         </tr>
