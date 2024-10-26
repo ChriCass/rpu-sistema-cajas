@@ -1,13 +1,13 @@
 <div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Registro de Documentos de Ingreso
+            Registro de Documentos avanzado de {{$origen}}
         </h2>
     </x-slot>
     <div class="p-4">
-        <x-card title="Registro de Documentos">
+        <x-card  >
             <!-- Primera fila -->
-            <div class="flex flex-wrap -mx-2 mt-4">
+            <div class="flex flex-wrap justify-center -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
                     <x-input label="T. Doc :" value="01" />
                 </div>
@@ -15,70 +15,62 @@
                     <x-input label="Factura" />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
-                    <div class="flex items-center">
+                    <div class="flex gap-3 items-center">
                         <x-input label="Serie" value="E001" />
-                        <span class="mx-2">-</span>
+                        
                         <x-input label="Numero" value="51" />
                     </div>
                 </div>
             </div>
 
             <!-- Segunda fila -->
-            <div class="flex flex-wrap -mx-2 mt-4">
+            <div class="flex flex-wrap justify-center -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
                     <x-select label="Tip Doc Iden:" :options="[]" option-label="descripcion" option-value="id" />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
                     <x-input label="RUC:" value="10295782248" />
                 </div>
-                <div class="w-full md:w-2/12 px-2">
-                    <x-select label="Moneda:" :options="[]" option-label="descripcion" option-value="id" />
+                <div class="w-full md:w-4/12 px-2">
+                    <x-input label="Entidad:" value="SALAS BRICEÑO MARTHA PILAR" />
                 </div>
+               
             </div>
 
             <!-- Tercera fila -->
-            <div class="flex flex-wrap -mx-2 mt-4">
-                <div class="w-full md:w-8/12 px-2">
-                    <x-input label="Entidad:" value="SALAS BRICEÑO MARTHA PILAR" />
+            <div class="flex flex-wrap gap-3 justify-center -mx-2 mt-4">
+                <div class="w-full md:w-2/12 px-2">
+                    <x-select label="Moneda:" :options="[]" option-label="descripcion" option-value="id" />
                 </div>
-                <div class="w-full md:w-4/12 px-2">
+                <div class="w-full md:w-2/12 px-2">
                     <x-select label="Tasa Impositiva:" :options="[]" option-label="descripcion" option-value="id" />
                 </div>
-            </div>
-
-            <!-- Cuarta fila -->
-            <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
                     <x-datetime-picker label="Fec Emi:" value="08/08/2023" without-time />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
                     <x-datetime-picker label="Fec Ven:" value="08/08/2023" without-time />
                 </div>
+            </div>
+
+            <!-- Cuarta fila -->
+            <div class="flex flex-wrap justify-around -mx-2 mt-4">
+           
                 <div class="w-full md:w-2/12 px-2">
                     <x-input label="Ref de ventas:" value="2" />
                 </div>
-                <div class="w-full md:w-6/12 px-2">
-                    <fieldset class="border border-gray-300 p-2 rounded-md">
-                        <legend class="text-sm font-medium text-gray-700">Referencias:</legend>
-                        <div class="flex flex-wrap">
-                            <x-input label="Id" value="26" />
-                            <x-input label="Documento" value="Orden de Compra" />
-                            <x-input label="Serie" value="OC01" />
-                            <x-input label="Numero" value="22" />
-                        </div>
-                        <div class="flex flex-wrap mt-2">
-                            <x-input label="Id" value="28" />
-                            <x-input label="Documento" value="Sub Orden de Compra" />
-                            <x-input label="Serie" value="SOC1" />
-                            <x-input label="Numero" value="3" />
-                        </div>
-                    </fieldset>
-                </div>
+           
             </div>
 
             <!-- Productos -->
             <div class="mt-4">
-                <h3 class="text-sm font-medium text-gray-700">Productos:</h3>
+                <div class="flex items-center gap-4 my-5">
+                    <div><h3 class="text-sm font-medium text-gray-700">Productos:</h3></div>
+                    <div> @livewire('modal-producto-general-avanz')</div>
+                    
+                   
+                </div>
+              
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white">
                         <thead>
@@ -124,27 +116,7 @@
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 justify-end">
-                <div class="flex flex-wrap w-full md:w-6/12 -mx-2 mt-4">
-                    <div class="w-full md:w-4/12 px-2">
-                        <x-input label="Total:" value="45.5" readonly />
-                    </div>
-                    <div class="w-full md:w-4/12 px-2">
-                        <x-input label="Descuentos:" value="0" />
-                    </div>
-                    <div class="w-full md:w-4/12 px-2">
-                        <x-input label="Recargos:" value="0" />
-                    </div>
-                    <div class="w-full md:w-4/12 px-2">
-                        <x-input label="Total:" value="45.5" readonly />
-                    </div>
-                    <div class="w-full md:w-4/12 px-2">
-                        <x-input label="Descuentos:" value="0" />
-                    </div>
-                    <div class="w-full md:w-4/12 px-2">
-                        <x-input label="Recargos:" value="0" />
-                    </div>
-
-                </div>
+           
                 <div class="flex flex-col space-y-4 mt-4 w-full md:w-2/12">
                     <div class="w-full px-2">
                         <x-input label="Base Imponible:" value="45.5" readonly />
@@ -167,20 +139,21 @@
 
             <div class="flex flex-wrap -mx-2 mt-4 justify-between">
                 <!-- Detracción y Botones -->
-                <div class="flex flex-wrap -mx-2 mt-4 ">
-                    <div class="w-full md:w-3/12 px-2 flex justify-end items-center">
-                        <x-checkbox id="left-label" label="Detracción" />
-                    </div>
-                    <div class="w-full md:w-3/12 px-2">
-                        <x-input label="porcentaje" suffix="%" value="" />
-                    </div>
-                    <div class="w-full md:w-3/12 px-2">
-                        <x-input label="Monto de detracción:" value="" />
-                    </div>
-                    <div class="w-full md:w-3/12 px-2">
-                        <x-input label="Monto Neto:" value="" />
-                    </div>
+                @if($origen === 'cxp' || $origen === 'cxc')
+                <div class="w-full md:w-3/12 px-2 flex justify-end items-center">
+                    <x-checkbox id="left-label" label="Detracción" />
                 </div>
+                <div class="w-full md:w-3/12 px-2">
+                    <x-input label="Porcentaje" suffix="%" value="" />
+                </div>
+                <div class="w-full md:w-3/12 px-2">
+                    <x-input label="Monto de detracción:" value="" />
+                </div>
+                <div class="w-full md:w-3/12 px-2">
+                    <x-input label="Monto Neto:" value="" />
+                </div>
+            @endif
+            
 
                 <div class="flex items-center  mt-4 space-x-2">
                     <div>

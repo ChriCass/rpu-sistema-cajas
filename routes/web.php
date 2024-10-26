@@ -27,6 +27,7 @@ use App\Livewire\ReporteCajaXMesView;
 use App\Livewire\ReporteCajaXAnioView;
 use App\Livewire\ResultadoPorCentroDeCostos;
 
+use App\Livewire\RegistroGeneralAvanz;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,8 +88,8 @@ Route::middleware([
 
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
-        
-        Route::get('/registodocumentosingreso/avanzado', RegistroDeIngresoAvanz::class)->name('apertura.edit.registodocumentosingreso.avanzado');
+        Route::get('/avanzado',  RegistroGeneralAvanz::class)->name('apertura.avanzado');
+     
       /** 
         Route::get('/registodocumentosingreso/edit', EditRegistroDocumentosIngreso::class)->name('apertura.edit.editregistodocumentosingreso');
         Route::get('/registodocumentosegreso', RegistroDocumentosEgreso::class)->name('apertura.edit.registodocumentosegreso');
