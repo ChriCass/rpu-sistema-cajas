@@ -36,7 +36,13 @@
 
                 </div>
                 <div class="w-full mt-3  sm:w-3/12 px-4">
-                    <x-select label="Tasa impo.:" :options="[]" option-label="descripcion" option-value="id" />
+                    <x-select 
+                    label="Tasa Impositiva:"
+                    :options="[['id' => '1', 'descripcion' => 'si'], ['id' => '0', 'descripcion' => 'no']]" 
+                    option-label="descripcion" 
+                    option-value="id" 
+                    wire:model.live="tasaImpositiva"
+                />
 
                 </div>
                 <div class="w-full sm:w-3/12 mt-3 px-4">
@@ -55,7 +61,7 @@
 
                 <x-slot name="footer" class="flex justify-end gap-x-4">
                     <x-button flat label="Cancelar" wire:click="$set('openModal', false)" />
-                    <x-button primary label="Aceptar" wire:click="insertNewApertura" />
+                    <x-button primary label="Aceptar" wire:click="sendingProductoTabla" />
                 </x-slot>
             </div>
         </x-card>

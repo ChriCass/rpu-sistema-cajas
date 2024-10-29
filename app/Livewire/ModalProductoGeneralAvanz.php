@@ -15,6 +15,7 @@ class ModalProductoGeneralAvanz extends Component
     public $cantidad = 0;
     public $precioUnitario = 0;
     public $total = 0;
+    public $tasaImpositiva;
 
     // Hook de Livewire para detectar cambios en las propiedades y calcular el total
      // Se ejecuta cuando cambia la propiedad 'cantidad'
@@ -45,6 +46,12 @@ class ModalProductoGeneralAvanz extends Component
     {
         $producto = Producto::find($valor);
         $this->codigoProducto = $producto ? $producto->id : '';
+    }
+
+    public function sendingProductoTabla()
+    {
+        
+
     }
 
 
