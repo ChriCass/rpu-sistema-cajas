@@ -50,10 +50,37 @@ class ModalProductoGeneralAvanz extends Component
 
     public function sendingProductoTabla()
     {
-        
-
+        $this->validate([
+            'codigoProducto' => 'required',
+            'productoSeleccionado' => 'required',
+            'cantidad' => 'required|integer|min:1',
+            'precioUnitario' => 'required|numeric|min:0.01',
+            'tasaImpositiva' => 'required',
+            'total' => 'required'
+        ]);
+    
+        // Preparar los datos a enviar
+        $data = [
+             
+            'codigoProducto' => $this->codigoProducto,
+            'productoSeleccionado' => $this->productoSeleccionado,
+            'cantidad' => $this->cantidad,
+            'precioUnitario' => $this->precioUnitario,
+            'total' => $this->total,
+            'tasaImpositiva' => $this->tasaImpositiva,
+        ];
+    
+        // Enviar los datos con un evento usando dispatch
+        $this->dispatch('productoEnviado', $data);
+    
+        // Cerrar el modal y limpiar los campos si es necesario
+        $this->reset(['productoSeleccionado', 'codigoProducto', 'cantidad', 'precioUnitario', 'total', 'tasaImpositiva']);
+        $this->openModal = false;
+    
+        // También puedes mostrar un mensaje de éxito
+        session()->flash('message', 'Producto enviado exitosamente.');
     }
-
+    
 
     public function render()
     {
