@@ -10,6 +10,7 @@ class ModalProductoGeneralAvanz extends Component
 {   
     public $productos;
     public $productoSeleccionado;  // ID del producto seleccionado
+    public $productoSelecDescripcion;
     public $codigoProducto;        // Código del producto
     public $openModal = false;
     public $cantidad = 0;
@@ -46,13 +47,14 @@ class ModalProductoGeneralAvanz extends Component
     {
         $producto = Producto::find($valor);
         $this->codigoProducto = $producto ? $producto->id : '';
+        $this->productoSelecDescripcion = $producto ? $producto->descripcion : '';
     }
 
     public function sendingProductoTabla()
     {
         $this->validate([
             'codigoProducto' => 'required',
-            'productoSeleccionado' => 'required',
+            'productoSelecDescripcion' => 'required',
             'cantidad' => 'required|integer|min:1',
             'precioUnitario' => 'required|numeric|min:0.01',
             'tasaImpositiva' => 'required',
@@ -63,7 +65,7 @@ class ModalProductoGeneralAvanz extends Component
         $data = [
              
             'codigoProducto' => $this->codigoProducto,
-            'productoSeleccionado' => $this->productoSeleccionado,
+            'productoSeleccionado' => $this->productoSelecDescripcion,
             'cantidad' => $this->cantidad,
             'precioUnitario' => $this->precioUnitario,
             'total' => $this->total,

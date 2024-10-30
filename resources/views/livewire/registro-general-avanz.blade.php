@@ -7,63 +7,78 @@
     <div class="p-4">
         <x-card  >
             <!-- Primera fila -->
-            <div class="flex flex-wrap justify-center -mx-2 mt-4">
+            <div class="flex flex-wrap   -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
-                    <x-input label="T. Doc :" value="01" />
+                    <x-input
+                                label="T. Doc:"
+                                 
+                                wire:model.live="tipoDocumento"
+                                wire:keydown.enter="buscarDescripcionTipoDocumento"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2)"
+                            />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
-                    <x-input label="Factura" />
+                    <x-input
+                    label="Descripción T. Doc:"
+                    :disabled=True
+                    wire:model.live="tipoDocDescripcion"
+
+                />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
                     <div class="flex gap-3 items-center">
-                        <x-input label="Serie" value="E001" />
+                        <x-input label="Serie"   wire:model.live="serieNumero1" oninput="this.value = this.value.toUpperCase()" maxlength="4" />
                         
-                        <x-input label="Numero" value="51" />
+                        <x-input   label="Numero"   wire:model.live="serieNumero2" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"/>
                     </div>
                 </div>
             </div>
 
             <!-- Segunda fila -->
-            <div class="flex flex-wrap justify-center -mx-2 mt-4">
+            <div class="flex flex-wrap  -mx-2 mt-4">
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select label="Tip Doc Iden:" :options="[]" option-label="descripcion" option-value="id" />
+                    <x-select label="Tip Doc Iden:" wire:model.live="tipoDocId" :options="$tipoDocIdentidades"
+                    option-label="abreviado" option-value="id"  />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
-                    <x-input label="RUC:" value="10295782248" />
+                    <x-input   label="Num Ident:" wire:model.live="docIdent" wire:keydown.enter="EnterRuc" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, {{$lenIdenId}})"/>
                 </div>
                 <div class="w-full md:w-4/12 px-2">
-                    <x-input label="Entidad:" value="SALAS BRICEÑO MARTHA PILAR" />
+                    <x-input  label="Entidad:" wire:model.live='entidad' :disabled=True />
                 </div>
                
             </div>
 
             <!-- Tercera fila -->
-            <div class="flex flex-wrap gap-3 justify-center -mx-2 mt-4">
+            <div class="flex flex-wrap gap-3   -mx-2 my-4">
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select label="Moneda:" :options="[]" option-label="descripcion" option-value="id" />
+                    <x-select label="Moneda:" wire:model.live="monedaId" :options="$monedas" option-label="id"
+                    option-value="id"   />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
-                    <x-select label="Tasa Impositiva:" :options="[]" option-label="descripcion" option-value="id" />
+                    <x-select label="Tasa Impositiva:" wire:model.live="tasaIgvId" :options="$tasasIgv"
+                    option-label="tasa" placeholder="Selecc." option-value="tasa"  />
                 </div>
                 <div class="w-full md:w-2/12 px-2">
-                    <x-datetime-picker label="Fec Emi:" value="08/08/2023" without-time />
+                    <label for="">Fecha Emision</label>
+                    <input wire:model="fechaEmi"  
+                        type="date"
+                        class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-gray-600 disabled:bg-gray-100 disabled:text-gray-400">
                 </div>
                 <div class="w-full md:w-2/12 px-2">
-                    <x-datetime-picker label="Fec Ven:" value="08/08/2023" without-time />
+                    <label for="fecha_ven">Fecha Ven</label>
+                    <input wire:model="fechaVen" type="date"
+                        class="block w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-gray-600 disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+
+
                 </div>
             </div>
 
-            <!-- Cuarta fila -->
-            <div class="flex flex-wrap justify-around -mx-2 mt-4">
-           
-                <div class="w-full md:w-2/12 px-2">
-                    <x-input label="Ref de ventas:" value="2" />
-                </div>
-      
-            </div>
+     
 
             <!-- Productos -->
-            <div class="mt-4">
+            <div class="mt-10">
                 <div class="flex items-center gap-4 my-5">
                     <h3 class="text-sm font-bold text-gray-700">Productos:</h3>
                     @if(!empty($productos))
@@ -79,7 +94,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h11M9 21V3m0 18l-4-4m4 4l4-4" />
                         </svg>
-                        <p class="mt-2 text-gray-600">No hay productos añadidos.</p>
+                        <p class="mt-2 text-gray-600 mb-3">No hay productos añadidos.</p>
                         @livewire('modal-producto-general-avanz')
                     </div>
                 @else
@@ -134,26 +149,26 @@
             <!-- Observaciones y Totales -->
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-12/12 px-2">
-                    <x-input label="Observaciones:" value="" />
+                    <x-input wire:model.live='observaciones'   label="Observaciones:" oninput="this.value = this.value.toUpperCase()"/>
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 justify-end">
            
                 <div class="flex flex-col space-y-4 mt-4 w-full md:w-2/12">
                     <div class="w-full px-2">
-                        <x-input label="Base Imponible:" value="45.5" readonly />
+                        <x-input   label="Base Imponible:" wire:model.live="basImp" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                     </div>
                     <div class="w-full px-2">
-                        <x-input label="Igv:" value="8.19" readonly />
+                        <x-input   label="IGV:" wire:model.live='igv' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                     </div>
                     <div class="w-full px-2">
-                        <x-input label="Otros Tributos:" value="0" />
+                        <x-input   label="Otros Tributos:" wire:model.live='otrosTributos' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                     </div>
                     <div class="w-full px-2">
-                        <x-input label="No Gravado:" value="0" />
+                        <x-input   label="No Gravado:" wire:model.live='noGravado' oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)" />
                     </div>
                     <div class="w-full px-2">
-                        <x-input label="Precio:" value="53.69" readonly />
+                        <x-input wire:model.live='precio' label="Precio:" value="53.69" readonly />
                     </div>
                 </div>
             </div>
