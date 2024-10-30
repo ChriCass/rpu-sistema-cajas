@@ -89,6 +89,8 @@ class RegistroDocumentoCxc extends Component
     public $porcentaje;
     public $validacionDet;
 
+
+    public $cod_operacion;
     public function updatedmontoDetraccion ($value){
         if($value <> ''){
             $this -> montoNeto = $this -> precio - $value;

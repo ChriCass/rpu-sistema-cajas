@@ -79,7 +79,7 @@ class RegistroDocumentosCxp extends Component
     public $PruebaArray = ""; 
 
      ///tiene detraccion
-
+     public $cod_operacion;
      public $toggle = false;
      public $montoDetraccion;
      public $montoNeto;

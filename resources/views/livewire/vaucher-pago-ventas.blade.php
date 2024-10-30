@@ -104,9 +104,17 @@
           
           </table>
         </div>
-        <div class="flex justify-end mt-4 space-x-2">
-          <x-button label="Cancelar" wire:navigate outline secondary href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" />
-          <x-button label="Aceptar" wire:click='submit' primary  />
+        <div class="flex justify-between mt-4 space-x-2">
+          <div class="w-2/12    px-2">
+            <x-input wire:model.live='cod_operacion'  description="codigo de operacion"
+            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+        </div>
+          
+          <div>
+            <x-button label="Cancelar" wire:navigate outline secondary href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" />
+              <x-button label="Aceptar" wire:click='submit' primary  />
+          </div>
+         
         </div>
       </x-card>
     </div>

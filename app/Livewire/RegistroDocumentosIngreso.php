@@ -85,6 +85,8 @@ class RegistroDocumentosIngreso extends Component
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa
 
+    public $cod_operacion;
+
 
    protected $tasaIgvMapping = [
     '18%' => 0.18,

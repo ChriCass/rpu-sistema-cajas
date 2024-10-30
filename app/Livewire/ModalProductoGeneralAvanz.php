@@ -4,8 +4,8 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Producto;
-
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 class ModalProductoGeneralAvanz extends Component
 {   
     public $productos;
@@ -37,19 +37,36 @@ class ModalProductoGeneralAvanz extends Component
          $this->total = $this->cantidad * $this->precioUnitario;
      }
 
-    public function mount()
-    {
-        $this->productos = Producto::all();
-    }
+     public function mount()
+     {
+         $this->productos = DB::table('l_productos as p')
+             ->join('detalle as d', 'd.id', '=', 'p.id_detalle')
+             ->select('p.id', DB::raw("CONCAT(p.descripcion, ' / ', d.descripcion) as descripcion"))
+             ->get();
+     }
+     
 
     // Hook de Livewire que se ejecuta cuando una propiedad cambia
     public function updatedProductoSeleccionado($valor)
     {
-        $producto = Producto::find($valor);
-        $this->codigoProducto = $producto ? $producto->id : '';
-        $this->productoSelecDescripcion = $producto ? $producto->descripcion : '';
+        // Buscar el producto y su detalle usando Query Builder
+        $producto = DB::table('l_productos as p')
+            ->join('detalle as d', 'd.id', '=', 'p.id_detalle')
+            ->select('p.id', 'p.descripcion as producto_descripcion', 'd.descripcion as detalle_descripcion')
+            ->where('p.id', $valor)
+            ->first();  // Usamos first() para obtener un solo resultado
+    
+        // Asignar los valores a las propiedades correspondientes
+        if ($producto) {
+            $this->codigoProducto = $producto->id;
+            $this->productoSelecDescripcion = "{$producto->producto_descripcion} / {$producto->detalle_descripcion}";
+        } else {
+            // Resetear si no se encuentra el producto
+            $this->codigoProducto = '';
+            $this->productoSelecDescripcion = '';
+        }
     }
-
+    
     public function sendingProductoTabla()
     {
         $this->validate([
@@ -63,7 +80,6 @@ class ModalProductoGeneralAvanz extends Component
     
         // Preparar los datos a enviar
         $data = [
-             
             'codigoProducto' => $this->codigoProducto,
             'productoSeleccionado' => $this->productoSelecDescripcion,
             'cantidad' => $this->cantidad,
@@ -71,6 +87,9 @@ class ModalProductoGeneralAvanz extends Component
             'total' => $this->total,
             'tasaImpositiva' => $this->tasaImpositiva,
         ];
+    
+        // Registrar los datos en el log
+        Log::info('Enviando producto a la tabla:', $data);
     
         // Enviar los datos con un evento usando dispatch
         $this->dispatch('productoEnviado', $data);

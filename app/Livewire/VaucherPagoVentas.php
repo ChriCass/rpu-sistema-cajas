@@ -29,7 +29,7 @@ class VaucherPagoVentas extends Component
     public $balance = 0.0; // Nueva variable para almacenar el balance (Debe - Haber)
     public $caja;
     public $tipoCaja;
-
+    public $cod_operacion;
 
     public function mount($aperturaId)
     {

@@ -32,6 +32,7 @@ class VaucherPagoCompras extends Component
     public $editingIndex = null; // Para rastrear la fila en edición
     public $editingMonto = null; // Para almacenar temporalmente el valor del monto que se está editando
     public $warningMessage = [];
+    public $cod_operacion;
     public function mount($aperturaId)
     {
         $this->aperturaId = $aperturaId;

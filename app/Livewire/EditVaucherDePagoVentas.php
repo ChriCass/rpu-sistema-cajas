@@ -31,7 +31,7 @@ class EditVaucherDePagoVentas extends Component
     public $tipoCaja;
     public $fecha;
 
-
+    public $cod_operacion;
 
     public function mount($numeroMovimiento, $aperturaId)
     {

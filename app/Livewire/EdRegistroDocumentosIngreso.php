@@ -87,7 +87,7 @@ class EdRegistroDocumentosIngreso extends Component
         '10%' => 0.10,
         'No Gravado' => 0.00,
     ];
-    
+    public $cod_operacion;
     public function calculateIgv()
     {
         // Convertir base imponible a número flotante para evitar errores

@@ -52,6 +52,8 @@ public  $docIdent;
 public $observaciones;
 public $monedas;
 protected $apiService;
+public $cod_operacion;
+
 
     public function calculateIgv()
 {

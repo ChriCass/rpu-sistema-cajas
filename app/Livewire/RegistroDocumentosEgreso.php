@@ -79,7 +79,7 @@ class RegistroDocumentosEgreso extends Component
     public $noGravado = 0;
     public $precio = 0;
     public $tipoCaja;
-
+    public $cod_operacion;
     protected $apiService; // Abelardo = Cree un service para el Api de busqueda de Ruc 
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa 
