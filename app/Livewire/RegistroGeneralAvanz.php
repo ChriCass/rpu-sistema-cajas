@@ -10,6 +10,7 @@ use App\Models\TasaIgv;
 use App\Models\TipoDeComprobanteDePagoODocumento;
 use App\Models\Documento;
 use DateTime;
+use App\Services\ApiService;
 use App\Models\TipoDeMoneda;
 use App\Models\Entidad;
 use App\Models\TipoDeCaja;
@@ -50,6 +51,8 @@ public  $tipoDocumento;
 public  $docIdent;
 public $observaciones;
 public $monedas;
+protected $apiService;
+
     public function calculateIgv()
 {
     // Convertir base imponible a número flotante para evitar errores
@@ -64,6 +67,38 @@ public $monedas;
     // Obtener la tasa correspondiente, con un valor predeterminado de 0 si no existe
     $tasa = $this->tasaIgvMapping[$this->tasaIgvId] ?? 0;
     $this->igv = round($baseImponible * $tasa, 2);
+}
+
+public function updatedtipoDocId($value){
+    if($value === '1'){;
+        $this -> lenIdenId = 8;
+        $this -> docIdent = "";
+    } else { 
+        $this -> lenIdenId = 11;
+        $this -> docIdent = "";
+    };
+}
+
+
+public function hydrate(ApiService $apiService) // Abelardo = Hidrate la inyecion del servicio puesto que no esta funcionando el servicio, con esta opcion logre pasar el service por las diferentes funciones
+{
+    $this->apiService = $apiService;
+}
+public function EnterRuc(){ //Abelardo = Evento enter para RUC
+    if($this -> tipoDocId <> ''){
+        $data = $this->apiService->REntidad($this -> tipoDocId , $this -> docIdent);
+        if ($data['success'] == '1') {
+            $this -> entidad = $data['desc'];
+        }else{
+            session()->flash('error', $data['desc']);
+            $this->docIdent = '';
+            $this->entidad = '';    
+        }
+    }else{
+        session()->flash('error', 'Elige un Tip de Indentidad');
+        $this -> docIdent = '';
+        $this -> entidad = '';
+    }
 }
 
 public function buscarDescripcionTipoDocumento()
@@ -179,6 +214,9 @@ public function updatedTasaIgvId($value)
     // Recalculate the total price
     $this->calculatePrecio();
 }
+
+
+
 public function calculateTotals()
 {
     // Reiniciar valores

@@ -163,7 +163,7 @@ public function updatedIgv($value)
 }
 
 
-    public function mount($aperturaId, ApiService $apiService)
+    public function mount($aperturaId )
     {
         $this->aperturaId = $aperturaId;
         $this->apertura = Apertura::findOrFail($aperturaId);
@@ -171,7 +171,7 @@ public function updatedIgv($value)
         $this->user = Auth::user()->id;
         $this->loadInitialData();
         $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
-        $this->apiService = $apiService; // Abelardo = Asigne el servicio inyectado para la api.
+        
        
     }
 
