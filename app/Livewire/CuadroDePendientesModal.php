@@ -16,62 +16,50 @@ class CuadroDePendientesModal extends Component
     public $moneda = "PEN"; // Moneda por defecto, puede ser dinámica
     public $pendientes = [];
     public $contenedor;
-   
-     
-    public function mount($aperturaId)
+    public $filterColumn  = 'id_documentos';  // Columna por defecto
+    public $searchValue;               // Valor de búsqueda
+    
+    public function updatedSearchValue()
     {
-        $this->aperturaId = $aperturaId;
+        $this->applyFilters();
+    }
+    
+    public function updatedFilterColumn()
+    {
+        $this->applyFilters();
+    }
+    
+    public function applyFilters()
+    {
+        // Obtener todos los pendientes
+        $pendientes = collect($this->getAllPendientes());
+    
+        // Limpiar el valor de búsqueda para evitar espacios innecesarios
+        $searchValue = trim($this->searchValue);
+    
+        // Si el valor de búsqueda está vacío después de limpiar, mostramos todos los pendientes
+        if (empty($searchValue)) {
+            $this->pendientes = $pendientes->all();
+        } else {
+            // Filtrar según la columna seleccionada y el valor ingresado
+            $this->pendientes = $pendientes->filter(function ($pendiente) use ($searchValue) {
+                $filterColumn = $this->filterColumn;
+    
+                // Convertir a string para evitar errores
+                $columnValue = (string) ($pendiente->$filterColumn ?? '');
+    
+                // Comparación insensible a mayúsculas y minúsculas
+                return stripos($columnValue, $searchValue) !== false;
+            })->values()->all();
+        }
+    }
+    
+    
 
-        // Recuperar la fecha directamente usando el aperturaId
-        $apertura = Apertura::findOrFail($aperturaId);
-        $this->fechaApertura = (new DateTime($apertura->fecha))->format('Y-m-d');
+    public function getAllPendientes()
 
-
-
-        // Ejecutar la consulta dinámica
-     /*   $this->pendientes = DB::table(DB::raw('(
-            SELECT 
-                CON3.id AS id_documentos,  
-                CON3.fechaEmi,
-                CON3.id_entidades,
-                tdoc.descripcion AS tdoc,
-                entidades.descripcion AS RZ,
-                CONCAT(CON3.serie, "-", CON3.numero) AS Num,
-                IF(CON3.Descripcion = "DETRACCIONES POR PAGAR", "PEN", CON3.id_t04tipmon) AS Mon,
-                CON3.Descripcion,
-                CON3.totalBi AS monto,
-                CON3.montoNeto AS montodo
-            FROM (
-                SELECT 
-                    documentos.id,
-                    documentos.fechaEmi,
-                    documentos.id_t10tdoc,
-                    documentos.id_entidades,
-                    documentos.serie,
-                    documentos.numero,
-                    documentos.id_t04tipmon,
-                    cuentas.Descripcion,
-                    documentos.totalBi,
-                    documentos.montoNeto
-                FROM documentos
-                LEFT JOIN cuentas ON documentos.id_t10tdoc = cuentas.id
-                WHERE documentos.id_tipmov = 2 -- Cuentas por pagar (compras)
-                AND documentos.totalBi <> 0
-            ) CON3
-            LEFT JOIN entidades ON CON3.id_entidades = entidades.id 
-            LEFT JOIN tabla10_tipodecomprobantedepagoodocumento AS tdoc ON CON3.id_t10tdoc = tdoc.id
-            WHERE CON3.totalBi > 0
-        ) as subquery'))
-        ->where('fechaEmi', '<=', $this->fechaApertura)
-        ->where('Mon', '=', $this->moneda)
-        ->whereRaw('IF(Mon = "PEN", monto, montodo) <> 0')
-        ->where('tdoc', '<>', 'Vaucher de Transferencia')
-        ->orderBy(DB::raw('CAST(id_documentos AS UNSIGNED)'), 'asc')
-        ->get();
-        */
-
-         // Ejecutar la consulta dinámica con la nueva estructura SQL
-         $this->pendientes = DB::select("
+    {
+         return  DB::select("
          SELECT 
              id_documentos, 
              tdoc, 
@@ -153,6 +141,20 @@ class CuadroDePendientesModal extends Component
             'moneda' => $this->moneda,
             'pendientes' => $this->pendientes,
         ]);
+    }
+    public function mount($aperturaId)
+    {
+        $this->aperturaId = $aperturaId;
+
+        // Recuperar la fecha directamente usando el aperturaId
+        $apertura = Apertura::findOrFail($aperturaId);
+        $this->fechaApertura = (new DateTime($apertura->fecha))->format('Y-m-d');
+
+
+
+   
+         // Ejecutar la consulta dinámica con la nueva estructura SQL
+         $this->pendientes = $this->getAllPendientes();
     }
 
     
