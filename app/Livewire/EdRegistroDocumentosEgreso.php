@@ -565,14 +565,14 @@ class EdRegistroDocumentosEgreso extends Component
                             -> where('desripcion', 'GENERAL')-> get() ->toarray();
         $this->subfamiliaId = $subfamilia[0]['ic'];
 
-        // Obtener detalle por descripcion 'ANTICIPOS A CLIENTES'
-        $detalle = Detalle::where('descripcion', 'ANTICIPOS A CLIENTES')->first();
+        // Obtener detalle por descripcion 'ANTICIPOS DE PROVEEDORES'
+        $detalle = Detalle::where('descripcion', 'ANTICIPOS DE PROVEEDORES')->first();
 
         if (!empty($detalle)) {
             $this->detalleId = $detalle->id; // Asignamos el ID
             Log::info('Detalle encontrado: ', ['id' => $detalle->id, 'descripcion' => $detalle->descripcion]);
         } else {
-            Log::warning('No se encontró el detalle con la descripción: ANTICIPOS A CLIENTES');
+            Log::warning('No se encontró el detalle con la descripción: ANTICIPOS DE PROVEEDORES');
         }
         $tasaIgv = TasaIgv::where('tasa', 'No Gravado')->first();
 
