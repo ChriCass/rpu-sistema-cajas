@@ -45,11 +45,10 @@ class SubFamiliaModal extends Component
 
             // Bloquear fila para evitar concurrencia
             $this->nuevoId = SubFamilia::lockForUpdate()->max('id') + 1;
-
             // Crear la nueva subfamilia
             SubFamilia::create([
                 'id_familias' => $this->selectedFamilia,
-                'id' => $this->nuevoId,
+                'id' => str_pad($this->nuevoId, 3, '0', STR_PAD_LEFT),
                 'desripcion' => $this->nuevaSubfamilia,
             ]);
 
