@@ -136,6 +136,10 @@
                                     </th>
                                     <th
                                         class="py-2 px-4 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                        Centro de Costos
+                                    </th>
+                                    <th
+                                        class="py-2 px-4 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                         Accion
                                     </th>
                                 </tr>
@@ -153,6 +157,7 @@
                                         <td class="py-2 px-4 border-b border-gray-200">{{ $producto['precioUnitario'] }}
                                         </td>
                                         <td class="py-2 px-4 border-b border-gray-200">{{ $producto['total'] }}</td>
+                                        <td class="py-2 px-4 border-b border-gray-200">{{ $producto['CC'] }}</td>
                                         <td class="py-2 px-4 border-b border-gray-200">
                                             <x-button label="Eliminar" negative
                                                 wire:click="eliminarProducto({{ $index }})" />
@@ -174,6 +179,16 @@
                 <div class="w-full md:w-2/12 mt-4  px-2">
                     <x-input wire:model.live='cod_operacion' label="Codigo de operacion"
                     oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                </div>
+                <div class="w-full md:w-2/12 mt-4  px-2">
+                    <x-select 
+                        label="Cuenta:" 
+                        placeholder="Seleccione un cuenta"
+                        :options="$cuentas" 
+                        option-label="descripcion" 
+                        option-value="id" 
+                        wire:model.live="cuenta"  
+                    />
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 justify-end">

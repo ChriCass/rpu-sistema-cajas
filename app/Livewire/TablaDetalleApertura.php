@@ -7,6 +7,7 @@ use App\Models\Cuenta;
 use App\Models\TipoDeCuenta;
 use App\Models\MovimientoDeCaja;
 use App\Models\Apertura;
+use App\Models\Documento;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -112,28 +113,15 @@ class TablaDetalleApertura extends Component
             $sql = "
             SELECT 
                 IF(documentos.id IS NULL, movimientosdecaja.mov, documentos.id) AS NumeroMovimiento, -- Número de movimiento o documento
-                IF(familias.descripcion IS NULL, 'MOVIMIENTOS', familias.descripcion) AS Familia, -- Descripción de la familia o 'MOVIMIENTOS'
-                IF(subfamilias.desripcion IS NULL, '', subfamilias.desripcion) AS SubFamilia, -- Descripción de la subfamilia
-                detalle.descripcion AS Detalle, -- Descripción del detalle
-                IF(l_productos.descripcion IS NULL, '', l_productos.descripcion) AS DetalleProducto, -- Descripción del producto
-                IF(entidades.descripcion IS NULL, '', entidades.descripcion) AS Entidad, -- Descripción de la entidad relacionada
+                IF(entidades.descripcion IS NULL, 'MOVIMIENTOS', entidades.descripcion) AS Entidad, -- Descripción de la entidad relacionada
                 CONCAT(documentos.serie, '-', documentos.numero) AS NumeroDocumento, -- Número del documento (serie y número)
                 if(id_dh = '1',movimientosdecaja.monto,movimientosdecaja.monto*-1) AS Monto, -- Monto del documento (unificado)
-                movimientosdecaja.glosa AS Glosa -- Glosa o descripción adicional
+                movimientosdecaja.glosa AS Glosa, -- Glosa o descripción adicional
+                numero_de_operacion
             FROM 
                 movimientosdecaja
             LEFT JOIN 
                 documentos ON movimientosdecaja.id_documentos = documentos.id
-            LEFT JOIN 
-                d_detalledocumentos ON documentos.id = d_detalledocumentos.id_referencia -- Relación con el detalle de los documentos
-            LEFT JOIN 
-                l_productos ON d_detalledocumentos.id_producto = l_productos.id -- Relación con los productos
-            LEFT JOIN 
-                detalle ON l_productos.id_detalle = detalle.id -- Relación con el detalle de la familia y subfamilia
-            LEFT JOIN 
-                familias ON detalle.id_familias = familias.id
-            LEFT JOIN 
-                subfamilias ON CONCAT(detalle.id_familias, detalle.id_subfamilia) = CONCAT(subfamilias.id_familias, subfamilias.id)
             LEFT JOIN 
                 entidades ON documentos.id_entidades = entidades.id
             WHERE 
@@ -175,7 +163,7 @@ class TablaDetalleApertura extends Component
     public function editarMovimiento($monto, $numeroMovimiento, $familia)
     {
         Log::info("Editar Movimiento: Monto={$monto}, NumeroMovimiento={$numeroMovimiento}, Familia={$familia}");
-
+        $form = Documento::where('id',$numeroMovimiento)->get()->toarray();
         // Si la familia es "Movimientos" y el monto es menor a cero
         if ($familia === 'MOVIMIENTOS' && $monto < 0) {
             // Mostrar componente edit-vaucher-de-pago-compras
@@ -190,15 +178,23 @@ class TablaDetalleApertura extends Component
         }
         // Si el monto es positivo y no cae en las categorías anteriores
         elseif ($monto > 0) {
-            // Enviar booleano para mostrar ed-registro-documentos-ingreso
-            $this->dispatch('mostrarComponente', 'EditarIngreso', $numeroMovimiento);
-            Log::info("Despachando evento 'mostrarComponente' para EditarIngreso con NumeroMovimiento={$numeroMovimiento}");
+            if($form[0]['id_tip_form']=='2'){
+                $this->redirect(route('apertura.avanzado', ['aperturaId' => $this->aperturaId, 'numeroMovimiento' => $numeroMovimiento , 'origen' => 'editar ingreso' ]));
+            }else{
+                // Enviar booleano para mostrar ed-registro-documentos-ingreso
+                $this->dispatch('mostrarComponente', 'EditarIngreso', $numeroMovimiento);
+                Log::info("Despachando evento 'mostrarComponente' para EditarIngreso con NumeroMovimiento={$numeroMovimiento}");   
+            }
         }
         // Si el monto es negativo y no cae en las categorías anteriores
         else {
-            // Enviar booleano para mostrar ed-registro-documentos-egreso
-            $this->dispatch('mostrarComponente', 'EditarSalida', $numeroMovimiento);
-            Log::info("Despachando evento 'mostrarComponente' para EditarSalida con NumeroMovimiento={$numeroMovimiento}");
+            if($form[0]['id_tip_form']=='2'){
+                $this->redirect(route('apertura.avanzado', ['aperturaId' => $this->aperturaId, 'numeroMovimiento' => $numeroMovimiento , 'origen' => 'editar egreso' ]));
+            }else{
+                // Enviar booleano para mostrar ed-registro-documentos-egreso
+                $this->dispatch('mostrarComponente', 'EditarSalida', $numeroMovimiento);
+                Log::info("Despachando evento 'mostrarComponente' para EditarSalida con NumeroMovimiento={$numeroMovimiento}");
+            }
         }
     }
 

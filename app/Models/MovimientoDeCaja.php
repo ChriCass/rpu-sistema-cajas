@@ -22,7 +22,8 @@ class MovimientoDeCaja extends Model
         'monto',
         'montodo',
         'fecha_registro',
-        'glosa'
+        'glosa',
+        'numero_de_operacion'
     ];
     protected $dates = [
         'fec',

@@ -43,6 +43,7 @@ class Documento extends Model
         'id_user',
         'fecha_Registro',
         'id_dest_tipcaja',
+        'id_tip_form',
     ];
     public $timestamps = false; // Deshabilitar timestamps
     // Relación con el modelo DDetalleDocumento (1 a muchos)

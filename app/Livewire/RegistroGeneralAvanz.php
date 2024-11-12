@@ -15,8 +15,12 @@ use App\Models\TipoDeMoneda;
 use App\Models\Entidad;
 use App\Models\TipoDeCaja;
 use App\Models\Apertura;
+use App\Models\Cuenta;
 use App\Models\TipoDocumentoIdentidad;
 use App\Services\RegistroDocAvanzService;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class RegistroGeneralAvanz extends Component
 {
@@ -56,6 +60,9 @@ class RegistroGeneralAvanz extends Component
     protected $apiService;
     protected $RegistroDocAvanzService;
     public $cod_operacion;
+    public $cuentas;
+    public $cuenta;
+    public $IdDocumento;
 
 
     public function calculateIgv()
@@ -185,6 +192,7 @@ class RegistroGeneralAvanz extends Component
         $this->monedas = TipoDeMoneda::all();
         $this->tasasIgv = TasaIgv::all();
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
+        $this->cuentas = Cuenta::whereIn('id_tcuenta', [2, 3])->get();
     }
     // Function to calculate the total price dynamically
     public function calculatePrecio()
@@ -270,14 +278,153 @@ class RegistroGeneralAvanz extends Component
         $this->calculatePrecio();
     }
 
+    public function cargarDocumentos($IdDocumento){
+        // Mejorar a Services
+        $result = DB::selectOne("
+            SELECT 
+                CO1.id, 
+                CO1.id_t10tdoc AS tipo_documento_id, 
+                tabla10_tipodecomprobantedepagoodocumento.descripcion AS tipo_documento_descripcion, 
+                CO1.serie, 
+                CO1.numero, 
+                CO1.id_t02tcom AS tipo_comprobante_id, 
+                CO1.id_entidades AS entidad_id, 
+                entidades.descripcion AS entidad_descripcion, 
+                CO1.id_t04tipmon AS tipo_moneda_id, 
+                tasas_igv.tasa AS tasa_igv, 
+                DATE_FORMAT(CO1.fechaEmi, '%d/%m/%Y') AS fechaEmision, 
+                DATE_FORMAT(CO1.fechaVen, '%d/%m/%Y') AS fechaVencimiento, 
+                CO1.observaciones, 
+                CO1.id_dest_tipcaja AS tipo_caja_descripcion, 
+                CO1.basImp AS base_imponible, 
+                CO1.IGV, 
+                CO1.noGravadas, 
+                CO1.otroTributo, 
+                CO1.precio,
+                INN1.id_cuentas
+            FROM 
+                (SELECT 
+                    documentos.id, 
+                    documentos.id_t10tdoc, 
+                    documentos.id_tipmov,
+                    documentos.serie, 
+                    documentos.numero, 
+                    documentos.id_t02tcom, 
+                    documentos.id_entidades, 
+                    documentos.id_t04tipmon, 
+                    documentos.id_tasasIgv, 
+                    documentos.fechaEmi, 
+                    documentos.fechaVen, 
+                    documentos.observaciones, 
+                    documentos.id_dest_tipcaja, 
+                    documentos.basImp, 
+                    documentos.IGV, 
+                    documentos.noGravadas, 
+                    documentos.otroTributo, 
+                    documentos.precio
+                FROM 
+                    documentos 
+                ) CO1
+            LEFT JOIN 
+                tabla10_tipodecomprobantedepagoodocumento ON CO1.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id 
+            LEFT JOIN 
+                entidades ON CO1.id_entidades = entidades.id 
+            LEFT JOIN 
+                tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
+            LEFT JOIN 
+                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+            LEFT JOIN
+				(select id_documentos,id_cuentas from movimientosdecaja where id_libro in ('1','2')) INN1 on CO1.id = INN1.id_documentos
+            WHERE 
+                 CO1.id = ?
+        ", [$IdDocumento]);
+
+        // Log del resultado completo de la consulta
+        Log::info('Resultado de la consulta SQL:', (array) $result);
+        
+        // Asignar los resultados a las variables del componente
+        $this->tasaIgvId = $result->tasa_igv; // Tasa de IGV seleccionada
+        $this->monedaId = $result->tipo_moneda_id; // ID de la moneda seleccionada
+        $this->tipoDocumento = $result->tipo_documento_id; // ID del tipo de documento seleccionado
+        $this->serieNumero1 = $result->serie; // Parte 1 del número de serie
+        $this->serieNumero2 = $result->numero; // Parte 2 del número de serie
+        $this->tipoDocId = $result->tipo_comprobante_id; // Tipo de documento de identificación
+        $this->docIdent = $result->entidad_id; // Documento de identidad
+        $this->fechaEmi = Carbon::createFromFormat('d/m/Y', $result->fechaEmision)->format('Y-m-d'); // Fecha de emisión
+        $this->fechaVen = Carbon::createFromFormat('d/m/Y', $result->fechaVencimiento)->format('Y-m-d'); // Fecha de emisión; // Fecha de vencimiento
+        $this->tipoDocDescripcion = $result->tipo_documento_descripcion; // Descripción del tipo de documento
+        $this->observaciones = $result->observaciones; // Observaciones
+        $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
+        $this->cuenta = $result->id_cuentas;
+
+        // Variables financieras
+        $this->basImp = $result->base_imponible; // Base imponible
+        $this->igv = $result->IGV; // IGV
+        $this->noGravado = $result->noGravadas; // No gravado
+        $this->otrosTributos = $result->otroTributo; // Otros tributos
+        $this->precio = $result->precio; // Precio total
+
+
+    $productos = DB::table('d_detalledocumentos as d')
+        ->select(
+            'd.id_producto',
+            DB::raw("INN1.descripcion"),
+            'd.observaciones',
+            'd.id_tasas',
+            'd.cantidad',
+            'd.cu',
+            'd.total',
+            't.descripcion as CC'
+        )
+        ->leftJoin(
+            DB::raw("(select l.id, concat(l.descripcion, '/', d.descripcion, '/', f.descripcion) as descripcion 
+                    from l_productos l
+                    left join detalle d on l.id_detalle = d.id
+                    left join familias f on f.id = d.id_familias) as INN1"),
+            'd.id_producto', '=', 'INN1.id'
+        )
+        ->leftJoin('t_centrodecostos as t', 'd.id_centroDeCostos', '=', 't.id')
+        ->where('d.id_referencia', '=', $IdDocumento)
+        ->get();
+
+        
+
+        $productosProcesados = [];
+
+        foreach ($productos as $pro) {
+            $pr = [];  // Crear un nuevo array para cada producto
+            $pr['codigoProducto'] = $pro->id_producto;
+            $pr['productoSeleccionado'] = $pro->descripcion;
+            $pr['observacion'] = $pro->observaciones;
+            $pr['cantidad'] = $pro->cantidad;
+            $pr['precioUnitario'] = $pro->cu;
+            $pr['total'] = $pro->total;
+            $pr['tasaImpositiva'] = $pro->id_tasas;
+            $pr['CC'] = $pro->CC;
+
+            $productosProcesados[] = $pr;
+        }
+
+        // Ahora $productosProcesados contiene todos los productos procesados.
+        $this->productos = $productosProcesados;
+
+    }
 
     public function mount($aperturaId)
     {
         $this->aperturaId = $aperturaId;
+        $this->apertura = Apertura::findOrFail($this->aperturaId);
         $this->origen = request()->get('origen', 'ingreso'); // Default a 'ingreso'
-
+        $this->IdDocumento = request()->get('numeroMovimiento');
         $this->loadInitialData();
-
+        if(!empty($this->IdDocumento)){
+            $this->cargarDocumentos($this->IdDocumento);
+            Session::put("productos_{$this->origen}", $this->productos);
+        }else{
+            $this->productos = null;
+            Session::put("productos_{$this->origen}", $this->productos);
+        }
+        
         Log::info('Parámetros recibidos', [
             'aperturaId' => $this->aperturaId,
             'origen' => $this->origen,
@@ -344,7 +491,9 @@ class RegistroGeneralAvanz extends Component
             'igv' => 'required|numeric|min:0',
             'noGravado' => 'required|numeric|min:0',
             'precio' => 'required|numeric|min:0.01',
-            'observaciones' => 'nullable|string|max:500',
+            'observaciones' => 'required|string|max:500',
+            'cuenta' => 'required',
+            'cod_operacion' => 'nullable',
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -357,10 +506,7 @@ class RegistroGeneralAvanz extends Component
             return;
         }
 
-        if ($this->familiaId == '001' && empty($this->nuevoDestinatario)) {
-            session()->flash('error', 'Tiene que tener un destinatario');
-            return;
-        }
+        Log::info("La Lista de productos es:",$this->productos);
 
         // Preparar los datos para el servicio
         $data = [
@@ -380,23 +526,23 @@ class RegistroGeneralAvanz extends Component
             'noGravado' => $this->noGravado,
             'precio' => $this->precio,
             'observaciones' => $this->observaciones,
-            'user' => $this->user,
-            'familiaId' => $this->familiaId,
-            'detalleId' => $this->detalleId,
-            'destinatarioVisible' => $this->destinatarioVisible,
-            'nuevoDestinatario' => $this->nuevoDestinatario,
-            'centroDeCostos' => $this->centroDeCostos,
+            'user' => $this->user ?? Auth::user()->id,
+            'productos' => $this->productos,
             'apertura' => [
                 'numero' => $this->apertura->numero,
                 'id_tipo' => $this->apertura->id_tipo,
                 'mes' => ['descripcion' => $this->apertura->mes->descripcion],
                 'año' => $this->apertura->año,
             ],
-            'tipoCaja' => $this->tipoCaja,
+            'origen' => $this->origen,
+            'cuenta' => $this->cuenta,
+            'cod_operacion' => $this->cod_operacion,
+            'idDocumento' => $this->IdDocumento,
         ];
 
         // Llamar al servicio para guardar el documento
-        $result = $this->registroDocAvanzService->guardarDocumento($data);
+         
+        $result = $this->RegistroDocAvanzService->guardarDocumento($data);
 
         // Manejar la respuesta del servicio
         if (isset($result['success'])) {
@@ -405,6 +551,7 @@ class RegistroGeneralAvanz extends Component
         } else {
             session()->flash('error', $result['error']);
         }
+        
     }
 
 

@@ -19,7 +19,7 @@
                     <x-input label="Código" wire:model.live="codigoProducto" readonly />
                 </div>
                 
-                <div class="w-full sm:w-4/12 px-4">
+                <div class="w-full sm:w-6/12 lg:w-8/12 px-4">
                     <x-select 
                         label="Descripción de producto:" 
                         placeholder="Seleccione un producto"
@@ -31,7 +31,7 @@
                 </div>
                 
 
-                <div class="w-full sm:w-5/12 px-4">
+                <div class="w-full mt-3  sm:w-3/12 px-4">
                     <x-input label="Observacion" />
 
                 </div>
@@ -57,6 +57,16 @@
                     <x-input label="Total" wire:model.live="total" readonly />
                 </div>
                 
+                <div class="w-full sm:w-5/12 md:w-6/12 lg:w-8/12 mt-3 px-4">
+                    <x-select 
+                        label="Centro de Costos:" 
+                        placeholder="Seleccione un producto"
+                        :options="$CentroDeCostos" 
+                        option-label="descripcion" 
+                        option-value="descripcion" 
+                        wire:model.live="CC"  
+                    />
+                </div>
                 
 
                 <x-slot name="footer" class="flex justify-end gap-x-4">

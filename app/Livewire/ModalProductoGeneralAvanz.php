@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Producto;
+use App\Models\CentroDeCostos;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 class ModalProductoGeneralAvanz extends Component
@@ -17,6 +18,8 @@ class ModalProductoGeneralAvanz extends Component
     public $precioUnitario = 0;
     public $total = 0;
     public $tasaImpositiva;
+    public $CentroDeCostos;
+    public $CC;
 
     // Hook de Livewire para detectar cambios en las propiedades y calcular el total
      // Se ejecuta cuando cambia la propiedad 'cantidad'
@@ -39,10 +42,16 @@ class ModalProductoGeneralAvanz extends Component
 
      public function mount()
      {
-         $this->productos = DB::table('l_productos as p')
-             ->join('detalle as d', 'd.id', '=', 'p.id_detalle')
-             ->select('p.id', DB::raw("CONCAT(p.descripcion, ' / ', d.descripcion) as descripcion"))
-             ->get();
+         $this->productos = DB::table('l_productos')
+         ->select('l_productos.id',DB::raw("CONCAT(l_productos.descripcion, '/', detalle.descripcion, '/', familias.descripcion) as descripcion"))
+         ->leftJoin('detalle', 'detalle.id', '=', 'l_productos.id_detalle')
+         ->leftJoin('familias', 'familias.id', '=', 'detalle.id_familias')
+         ->leftJoin('cuentas', 'cuentas.id', '=', 'detalle.id_cuenta')
+         ->whereIn('id_tcuenta', [2, 3])
+         ->where('id_tipofamilias', '=', 2)
+         ->where(DB::raw("LEFT(familias.id, 1)"), '<>', '0')
+         ->get();
+         $this->CentroDeCostos = CentroDeCostos::all();
      }
      
 
@@ -75,7 +84,8 @@ class ModalProductoGeneralAvanz extends Component
             'cantidad' => 'required|integer|min:1',
             'precioUnitario' => 'required|numeric|min:0.01',
             'tasaImpositiva' => 'required',
-            'total' => 'required'
+            'total' => 'required',
+            'CC' => 'nullable',
         ]);
     
         // Preparar los datos a enviar
@@ -86,6 +96,7 @@ class ModalProductoGeneralAvanz extends Component
             'precioUnitario' => $this->precioUnitario,
             'total' => $this->total,
             'tasaImpositiva' => $this->tasaImpositiva,
+            'CC' => $this->CC,
         ];
     
         // Registrar los datos en el log
