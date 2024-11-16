@@ -7,10 +7,9 @@ use App\Models\MovimientoDeCaja;
 use Illuminate\Support\Facades\Log;
 use App\Models\Mes;
 use Carbon\Carbon;
-
-class AplicacionTable extends Component
-{   
-    public $aplicaciones;
+class TraspasosTable extends Component
+{
+    public $traspasos;
     public $meses;
     public $anios;
     public $selectedMonth;
@@ -24,9 +23,9 @@ class AplicacionTable extends Component
                 'anio' => $year
             ];
         });
-        $this->selectedMonth = ''; // Inicializa el mes seleccionado como vacío para mostrar todos los registros
-        $this->selectedYear = ''; // Inicializa el año seleccionado como vacío para mostrar todos los registros
-        $this->loadAplicaciones(); // Carga los datos iniciales
+        $this->selectedMonth = '';  
+        $this->selectedYear = ''; 
+        $this->loadAplicaciones(); 
     }
 
     public function loadAplicaciones()
@@ -38,7 +37,7 @@ class AplicacionTable extends Component
             SUM(CASE WHEN montodo IS NULL THEN ' ' ELSE montodo END) as do"
         )
         ->leftJoin('cuentas', 'movimientosdecaja.id_cuentas', '=', 'cuentas.id')
-        ->where('id_libro', '4')
+        ->where('id_libro', '6')
         ->groupBy('apl', 'fec', 'mov');
 
         if (!empty(trim($this->selectedMonth))) {
@@ -49,7 +48,7 @@ class AplicacionTable extends Component
             $query->whereRaw("YEAR(fec) = ?", [$this->selectedYear]);
         }
 
-        $this->aplicaciones = $query->get()
+        $this->traspasos = $query->get()
             ->map(function($item) {
                 return [
                     'apl' => $item->apl,
@@ -74,10 +73,12 @@ class AplicacionTable extends Component
     }
 
     
+
+
     public function render()
     {
-        return view('livewire.aplicacion-table', [
-            'aplicaciones' => $this->aplicaciones
+        return view('livewire.traspasos-table', [
+            'traspasos' => $this->traspasos
         ]);
     }
 }

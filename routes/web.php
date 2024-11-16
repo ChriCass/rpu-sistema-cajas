@@ -26,7 +26,7 @@ use App\Livewire\ReporteCajaView;
 use App\Livewire\ReporteCajaXMesView;
 use App\Livewire\ReporteCajaXAnioView;
 use App\Livewire\ResultadoPorCentroDeCostos;
-
+use App\Livewire\TraspasoDetail;
 use App\Livewire\RegistroGeneralAvanz;
 
 /*
@@ -56,6 +56,12 @@ Route::middleware([
     Route::get('/tesoreria/aplicaciones', function () {
         return view('tesoreria.aplicaciones', ['routeName' => 'aplicaciones']);
     })->name('aplicaciones');
+
+    Route::get('/tesoreria/traspasos', function () {
+        return view('tesoreria.traspasos', ['routeName' => 'traspasos']);
+    })->name('traspasos');
+
+
 
     Route::prefix('pendientes')->group(function () {
         Route::get('/cxc', function () {
@@ -105,6 +111,11 @@ Route::middleware([
     Route::prefix('aplicaciones/{aplicacionesId}')->group(function (){
         Route::get('/', AplicacionDetail::class)->name('aplicacion.show');
     });
+
+    Route::prefix('traspasos/{traspasoId}')->group(function (){
+        Route::get('/', TraspasoDetail::class)->name('traspaso.show');
+    }); 
+    
 
     Route::get('/reportes/matriz-cobros', MatrizDeCobrosView::class)->name('reportes.matriz.cobros');
     Route::get('/reportes/matriz-pagos', MatrizDePagosView::class)->name('reportes.matriz.pagos');
