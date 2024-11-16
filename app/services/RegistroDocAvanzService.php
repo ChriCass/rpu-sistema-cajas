@@ -233,7 +233,7 @@ class RegistroDocAvanzService
 
         try {
 
-            if ($data['origen'] == 'ingreso' || $data['origen'] == 'detalle ingreso'){
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso'){
                 $libro = '1';
             } else{
                 $libro = '2';
