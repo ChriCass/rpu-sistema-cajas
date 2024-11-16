@@ -237,8 +237,41 @@
 
                 <div class="flex items-center  mt-4 space-x-2">
 
-                    <div> <x-button label="Cancelar" wire:navigate outline secondary
-                            href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" /></div>
+                    @if ($origen === 'ingreso' || $origen === 'egreso')
+                    <!-- Botón para Ingreso y Egreso, que dependen de aperturaId -->
+                    <div> 
+                        <x-button 
+                            label="Cancelar" 
+                            wire:navigate 
+                            outline 
+                            secondary
+                            href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" 
+                        />
+                    </div>
+                @elseif ($origen === 'cxc')
+                    <!-- Botón para CXC sin aperturaId -->
+                    <div> 
+                        <x-button 
+                            label="Cancelar" 
+                            wire:navigate 
+                            outline 
+                            secondary
+                            href="{{ route('cxc') }}" 
+                        />
+                    </div>
+                @elseif ($origen === 'cxp')
+                    <!-- Botón para CXP sin aperturaId -->
+                    <div> 
+                        <x-button 
+                            label="Cancelar" 
+                            wire:navigate 
+                            outline 
+                            secondary
+                            href="{{ route('cxp') }}" 
+                        />
+                    </div>
+                @endif
+                
                     <div> <x-button label="Aceptar" wire:click='submit' primary /></div>
 
 

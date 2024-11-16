@@ -57,14 +57,20 @@ Route::middleware([
         return view('tesoreria.aplicaciones', ['routeName' => 'aplicaciones']);
     })->name('aplicaciones');
 
-    Route::get('/pendientes/cxc', function () {
-        return view('deudas.documentos-cxc', ['routeName' => 'cxc']);
-    })->name('cxc');
-
-    Route::get('/pendientes/cxp', function () {
-        return view('deudas.documentos-cxp', ['routeName' => 'cxp']);
-    })->name('cxp');
-
+    Route::prefix('pendientes')->group(function () {
+        Route::get('/cxc', function () {
+            return view('deudas.documentos-cxc', ['routeName' => 'cxc']);
+        })->name('cxc');
+    
+        Route::get('/cxc/avanzado', RegistroGeneralAvanz::class)->name('cxc.avanzado');
+    
+        Route::get('/cxp', function () {
+            return view('deudas.documentos-cxp', ['routeName' => 'cxp']);
+        })->name('cxp');
+    
+        Route::get('/cxp/avanzado', RegistroGeneralAvanz::class)->name('cxp.avanzado');
+    });
+    
     Route::get('/productos/familias', function () {
         return view('logistica.familia', ['routeName' => 'familias']);
     })->name('familias');
@@ -90,21 +96,7 @@ Route::middleware([
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
         Route::get('/avanzado',  RegistroGeneralAvanz::class)->name('apertura.avanzado');
      
-      /** 
-        Route::get('/registodocumentosingreso/edit', EditRegistroDocumentosIngreso::class)->name('apertura.edit.editregistodocumentosingreso');
-        Route::get('/registodocumentosegreso', RegistroDocumentosEgreso::class)->name('apertura.edit.registodocumentosegreso');
-        Route::get('/registodocumentosegreso/edit', EditRegistroDocumentosEgreso::class)->name('apertura.edit.editregistodocumentosegreso');
-        Route::get('/vaucherdepagos', VaucherPagoCompras::class)->name('apertura.edit.vaucherdepagos');
-        Route::get('/vaucherdepagos/edit', EditVaucherDePago::class)->name('apertura.edit.editvaucherdepagos');
-        Route::get('/vaucherdepagos/registrocxp', RegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp');
-        Route::get('/vaucherdepagos/registrocxp/nuevo', FormRegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxp');
-        Route::get('/vaucherdepagosventas', VaucherPagoVentas::class)->name('apertura.edit.vaucherdepagosventas');
-        Route::get('/vaucherdepagosventas/edit', EditVaucherDePagoVentas::class)->name('apertura.edit.editvaucherdepagosventas');
-        Route::get('/vaucherdepagosventas/registrocxc', RegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxc');
-        Route::get('/vaucherdepagosventas/registrocxc/nuevo', FormRegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxc');
-        Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones'); 
-        Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
-        */
+     
 
     });
    /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');

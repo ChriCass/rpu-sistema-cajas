@@ -414,31 +414,38 @@ class RegistroGeneralAvanz extends Component
 
     }
 
-    public function mount($aperturaId)
+    public function mount($aperturaId = null)
     {
-        $this->aperturaId = $aperturaId;
-        $this->apertura = Apertura::findOrFail($this->aperturaId);
         $this->origen = request()->get('origen', 'ingreso'); // Default a 'ingreso'
+        $this->aperturaId = $aperturaId;
+    
+        if ($this->aperturaId) {
+            $this->apertura = Apertura::findOrFail($this->aperturaId);
+        } else {
+            $this->apertura = null;
+        }
+    
         $this->IdDocumento = request()->get('numeroMovimiento');
         $this->loadInitialData();
-        if(!empty($this->IdDocumento)){
+        
+        if (!empty($this->IdDocumento)) {
             $this->cargarDocumentos($this->IdDocumento);
             Session::put("productos_{$this->origen}", $this->productos);
-        }else{
+        } else {
             $this->productos = null;
             Session::put("productos_{$this->origen}", $this->productos);
         }
-        
+    
         Log::info('Parámetros recibidos', [
             'aperturaId' => $this->aperturaId,
             'origen' => $this->origen,
             'request_data' => request()->all()
         ]);
-
+    
         // Cargar productos según el origen desde la sesión
         $this->productos = Session::get("productos_{$this->origen}", []);
     }
-
+    
     // Escuchar el evento 'productoEnviado' utilizando #[On] 
     #[On('productoEnviado')]
     public function procesarProducto($data)
