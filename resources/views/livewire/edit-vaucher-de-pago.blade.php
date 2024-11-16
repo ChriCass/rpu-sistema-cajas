@@ -37,7 +37,7 @@
             </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-4/12 px-2">
-                    <x-input readonly label="Fecha:" wire:model="fecha" />
+                    <x-input readonly label="Fecha:" wire:model="fechaApertura" />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
                     <x-input readonly label="Moneda:" wire:model="moneda" />

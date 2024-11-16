@@ -230,7 +230,13 @@ class RegistroDocumentoCxc extends Component
     // Cargar datos iniciales
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'like', '002%')->get();
+        $familias1 = Familia::where('id', 'like', '0%')->get();
+
+        $familias2 = Familia::where('id', 'like', '1%')
+            ->where('id_tipofamilias', '=', '1')
+            ->get();
+
+        $this->familias = $familias1->merge($familias2);
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -413,7 +419,7 @@ class RegistroDocumentoCxc extends Component
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'observaciones' => 'required|string|max:500', // TextBox29
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',

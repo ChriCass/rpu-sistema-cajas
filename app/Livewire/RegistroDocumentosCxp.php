@@ -360,7 +360,7 @@ class RegistroDocumentosCxp extends Component
             'igv' => 'required|numeric|min:0',
             'noGravado' => 'required|numeric|min:0',
             'precio' => 'required|numeric|min:0.01',
-            'observaciones' => 'nullable|string|max:500',
+            'observaciones' => 'required|string|max:500',
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',

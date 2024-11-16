@@ -77,7 +77,8 @@ class EditVaucherDePago extends Component
         CON1.montodebe,
         CON1.montohaber,
         CON1.montododebe,
-        CON1.montodohaber
+        CON1.montodohaber,
+        CON1.numero_de_operacion
     FROM (
         SELECT 
             documentos.id,
@@ -94,7 +95,8 @@ class EditVaucherDePago extends Component
             IF(movimientosdecaja.id_dh = '1', movimientosdecaja.monto, NULL) AS montodebe,
             IF(movimientosdecaja.id_dh = '2', movimientosdecaja.monto, NULL) AS montohaber,
             IF(movimientosdecaja.id_dh = '1', movimientosdecaja.montodo, NULL) AS montododebe,
-            IF(movimientosdecaja.id_dh = '2', movimientosdecaja.montodo, NULL) AS montodohaber
+            IF(movimientosdecaja.id_dh = '2', movimientosdecaja.montodo, NULL) AS montodohaber,
+            numero_de_operacion
         FROM movimientosdecaja
         LEFT JOIN libros ON movimientosdecaja.id_libro = libros.id
         LEFT JOIN cuentas ON movimientosdecaja.id_cuentas = cuentas.id
@@ -120,9 +122,12 @@ class EditVaucherDePago extends Component
                 'Descripcion' => $item->cuenta_descripcion,     // Mapeo de cuenta_descripcion a Descripcion
                 'monto' => $item->monto,                        // Mapeo directo de monto
                 'debe' => $item->montodebe,                     // Mapeo de montodebe a debe
-                'haber' => $item->montohaber                    // Mapeo de montohaber a haber
+                'haber' => $item->montohaber,                   // Mapeo de montohaber a haber
+                'numero_de_operacion' => $item->numero_de_operacion,
             ];
         }, $resultados);
+
+        $this -> cod_operacion = $this->contenedor[0]['numero_de_operacion']; 
 
         Log::info('Resultados convertidos a array:', [
             'contenedor' => $this->contenedor
@@ -283,6 +288,7 @@ class EditVaucherDePago extends Component
                     'monto' => $detalle['debe'],
                     'montodo' => null,
                     'glosa' => $glo,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 Log::info("Movimiento de caja insertado: ID Cuenta: {$cta}, Debe/Haber: 1, Monto: {$detalle['debe']}");
@@ -305,6 +311,7 @@ class EditVaucherDePago extends Component
                 'monto' => $this->debe,
                 'montodo' => null,
                 'glosa' => 'PAGO DE CXP',
+                'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     
             DB::commit(); // Confirmar la transacción

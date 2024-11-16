@@ -556,7 +556,7 @@ public function updatedIgv($value)
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'observaciones' => 'required|string|max:500', // TextBox29
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -798,6 +798,7 @@ public function updatedIgv($value)
                     'monto' => $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 // Registro del pago del documento
@@ -812,6 +813,7 @@ public function updatedIgv($value)
                     'monto' => $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 Log::info('Registro de movimientos relacionado con apertura realizado', [

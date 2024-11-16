@@ -301,7 +301,8 @@ class RegistroGeneralAvanz extends Component
                 CO1.noGravadas, 
                 CO1.otroTributo, 
                 CO1.precio,
-                INN1.id_cuentas
+                INN1.id_cuentas,
+                INN2.numero_de_operacion
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -335,6 +336,8 @@ class RegistroGeneralAvanz extends Component
                 tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
             LEFT JOIN
 				(select id_documentos,id_cuentas from movimientosdecaja where id_libro in ('1','2')) INN1 on CO1.id = INN1.id_documentos
+            LEFT JOIN
+                (select distinct id_documentos,numero_de_operacion from movimientosdecaja where id_libro = '3') INN2 on INN2.id_documentos = CO1.id
             WHERE 
                  CO1.id = ?
         ", [$IdDocumento]);
@@ -356,6 +359,7 @@ class RegistroGeneralAvanz extends Component
         $this->observaciones = $result->observaciones; // Observaciones
         $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
         $this->cuenta = $result->id_cuentas;
+        $this->cod_operacion = $result->numero_de_operacion;
 
         // Variables financieras
         $this->basImp = $result->base_imponible; // Base imponible
