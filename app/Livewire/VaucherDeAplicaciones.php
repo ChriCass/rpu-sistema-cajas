@@ -40,7 +40,8 @@ class VaucherDeAplicaciones extends Component
     public function mount()
     {
         $this->monedas = TipoDeMoneda::all();
-        $this->fecha = Carbon::now()->toDateString();
+        $this->fecha = Carbon::now('America/Lima')->toDateString();
+
     }
 
     #[On('sendingContenedorAplicaciones')]

@@ -12,7 +12,7 @@
           </div>
           <div class="w-full   px-4 mb-4">
            
-              @livewire('vaucher-de-aplicaciones') 
+              @livewire('vaucher-de-traspasos') 
               
          
           </div>
