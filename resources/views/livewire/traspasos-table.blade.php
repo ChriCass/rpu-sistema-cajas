@@ -1,4 +1,4 @@
-<div x-data="{ filtroMes: '', filtroAnio: '' }">
+<div>
     <div class="p-4 bg-white rounded shadow-md">
         <!-- Alertas de WireUI -->
         @if(session()->has('message'))
@@ -25,6 +25,7 @@
             </x-alert>
         @endif
 
+      
         <div class="flex items-center space-x-4 mb-4">
             <!-- Filtro Mes -->
             <div>
@@ -51,7 +52,6 @@
                 />
             </div>
         </div>
-
         <!-- Tabla -->
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-300">
@@ -66,19 +66,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($aplicaciones as $aplicacion)
-                        <tr x-show="(!filtroMes || '{{ \Carbon\Carbon::createFromFormat('d/m/Y', $aplicacion['fec'])->format('m') }}' == filtroMes) && (!filtroAnio || '{{ \Carbon\Carbon::createFromFormat('d/m/Y', $aplicacion['fec'])->format('Y') }}' == filtroAnio)">
-                            <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['apl'] }}</td>
-                            <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['fec'] }}</td>
-                            <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['mov'] }}</td>
-                            <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['monto'] }}</td>
-                            <td class="px-4 py-2 border-b border-gray-300">{{ $aplicacion['monto_do'] }}</td>
+                    @foreach($traspasos as $traspaso)
+                        <tr>
+                            <td class="px-4 py-2 border-b border-gray-300">{{ $traspaso['apl'] }}</td>
+                            <td class="px-4 py-2 border-b border-gray-300">{{ $traspaso['fec'] }}</td>
+                            <td class="px-4 py-2 border-b border-gray-300">{{ $traspaso['mov'] }}</td>
+                            <td class="px-4 py-2 border-b border-gray-300">{{ $traspaso['monto'] }}</td>
+                            <td class="px-4 py-2 border-b border-gray-300">{{ $traspaso['monto_do'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">
                                 <x-button 
                                     label="Detalles" 
-                                    wire:click="$dispatch('setFec', '{{ $aplicacion['fec'] }}')" 
+                                    wire:click="$dispatch('setFec', '{{ $traspaso['fec'] }}')" 
                                     wire:navigate 
-                                    href="{{ route('aplicacion.show', ['aplicacionesId' => $aplicacion['mov']]) }}" 
+                                    href="{{ route('traspaso.show', ['traspasoId' => $traspaso['mov']]) }}" 
                                 />
                             </td>
                         </tr>

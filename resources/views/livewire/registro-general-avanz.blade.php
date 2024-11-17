@@ -246,6 +246,8 @@
                         </div>
                     </div>
                 @endif
+                </div>
+            
 
 
                 <div class="flex items-center  mt-4 space-x-2">
@@ -261,7 +263,7 @@
                             href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" 
                         />
                     </div>
-                @elseif ($origen === 'cxc' || $origen === 'editar cxc')
+                @elseif ($origen === 'cxc')
                     <!-- Botón para CXC sin aperturaId -->
                     <div> 
                         <x-button 
@@ -272,7 +274,7 @@
                             href="{{ route('cxc') }}" 
                         />
                     </div>
-                @elseif ($origen === 'cxp' || $origen === 'editar cxp')
+                @elseif ($origen === 'cxp')
                     <!-- Botón para CXP sin aperturaId -->
                     <div> 
                         <x-button 
