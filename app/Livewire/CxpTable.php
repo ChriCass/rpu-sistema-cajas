@@ -191,10 +191,18 @@ final class CxpTable extends PowerGridComponent
 
     public function actions(Documento $row): array
     {
-        return [
-            Button::add('edit')
-                ->slot('Editar ')
-                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->dispatch('showEdCxp', ['idcxp' => $row->id]),
-        ];
+        if($row->id_tip_form == "1"){
+            return [
+                Button::add('edit')
+                    ->slot('Editar ')
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->dispatch('showEdCxp', ['idcxp' => $row->id]),
+            ];
+        }else{
+            return [
+                Button::add('edit')
+                    ->slot('Editar ')
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->route('cxp.avanzado', ['origen' => 'editar cxp', 'numeroMovimiento' => $row->id]),
+            ];   
+        }
     }
 }

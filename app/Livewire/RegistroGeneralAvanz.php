@@ -63,6 +63,29 @@ class RegistroGeneralAvanz extends Component
     public $cuentas;
     public $cuenta;
     public $IdDocumento;
+    public $porcentaje;
+    public $montoDetraccion;
+    public $montoNeto;
+    public $toggle = false;
+    public $validacionDet;
+
+    public function updatedmontoDetraccion ($value){
+        if($value <> ''){
+            $this -> montoNeto = $this -> precio - $value;
+        }else{
+            $this -> montoNeto = '';
+        }   
+    }
+
+    public function updatedporcentaje($value){
+        if($value <> ''){
+            $this -> montoDetraccion = round(($value/100) * $this -> precio,0);
+            $this -> montoNeto = $this -> precio - round(($value/100) * $this -> precio,0);
+        }else{
+            $this -> montoDetraccion = '';
+            $this -> montoNeto = '';
+        }
+    }
 
 
     public function calculateIgv()
@@ -79,6 +102,22 @@ class RegistroGeneralAvanz extends Component
         // Obtener la tasa correspondiente, con un valor predeterminado de 0 si no existe
         $tasa = $this->tasaIgvMapping[$this->tasaIgvId] ?? 0;
         $this->igv = round($baseImponible * $tasa, 2);
+    }
+
+    // Función para actualizar el estado de los inputs
+    public function updatedToggle($value)
+    {
+        if($value == '1'){
+            $this -> validacionDet = '1';
+        }else{
+            $this -> validacionDet = '0';
+        };
+        Log::info('Validacion: '.$this -> validacionDet);
+
+        if (!$value) {
+            $this->montoDetraccion = null; // Reiniciar valores si se desactiva el toggle
+            $this->montoNeto = null;
+        }
     }
 
     public function updatedtipoDocId($value)
@@ -118,9 +157,13 @@ class RegistroGeneralAvanz extends Component
 
     public function buscarDescripcionTipoDocumento()
     {
+         
         // Buscar el tipo de documento en la base de datos
         $tipoComprobante = TipoDeComprobanteDePagoODocumento::where('id', $this->tipoDocumento)->first();
-        $this->apertura = Apertura::findOrFail($this->aperturaId);
+        if ($this->aperturaId){
+            $this->apertura = Apertura::findOrFail($this->aperturaId);
+        }
+        
         // Si se encuentra el tipo de documento, actualizamos la descripción
         if ($tipoComprobante) {
             $this->tipoDocDescripcion = $tipoComprobante->descripcion;
@@ -146,7 +189,12 @@ class RegistroGeneralAvanz extends Component
 
                 $entidad = Entidad::where('id', $this->docIdent)->first();
                 $this->entidad = $entidad->descripcion;
-                $fecha = (new DateTime($this->apertura->fecha))->format('Y-m-d');
+                if ($this->origen == 'cxc' || $this->origen == 'cxp' || $this->origen == 'editar cxc' || $this->origen == 'editar cxp'){
+                    $fecha = (new DateTime())->format('Y-m-d');
+                }else{
+                    $fecha = (new DateTime($this->apertura->fecha))->format('Y-m-d');
+                }
+                
                 Log::info('Fecha formateada: ', ['fecha' => $fecha]);
                 $this->fechaEmi = $fecha;
                 $this->fechaVen = $fecha;
@@ -302,7 +350,9 @@ class RegistroGeneralAvanz extends Component
                 CO1.otroTributo, 
                 CO1.precio,
                 INN1.id_cuentas,
-                INN2.numero_de_operacion
+                INN2.numero_de_operacion,
+                CO1.detraccion,
+                CO1.montoNeto
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -322,7 +372,9 @@ class RegistroGeneralAvanz extends Component
                     documentos.IGV, 
                     documentos.noGravadas, 
                     documentos.otroTributo, 
-                    documentos.precio
+                    documentos.precio,
+                    documentos.detraccion,
+                    documentos.montoNeto
                 FROM 
                     documentos 
                 ) CO1
@@ -360,6 +412,8 @@ class RegistroGeneralAvanz extends Component
         $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
         $this->cuenta = $result->id_cuentas;
         $this->cod_operacion = $result->numero_de_operacion;
+        $this->montoDetraccion = $result->detraccion;
+        $this->montoNeto = $result->montoNeto;
 
         // Variables financieras
         $this->basImp = $result->base_imponible; // Base imponible
@@ -520,45 +574,80 @@ class RegistroGeneralAvanz extends Component
         Log::info("La Lista de productos es:",$this->productos);
 
         // Preparar los datos para el servicio
-        $data = [
-            'tipoDocumento' => $this->tipoDocumento,
-            'tipoDocDescripcion' => $this->tipoDocDescripcion,
-            'serieNumero1' => $this->serieNumero1,
-            'serieNumero2' => $this->serieNumero2,
-            'tipoDocId' => $this->tipoDocId,
-            'docIdent' => $this->docIdent,
-            'entidad' => $this->entidad,
-            'monedaId' => $this->monedaId,
-            'tasaIgvId' => $this->tasaIgvId,
-            'fechaEmi' => $this->fechaEmi,
-            'fechaVen' => $this->fechaVen,
-            'basImp' => $this->basImp,
-            'igv' => $this->igv,
-            'noGravado' => $this->noGravado,
-            'precio' => $this->precio,
-            'observaciones' => $this->observaciones,
-            'user' => $this->user ?? Auth::user()->id,
-            'productos' => $this->productos,
-            'apertura' => [
-                'numero' => $this->apertura->numero,
-                'id_tipo' => $this->apertura->id_tipo,
-                'mes' => ['descripcion' => $this->apertura->mes->descripcion],
-                'año' => $this->apertura->año,
-            ],
-            'origen' => $this->origen,
-            'cuenta' => $this->cuenta,
-            'cod_operacion' => $this->cod_operacion,
-            'idDocumento' => $this->IdDocumento,
-        ];
+        if ($this->origen === 'cxc' || $this->origen === 'cxp' || $this->origen === 'editar cxc' || $this->origen === 'editar cxp'){
+            $data = [
+                'tipoDocumento' => $this->tipoDocumento,
+                'tipoDocDescripcion' => $this->tipoDocDescripcion,
+                'serieNumero1' => $this->serieNumero1,
+                'serieNumero2' => $this->serieNumero2,
+                'tipoDocId' => $this->tipoDocId,
+                'docIdent' => $this->docIdent,
+                'entidad' => $this->entidad,
+                'monedaId' => $this->monedaId,
+                'tasaIgvId' => $this->tasaIgvId,
+                'fechaEmi' => $this->fechaEmi,
+                'fechaVen' => $this->fechaVen,
+                'basImp' => $this->basImp,
+                'igv' => $this->igv,
+                'noGravado' => $this->noGravado,
+                'precio' => $this->precio,
+                'observaciones' => $this->observaciones,
+                'user' => $this->user ?? Auth::user()->id,
+                'productos' => $this->productos,
+                'origen' => $this->origen,
+                'cuenta' => $this->cuenta,
+                'idDocumento' => $this->IdDocumento,
+                'porcentaje' => $this->porcentaje,
+                'montoDetraccion' => $this->montoDetraccion,
+                'montoNeto' => $this->montoNeto
+            ];
+        }else{
+            $data = [
+                'tipoDocumento' => $this->tipoDocumento,
+                'tipoDocDescripcion' => $this->tipoDocDescripcion,
+                'serieNumero1' => $this->serieNumero1,
+                'serieNumero2' => $this->serieNumero2,
+                'tipoDocId' => $this->tipoDocId,
+                'docIdent' => $this->docIdent,
+                'entidad' => $this->entidad,
+                'monedaId' => $this->monedaId,
+                'tasaIgvId' => $this->tasaIgvId,
+                'fechaEmi' => $this->fechaEmi,
+                'fechaVen' => $this->fechaVen,
+                'basImp' => $this->basImp,
+                'igv' => $this->igv,
+                'noGravado' => $this->noGravado,
+                'precio' => $this->precio,
+                'observaciones' => $this->observaciones,
+                'user' => $this->user ?? Auth::user()->id,
+                'productos' => $this->productos,
+                'apertura' => [
+                    'numero' => $this->apertura->numero,
+                    'id_tipo' => $this->apertura->id_tipo,
+                    'mes' => ['descripcion' => $this->apertura->mes->descripcion],
+                    'año' => $this->apertura->año,
+                ],
+                'origen' => $this->origen,
+                'cuenta' => $this->cuenta,
+                'cod_operacion' => $this->cod_operacion,
+                'idDocumento' => $this->IdDocumento,
+            ];
+        }
+        Log::info("Informacion del comprobante: ",$data);
 
         // Llamar al servicio para guardar el documento
-         
         $result = $this->RegistroDocAvanzService->guardarDocumento($data);
 
         // Manejar la respuesta del servicio
         if (isset($result['success'])) {
             session()->flash('message', $result['success']);
-            return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
+            if ($this->origen === "cxc" ||  $this->origen === "editar cxc"){
+                return $this->redirect(route('cxc'));
+            }elseif($this->origen === "cxp" || $this->origen === "editar cxp"){
+                return $this->redirect(route('cxp'));
+            }else{
+                return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
+            }
         } else {
             session()->flash('error', $result['error']);
         }

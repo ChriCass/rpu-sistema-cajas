@@ -22,6 +22,7 @@ use PowerComponents\LivewirePowerGrid\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Log;
 
 
 final class CxcTable extends PowerGridComponent
@@ -52,7 +53,8 @@ final class CxcTable extends PowerGridComponent
             'documentos.id_t04tipmon',
             'tasas_igv.tasa',
             'documentos.precio',
-            'users.name AS usuario'
+            'users.name AS usuario',
+            'id_tip_form'
         )
             ->leftJoin('entidades', 'documentos.id_entidades', '=', 'entidades.id')
             ->leftJoin('users', 'documentos.id_user', '=', 'users.id')
@@ -194,10 +196,18 @@ final class CxcTable extends PowerGridComponent
 
     public function actions(Documento $row): array
     {
-        return [
-            Button::add('edit')
-                ->slot('Editar ')
-                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->dispatch('showEdCxc', ['idcxc' => $row->id]),
-        ];
+        if($row->id_tip_form == "1"){
+            return [
+                Button::add('edit')
+                    ->slot('Editar ')
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->dispatch('showEdCxc', ['idcxc' => $row->id]),
+            ];
+        }else{
+            return [
+                Button::add('edit')
+                    ->slot('Editar ')
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->route('cxc.avanzado', ['origen' => 'editar cxc', 'numeroMovimiento' => $row->id]),
+            ];
+        }
     }
 }

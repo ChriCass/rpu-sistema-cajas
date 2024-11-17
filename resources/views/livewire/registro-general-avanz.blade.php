@@ -176,10 +176,12 @@
                     <x-input wire:model.live='observaciones' label="Observaciones:"
                         oninput="this.value = this.value.toUpperCase()" />
                 </div>
-                <div class="w-full md:w-2/12 mt-4  px-2">
-                    <x-input wire:model.live='cod_operacion' label="Codigo de operacion"
-                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
-                </div>
+                @if ($origen === 'ingreso' || $origen === 'egreso' || $origen === 'editar ingreso' || $origen === 'editar egreso')
+                    <div class="w-full md:w-2/12 mt-4  px-2">
+                        <x-input wire:model.live='cod_operacion' label="Codigo de operacion"
+                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                    </div>
+                @endif
                 <div class="w-full md:w-2/12 mt-4  px-2">
                     <x-select 
                         label="Cuenta:" 
@@ -219,18 +221,29 @@
 
             <div class="flex flex-wrap -mx-2 mt-4 justify-between">
                 <!-- Detracción y Botones -->
-                @if ($origen === 'cxp' || $origen === 'cxc')
-                    <div class="w-full md:w-3/12 px-2 flex justify-end items-center">
-                        <x-checkbox id="left-label" label="Detracción" />
-                    </div>
-                    <div class="w-full md:w-3/12 px-2">
-                        <x-input label="Porcentaje" suffix="%" value="" />
-                    </div>
-                    <div class="w-full md:w-3/12 px-2">
-                        <x-input label="Monto de detracción:" value="" />
-                    </div>
-                    <div class="w-full md:w-3/12 px-2">
-                        <x-input label="Monto Neto:" value="" />
+                @if ($origen === 'cxp' || $origen === 'cxc' || $origen === 'editar cxp' || $origen === 'editar cxc')
+                    <div class="flex justify-start ">
+                        <!-- Detracción -->
+                        <div class="flex items-center justify-start gap-3 mx-3 w-3/12">
+                            <x-toggle wire:model.live="toggle" left-label="tiene porcentaje?" name="toggle" />
+                            <div class="w-5/12">
+                                <x-maskable mask="###" :disabled="!$toggle" wire:model.live="porcentaje"
+                                    suffix="%" />
+                            </div>
+                        </div>
+
+                        <div class="flex mx-3">
+                            <label for="monto_detraccion" class="text-sm font-medium text-gray-700">Monto de
+                                detracción:</label>
+                            <x-input class="w-1/12" wire:model.live="montoDetraccion" id="monto_detraccion"
+                                class="w-32" :disabled="!$toggle" />
+                        </div>
+
+                        <div class="flex items-center">
+                            <label for="monto_neto" class="text-sm font-medium text-gray-700">Monto Neto:</label>
+                            <x-input class="w-1/12" wire:model.live="montoNeto" id="monto_neto" class="w-32"
+                                :disabled=True />
+                        </div>
                     </div>
                 @endif
 
@@ -248,7 +261,7 @@
                             href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" 
                         />
                     </div>
-                @elseif ($origen === 'cxc')
+                @elseif ($origen === 'cxc' || $origen === 'editar cxc')
                     <!-- Botón para CXC sin aperturaId -->
                     <div> 
                         <x-button 
@@ -259,7 +272,7 @@
                             href="{{ route('cxc') }}" 
                         />
                     </div>
-                @elseif ($origen === 'cxp')
+                @elseif ($origen === 'cxp' || $origen === 'editar cxp')
                     <!-- Botón para CXP sin aperturaId -->
                     <div> 
                         <x-button 

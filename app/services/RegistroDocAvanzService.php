@@ -42,7 +42,7 @@ class RegistroDocAvanzService
                 ->lockForUpdate()
                 ->first();
 
-            if($data['origen'] == 'ingreso' || $data['origen'] == 'egreso'){
+            if($data['origen'] == 'ingreso' || $data['origen'] == 'egreso' || $data['origen'] == 'cxc' || $data['origen'] == 'cxp'){
                 if ($documentoExistente) {
                     Log::warning('Intento de registrar un documento ya existente', [
                         'documentoExistente' => $documentoExistente,
@@ -52,13 +52,13 @@ class RegistroDocAvanzService
                 }
             }
 
-            if($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso'){
+            if($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
                 $idTipMov = 1;
             }else{
                 $idTipMov = 2;
             }
 
-            if($data['origen'] == 'ingreso' || $data['origen'] == 'egreso'){
+            if($data['origen'] == 'ingreso' || $data['origen'] == 'egreso'  || $data['origen'] == 'cxc' || $data['origen'] == 'cxp'){
                 // Insertar el nuevo documento
                 $nuevoDocumento = Documento::create([
                     'id_tipmov' => $idTipMov,
@@ -75,6 +75,8 @@ class RegistroDocAvanzService
                     'IGV' => $data['igv'],
                     'noGravadas' => $data['noGravado'],
                     'precio' => $data['precio'],
+                    'detraccion' => $data['montoDetraccion'] ?? null,
+                    'montoNeto' => $data['montoNeto'] ?? null,
                     'observaciones' => $data['observaciones'],
                     'id_user' => $data['user'] ?? Auth::user()->id,
                     'fecha_Registro' => now(),
@@ -98,6 +100,8 @@ class RegistroDocAvanzService
                     'IGV' => $data['igv'],
                     'noGravadas' => $data['noGravado'],
                     'precio' => $data['precio'],
+                    'detraccion' => $data['montoDetraccion'] ?? null,
+                    'montoNeto' => $data['montoNeto'] ?? null,
                     'observaciones' => $data['observaciones'],
                     'id_user' => $data['user'] ?? Auth::user()->id,
                     'fecha_Registro' => now(),
@@ -107,7 +111,6 @@ class RegistroDocAvanzService
 
                 $data['movimientosEditables'] = $this->borrarRegistrosed($data['idDocumento']);
             }
-
             // Registrar detalle del documento  
             $this->registrarDetalleDocumento($nuevoDocumento->id, $data);
 
@@ -198,7 +201,6 @@ class RegistroDocAvanzService
             try {
                 // Obtener el ID del centro de costos
                 $CCid = CentroDeCostos::where('descripcion', $producto['CC'])->first();
-
                 // Crear el detalle del documento
                 DDetalleDocumento::create([
                     'id_referencia' => $documentoId,
@@ -232,11 +234,12 @@ class RegistroDocAvanzService
     {
 
         try {
-
-            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso'){
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
                 $libro = '1';
+                $dh = '1';
             } else{
                 $libro = '2';
+                $dh = '2';
             }
             
             $cuentaId = $data['cuenta'];
@@ -249,29 +252,62 @@ class RegistroDocAvanzService
                 ->lockForUpdate()
                 ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
                 ->first();
-            if ($data['origen'] == 'ingreso' || $data['origen'] == 'egreso'){
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'egreso' || $data['origen'] == 'cxc' || $data['origen'] == 'cxp'){
                 $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
             } else{
                 $nuevoMov = $data['movimientosEditables']['movlibro'];
             }
-            
- 
-    
             // Crear nuevo libro de ingresos
-            MovimientoDeCaja::create([
-                'id_libro' => $libro,
-                'mov' => $nuevoMov,
-                'fec' => $data['fechaEmi'],
-                'id_documentos' => $documentoId,
-                'id_cuentas' => $cuentaId,
-                'id_dh' => 1,
-                'monto' => $precioConvertido,
-                'montodo' => null,
-                'glosa' => $data['observaciones'],
-            ]);
+
+            if(!empty($data['montoDetraccion'])){
+
+                if($data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
+                    $cuentasDetraccion = 2;
+                }else{
+                    $cuentasDetraccion = 4;
+                }
+
+                MovimientoDeCaja::create([
+                    'id_libro' => $libro,
+                    'mov' => $nuevoMov,
+                    'fec' => $data['fechaEmi'],
+                    'id_documentos' => $documentoId,
+                    'id_cuentas' => $cuentaId,
+                    'id_dh' => $dh,
+                    'monto' => $data['montoNeto'],
+                    'montodo' => null,
+                    'glosa' => $data['observaciones'],
+                ]);
+                MovimientoDeCaja::create([
+                    'id_libro' => $libro,
+                    'mov' => $nuevoMov,
+                    'fec' => $data['fechaEmi'],
+                    'id_documentos' => $documentoId,
+                    'id_cuentas' => $cuentasDetraccion,
+                    'id_dh' => $dh,
+                    'monto' => $data['montoDetraccion'],
+                    'montodo' => null,
+                    'glosa' => $data['observaciones'],
+                ]);
+            }else{
+                MovimientoDeCaja::create([
+                    'id_libro' => $libro,
+                    'mov' => $nuevoMov,
+                    'fec' => $data['fechaEmi'],
+                    'id_documentos' => $documentoId,
+                    'id_cuentas' => $cuentaId,
+                    'id_dh' => $dh,
+                    'monto' => $precioConvertido,
+                    'montodo' => null,
+                    'glosa' => $data['observaciones'],
+                ]);
+            }
+            
     
             // Registrar movimientos relacionados con la apertura
-            $this->registrarAperturaRelacionada($documentoId, $nuevoMov, $precioConvertido, $data);
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'egreso' || $data['origen'] == 'editar egreso'){
+                $this->registrarAperturaRelacionada($documentoId, $nuevoMov, $precioConvertido, $data);
+            }
     
         } catch (\Exception $e) {
             Log::error('Error al registrar libro de ingresos', [
