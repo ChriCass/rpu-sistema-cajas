@@ -52,6 +52,7 @@
                                             <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
                                                 <a href="{{ route('cxc') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">CXC</a>
                                                 <a href="{{ route('cxp') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">CXP</a>
+                                                <a href="{{ route('importar') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">importar</a>
                                             </div>
                                         </div>
                                         <div x-data="{ dropdownOpen: false }" class="relative">

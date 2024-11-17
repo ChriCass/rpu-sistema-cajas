@@ -61,7 +61,7 @@ Route::middleware([
         return view('tesoreria.traspasos', ['routeName' => 'traspasos']);
     })->name('traspasos');
 
-
+    
 
     Route::prefix('pendientes')->group(function () {
         Route::get('/cxc', function () {
@@ -75,6 +75,10 @@ Route::middleware([
         })->name('cxp');
     
         Route::get('/cxp/avanzado', RegistroGeneralAvanz::class)->name('cxp.avanzado');
+
+        Route::get('/importar', function () {
+            return view('deudas.importar', ['routeName' => 'importar']);
+        })->name('importar');
     });
     
     Route::get('/productos/familias', function () {
