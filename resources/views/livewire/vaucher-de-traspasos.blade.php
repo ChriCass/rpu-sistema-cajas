@@ -111,6 +111,7 @@
                 :options="$cuentas"
                 option-label="descripcion"
                 option-value="id"
+                wire:model='cuenta'
             />
                 <x-input label="Total" readonly wire:model='total'  />
           
@@ -135,6 +136,7 @@
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Num</th>
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Moneda</th>
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Cuenta</th>
+                            <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">DH</th>
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Monto</th>
                             <th class="px-4 py-2 border-b border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
                         </tr>
@@ -151,6 +153,7 @@
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['num'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['id_t04tipmon'] }}</td>
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['cuenta'] }}</td>
+                            <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['dh'] }}</td>
                             
                             <!-- Columna Monto -->
                             <td class="px-4 py-2 border-b border-gray-300">{{ $detalle['monto'] }}</td>
@@ -161,7 +164,11 @@
                                 @if ($editingIndex === $index)
                                     <!-- Input de edición del monto -->
                                     <div class="relative mb-2">
-                                        <x-input   wire:model.live="editingMonto"  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                                        <x-input 
+                                            wire:model.live="editingMonto" 
+                                            oninput="this.value = this.value.replace(/[^0-9.-]/g, '').replace(/(?!^)-/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)" 
+                                        />
+
                                         @if ($warningMessage[$index] ?? false)
                                             <span class="text-red-500 text-sm block mt-1">{{ $warningMessage[$index] }}</span>
                                         @endif

@@ -63,6 +63,7 @@
                                 <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">Moneda</th>
                                 <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">Cuenta</th>
                                 <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">Monto</th>
+                                <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">DH</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,6 +91,7 @@
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->Mon }}</td>
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->Descripcion }}</td>
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->monto }}</td>
+                                    <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->rt }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

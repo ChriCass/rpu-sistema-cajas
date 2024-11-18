@@ -31,7 +31,7 @@ class TraspasosTable extends Component
     public function loadAplicaciones()
     {
         $query = MovimientoDeCaja::selectRaw(
-            "'APLICACIONES' as apl, DATE_FORMAT(fec, '%d/%m/%Y') as fec, mov, 
+            "'TRASPASOS' as apl, DATE_FORMAT(fec, '%d/%m/%Y') as fec, mov, 
             SUM(CASE WHEN id_dh = '1' THEN monto ELSE 0 END) as debe, 
             SUM(CASE WHEN id_dh = '2' THEN monto ELSE 0 END) as haber, 
             SUM(CASE WHEN montodo IS NULL THEN ' ' ELSE montodo END) as do"

@@ -13,6 +13,7 @@ class EditTraspasoDetail extends Component
     public $traspaso;
     public $fecha;
     public $detalles = [];
+    public $traspasoDoc;
     
     public function mount($traspasoId)
     {
@@ -28,7 +29,7 @@ class EditTraspasoDetail extends Component
             SUM(CASE WHEN montodo IS NULL THEN ' ' ELSE montodo END) as do"
         )
         ->leftJoin('cuentas', 'movimientosdecaja.id_cuentas', '=', 'cuentas.id')
-        ->where('id_libro', '4')
+        ->where('id_libro', '6')
         ->groupBy('trp', 'fec', 'mov')
         ->get()
         ->map(function($item) {
@@ -80,9 +81,17 @@ class EditTraspasoDetail extends Component
         ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
         ->leftJoin('entidades', 'documentos.id_entidades', '=', 'entidades.id')
         ->where('movimientosdecaja.mov', $this->traspasoId)
-        ->where('id_libro', '4')
+        ->where('id_libro', '6')
         ->get();
         
+        foreach($this->detalles as $detalle){
+            if ($detalle['tdoc'] = "Vaucher de Traspaso"){
+                $this->traspasoDoc = $detalle['id'];
+            }
+
+        }
+
+
         $this->dispatch('sendDetallesToParent', $this->detalles->toArray());
         if ($this->detalles->isNotEmpty()) {
             Log::info("Detalles encontrados: ", $this->detalles->toArray());

@@ -64,7 +64,7 @@
 
 
  
-   @livewire('delete-aplicaciones-modal', ['detalles'=> $traspasosId])
+   @livewire('delete-traspaso-modal', ['detalles'=> $traspasoId,'voucher' => $traspasoDoc])
 
 </div>
 

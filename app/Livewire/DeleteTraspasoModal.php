@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\MovimientoDeCaja;
+use App\Models\DDetalleDocumento;
+use App\Models\Documento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -12,9 +14,11 @@ class DeleteTraspasoModal extends Component
 {
     public $openModal;
     public $detalles;
-    public function mount($detalles)
+    public $voucher;
+    public function mount($detalles,$voucher)
     {
         $this->detalles = $detalles;
+        $this->voucher = $voucher;
     }
 
     public function deleteAplication()
@@ -25,8 +29,14 @@ class DeleteTraspasoModal extends Component
         Log::info("Intentando eliminar movimientos con mov: {$this->detalles}");
 
         // Eliminar los movimientos
-        MovimientoDeCaja::where('id_libro', 4)
+        MovimientoDeCaja::where('id_libro', 6)
             ->where('mov', $this->detalles)
+            ->delete();
+        
+        DDetalleDocumento::where('id_referencia',$this->voucher)
+            ->delete();
+
+        Documento::where('id',$this->voucher)
             ->delete();
 
         DB::commit(); // Confirmar la transacción

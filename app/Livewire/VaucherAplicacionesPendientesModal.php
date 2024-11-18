@@ -72,11 +72,11 @@ class VaucherAplicacionesPendientesModal extends Component
     {
         $query = "
             SELECT id_documentos, tdoc, id_entidades, RZ, Num, Mon, Descripcion, 
-                IF(Mon = 'PEN', monto, montodo) AS monto 
+                IF(Mon = 'PEN', monto, montodo) AS monto, rt
             FROM (
                 SELECT id_documentos, fechaEmi, tabla10.descripcion AS tdoc, id_entidades, entidades.descripcion AS RZ, 
                     Num, IF(CON3.Descripcion = 'DETRACCIONES POR COBRAR', 'PEN', id_t04tipmon) AS Mon, 
-                    CON3.Descripcion, monto, montodo 
+                    CON3.Descripcion, monto, montodo, 'DEBE' as rt 
                 FROM (
                     SELECT id_documentos, 
                         documentos.fechaEmi,  
@@ -114,7 +114,7 @@ class VaucherAplicacionesPendientesModal extends Component
 
                 SELECT id_documentos, fechaEmi,tabla10.descripcion AS tdoc, id_entidades, entidades.descripcion AS RZ, 
                     Num, IF(CON3.Descripcion = 'DETRACCIONES POR PAGAR', 'PEN', id_t04tipmon) AS Mon, 
-                    CON3.Descripcion, monto, montodo 
+                    CON3.Descripcion, monto, montodo, 'HABER' as rh
                 FROM (
                     SELECT id_documentos, 
                         documentos.fechaEmi,
@@ -151,7 +151,7 @@ class VaucherAplicacionesPendientesModal extends Component
             WHERE fechaEmi <= ? 
             AND Mon = ?
             AND ROUND(monto, 2) <> 0 
-            ORDER BY CAST(id_documentos AS UNSIGNED) ASC;
+            ORDER BY rt asc,CAST(id_documentos AS UNSIGNED) ASC;
         ";
     
         return DB::select($query, [

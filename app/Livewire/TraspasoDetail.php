@@ -27,7 +27,7 @@ class TraspasoDetail extends Component
         $this->traspasoId = $traspasoId;
 
         // Log para confirmar que se ejecuta el método mount y el valor de aplicacionesId
-        Log::info("Mount ejecutado en AplicacionDetail con aplicacionesId: " . $this->aplicacionesId);
+        Log::info("Mount ejecutado en TraspasosDetail con aplicacionesId: " . $this->traspasoId);
     }
 
     // Método para recibir los detalles del componente hijo
