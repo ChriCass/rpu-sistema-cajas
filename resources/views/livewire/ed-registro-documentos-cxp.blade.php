@@ -129,7 +129,22 @@
                         </div>
                     </div>
                 </div>
-        
+                <div class="w-full md:w-5/12 px-2">
+                    <div class="flex flex-wrap -mx-2 mt-4">
+                        <fieldset class="border border-gray-300 p-10 rounded-md w-full">
+                            <legend class="text-sm font-medium text-gray-700">T. Referencia</legend>
+                            <div class="flex flex-wrap">
+                                <div class="w-full md:w-7/12 px-2">
+                                    <x-input label="T. Doc:" value="" />
+                                </div>
+                                <div class="w-full md:w-5/12 px-2 flex gap-3">
+                                    <x-input label="serie:" value="" />
+                                    <x-input label="Numero:" value="" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
             </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full px-2">
