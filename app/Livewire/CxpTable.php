@@ -201,7 +201,7 @@ final class CxpTable extends PowerGridComponent
             return [
                 Button::add('edit')
                     ->slot('Editar ')
-                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->route('cxp.avanzado', ['origen' => 'editar cxp', 'numeroMovimiento' => $row->id]),
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->route('cxp.avanzado', ['origen' => 'editar_cxp', 'numeroMovimiento' => $row->id]),
             ];   
         }
     }

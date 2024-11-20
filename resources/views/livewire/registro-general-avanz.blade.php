@@ -1,8 +1,9 @@
 <div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Registro de Documentos avanzado de {{ $origen }}
+            Registro de Documentos avanzado de {{ str_replace('_', ' ', $origen) }}
         </h2>
+        
     </x-slot>
     <div class="p-4">
         <x-card>
@@ -243,9 +244,9 @@
             </div>
 
 
-            <div class="flex flex-wrap -mx-2 mt-4 justify-between">
+            <div class="flex   -mx-2 mt-4 justify-between">
                 <!-- Detracción y Botones -->
-                @if ($origen === 'cxp' || $origen === 'cxc' || $origen === 'editar cxp' || $origen === 'editar cxc')
+                @if ($origen === 'cxp' || $origen === 'cxc' || $origen === 'editar_cxp' || $origen === 'editar_cxc')
                     <div class="flex justify-start ">
                         <!-- Detracción -->
                         <div class="flex items-center justify-start gap-3 mx-3 w-3/12">
@@ -276,45 +277,51 @@
 
                 <div class="flex items-center  mt-4 space-x-2">
 
+                  <div>
                     @if ($origen === 'ingreso' || $origen === 'egreso')
-                    <!-- Botón para Ingreso y Egreso, que dependen de aperturaId -->
-                    <div> 
-                        <x-button 
-                            label="Cancelar" 
-                            wire:navigate 
-                            outline 
-                            secondary
-                            href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" 
-                        />
-                    </div>
-                @elseif ($origen === 'cxc')
-                    <!-- Botón para CXC sin aperturaId -->
-                    <div> 
-                        <x-button 
-                            label="Cancelar" 
-                            wire:navigate 
-                            outline 
-                            secondary
-                            href="{{ route('cxc') }}" 
-                        />
-                    </div>
-                @elseif ($origen === 'cxp')
-                    <!-- Botón para CXP sin aperturaId -->
-                    <div> 
-                        <x-button 
-                            label="Cancelar" 
-                            wire:navigate 
-                            outline 
-                            secondary
-                            href="{{ route('cxp') }}" 
-                        />
-                    </div>
-                @endif
-                
+        <!-- Botón para Ingreso y Egreso, que dependen de aperturaId -->
+        <div>
+            <x-button 
+                label="Cancelar" 
+                wire:navigate 
+                outline 
+                secondary
+                href="{{ route('apertura.edit', ['aperturaId' => $aperturaId]) }}" 
+            />
+        </div>
+    @elseif ($origen === 'cxc' || $origen === 'editar_cxc')
+        <!-- Botón para CXC y Editar CXC sin aperturaId -->
+        <div>
+            <x-button 
+                label="Cancelar" 
+                wire:navigate 
+                outline 
+                secondary
+                href="{{ route('cxc') }}" 
+            />
+        </div>
+    @elseif ($origen === 'cxp' || $origen === 'editar_cxp')
+        <!-- Botón para CXP y Editar CXP sin aperturaId -->
+        <div>
+            <x-button 
+                label="Cancelar" 
+                wire:navigate 
+                outline 
+                secondary
+                href="{{ route('cxp') }}" 
+            />
+        </div>
+    @endif
+                  </div>
                     <div> <x-button label="Aceptar" wire:click='submit' primary /></div>
 
 
-
+                    @if ($origen === 'editar_cxc' || $origen === 'editar_cxp')
+                    <div>
+                        @livewire('delete-modal-form-avanz', ['origen' => $origen])
+                    </div>
+                @endif
+                
 
 
 
