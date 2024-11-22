@@ -815,6 +815,13 @@ class EdRegistroDocumentosEgreso extends Component
     
                 if (!empty($datos)) {
                     $data['movlibro'] = $datos[0]['mov'];
+                }else{
+                    $ultimoMovimiento = MovimientoDeCaja::where('id_libro', '2')
+                        ->lockForUpdate() // Bloqueo pesimista
+                        ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
+                        ->first();
+                    $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
+                    $data['movlibro'] = $nuevoMov;
                 }
             }
     

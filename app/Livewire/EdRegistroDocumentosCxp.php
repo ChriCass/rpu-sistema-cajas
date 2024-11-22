@@ -48,9 +48,9 @@ class EdRegistroDocumentosCxp extends Component
     public $entidad;
     public $nuevoDestinatario;
     public $centroDeCostos;
-    public  $monedaId;
-    public        $tasaIgvId;
-
+    public $monedaId;
+    public $tasaIgvId;
+    public $tipoDocumentoRef;
     // Variables para la consulta secundaria
     public $basImp;
     public $igv = 0;
@@ -73,6 +73,9 @@ class EdRegistroDocumentosCxp extends Component
     public $tipoDocIdentidades;
     public $destinatarioVisible = false;
     public $user;
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
     ///tiene detraccion
 
     public $toggle = false;
@@ -193,7 +196,10 @@ class EdRegistroDocumentosCxp extends Component
                 CO1.detalle_producto, -- Detalle del producto
                 CO1.id_centroDeCostos,
                 CO1.detraccion,
-                CO1.montoNeto
+                CO1.montoNeto,
+                CO1.id_t10tdocMod,
+                CO1.serieMod,
+                CO1.numeroMod
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -220,7 +226,10 @@ class EdRegistroDocumentosCxp extends Component
                     detalle.descripcion AS detalle_producto, -- Descripción del producto
                     d_detalledocumentos.id_centroDeCostos,
                     detraccion,
-                    montoNeto
+                    montoNeto,
+                    id_t10tdocMod,
+                    serieMod,
+                    numeroMod
                 FROM 
                     documentos 
                 LEFT JOIN 
@@ -276,6 +285,9 @@ class EdRegistroDocumentosCxp extends Component
         $this->otrosTributos = $result->otroTributo; // Otros tributos
         $this->precio = $result->precio; // Precio total
         $this->montoDetraccion = $result->detraccion;
+        $this->id_t10tdocMod = $result->id_t10tdocMod;
+        $this->serieMod = $result->serieMod;
+        $this->numeroMod = $result->numeroMod;
         if($result->montoNeto>0){
             $this->montoNeto = $result->montoNeto;
             $this->porcentaje = round(($this->montoDetraccion/$result->precio) * 100,0);
@@ -422,6 +434,7 @@ class EdRegistroDocumentosCxp extends Component
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all(); 
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
 
     public function submit()
@@ -599,7 +612,10 @@ class EdRegistroDocumentosCxp extends Component
             'monedaId',
             'tasaIgvId',
             'observaciones',
-            'entidad'
+            'entidad',
+            'id_t10tdocMod',
+            'serieMod',
+            'numeroMod'
         ]);
     }
 
@@ -716,7 +732,7 @@ class EdRegistroDocumentosCxp extends Component
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
-                    'id_dh' => 2,
+                    'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
                     'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
@@ -730,7 +746,7 @@ class EdRegistroDocumentosCxp extends Component
                         'fec' => $fechaEmi,
                         'id_documentos' => $documentoId,
                         'id_cuentas' => 4,
-                        'id_dh' => 2,
+                        'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
                         'monto' => $detraConvertido,
                         'montodo' => null,
                         'glosa' => $this->observaciones,

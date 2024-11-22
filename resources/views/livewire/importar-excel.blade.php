@@ -1,4 +1,17 @@
 <div>
+    @if (session()->has('error'))
+    <x-alert title="Error!" negative class="mb-3">
+        {{ session('error') }}
+    </x-alert>
+    @elseif ((session()->has('message')))
+    <x-alert title="Success" positive padding="small">
+        {{ session('message') }}
+    </x-alert>
+    @endif
+
+    <div class="flex justify-center mt-6 rounded mb-4">
+        <x-button wire:click="Plantilla" teal label="Plantilla" />
+    </div>
     <div x-data="{ fileName: '' }" class="flex flex-col items-center justify-center w-full">
         <label for="file-upload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-gray-600">
             <div class="flex flex-col items-center justify-center pt-5 pb-6" x-show="!fileName">
@@ -18,7 +31,7 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400" x-text="fileName"></p>
             </div>
     
-            <input id="file-upload" type="file" accept=".xls,.xlsx" class="hidden" @change="fileChosen">
+            <input id="file-upload" type="file" accept=".xls,.xlsx" class="hidden" wire:model="excelFile" @change="fileChosen">
         </label>
    
     </div>
@@ -29,10 +42,11 @@
         :options="$options"
         option-label="name"
         option-value="id"
+        wire:model="optionsEl"
     />
     </div>
     <div class="flex justify-center mt-5">
-        <x-button wire:click="procesar" teal label="Procesar" />
+        <x-button wire:click="Procesar" teal label="Procesar" />
     </div>
 </div>
 

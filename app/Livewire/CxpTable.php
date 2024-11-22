@@ -53,7 +53,8 @@ final class CxpTable extends PowerGridComponent
             'documentos.id_t04tipmon',
             'tasas_igv.tasa',
             'documentos.precio',
-            'users.name AS usuario'
+            'users.name AS usuario',
+            'id_tip_form'
         )
             ->leftJoin('entidades', 'documentos.id_entidades', '=', 'entidades.id')
             ->leftJoin('users', 'documentos.id_user', '=', 'users.id')

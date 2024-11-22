@@ -79,6 +79,9 @@ class RegistroDocAvanzService
                     'montoNeto' => $data['montoNeto'] ?? null,
                     'observaciones' => $data['observaciones'],
                     'id_user' => $data['user'] ?? Auth::user()->id,
+                    'id_t10tdocMod' => $data['id_t10tdocMod'] ?? null,
+                    'serieMod' => $data['serieMod'] ?? null,
+                    'numeroMod' => $data['numeroMod'] ?? null,
                     'fecha_Registro' => now(),
                     'id_dest_tipcaja' => null,
                     'id_tip_form' => 2,
@@ -103,6 +106,9 @@ class RegistroDocAvanzService
                     'detraccion' => $data['montoDetraccion'] ?? null,
                     'montoNeto' => $data['montoNeto'] ?? null,
                     'observaciones' => $data['observaciones'],
+                    'id_t10tdocMod' => $data['id_t10tdocMod'] ?? null,
+                    'serieMod' => $data['serieMod'] ?? null,
+                    'numeroMod' => $data['numeroMod'] ?? null,
                     'id_user' => $data['user'] ?? Auth::user()->id,
                     'fecha_Registro' => now(),
                     'id_dest_tipcaja' => null,
@@ -236,10 +242,10 @@ class RegistroDocAvanzService
         try {
             if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
                 $libro = '1';
-                $dh = '1';
+                $dh = $data['tipoDocumento'] == '07' ? '2' : '1';
             } else{
                 $libro = '2';
-                $dh = '2';
+                $dh = $data['tipoDocumento'] == '07' ? '1' : '2';
             }
             
             $cuentaId = $data['cuenta'];

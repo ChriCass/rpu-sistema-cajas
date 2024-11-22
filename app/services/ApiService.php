@@ -102,13 +102,14 @@ class ApiService
         
         // Obtener el residuo de la división entre 11
         $residuo = $suma % 11;
-        Log::info('Paso Aqui:'.$residuo);
-
+        
         // Calcular el dígito verificador
         $digito_verificador = (11 - $residuo) % 10;
-        
+        $text = strval($ruc);
+        Log::info('Paso Aqui:'.$text[10]);
+
         // Comparar el dígito verificador calculado con el dígito final del RUC
-        if($digito_verificador == $ruc[10]){
+        if($digito_verificador == $text[10]){
             $datos = $this -> validacionConDB ($ruc);
             if ($datos <> 0){
                 $data['success'] = '1';

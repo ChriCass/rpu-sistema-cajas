@@ -128,11 +128,15 @@
                                 <legend class="text-sm font-medium text-gray-700">T. Referencia</legend>
                                 <div class="flex flex-wrap">
                                     <div class="w-full md:w-7/12 px-2">
-                                        <x-input label="T. Doc:" value="" />
+                                        <x-select label="T.doc" placeholder="Selecc." :options="$tipoDocumentoRef" wire:model="id_t10tdocMod"
+                                         option-label="descripcion" option-value="id" />
                                     </div>
                                     <div class="w-full md:w-5/12 px-2 flex gap-3">
-                                        <x-input label="serie:" value="" />
-                                        <x-input label="Numero:" value="" />
+                                        <x-input label="Serie" :disabled="$disableFields" wire:model="serieMod"
+                                        oninput="this.value = this.value.toUpperCase()" maxlength="4" />
+
+                                        <x-input label="Numero" :disabled="$disableFields" wire:model="numeroMod"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
                                     </div>
                                 </div>
                             </fieldset>
@@ -143,10 +147,6 @@
                     <div class="w-full px-2">
                         <x-input wire:model.live='observaciones' label="Observaciones:"
                             oninput="this.value = this.value.toUpperCase()" />
-                    </div>
-                    <div class="w-full md:w-2/12 mt-4  px-2">
-                        <x-input wire:model.live='cod_operacion' label="Codigo de operacion"
-                        oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                     </div>
                 </div>
                 <div class="flex flex-wrap justify-between -mx-2 mt-4">

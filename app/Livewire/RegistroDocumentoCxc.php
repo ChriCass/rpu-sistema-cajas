@@ -36,6 +36,7 @@ class RegistroDocumentoCxc extends Component
     public $tasaIgvId; // ID de la tasa de IGV seleccionada
     public $monedaId; // ID de la moneda seleccionada
     public $tipoDocumento; // ID del tipo de documento seleccionado
+    public $tipoDocumentoRef;
     public $serieNumero1; // Parte 1 del número de serie
     public $serieNumero2; // Parte 2 del número de serie
     public $tipoDocId; // Tipo de documento de identificación
@@ -49,6 +50,9 @@ class RegistroDocumentoCxc extends Component
     public $nuevoDestinatario;
     public $centroDeCostos; // Abelardo = Recoje el centro de costos
     public $lenIdenId; // Abelardo = recoje el largo del imput
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
 
     public $familias = []; // Lista de familias
     public $subfamilias = []; // Lista de subfamilias filtradas
@@ -241,6 +245,7 @@ class RegistroDocumentoCxc extends Component
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all(); // Abelardo = Añadi para el select de centro de costos
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
 
     public function buscarDescripcionTipoDocumento()
@@ -377,7 +382,10 @@ class RegistroDocumentoCxc extends Component
             'monedaId',
             'tasaIgvId',
             'observaciones',
-            'entidad'
+            'entidad',
+            'id_t10tdocMod',
+            'serieMod',
+            'numeroMod' 
         ]);
     }
 
@@ -607,7 +615,7 @@ class RegistroDocumentoCxc extends Component
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
                 'id_cuentas' => 1,
-                'id_dh' => 1,
+                'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                 'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                 'montodo' => null,
                 'glosa' => $this->observaciones,
@@ -621,7 +629,7 @@ class RegistroDocumentoCxc extends Component
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => 2,
-                    'id_dh' => 1,
+                    'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                     'monto' => $detraConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,

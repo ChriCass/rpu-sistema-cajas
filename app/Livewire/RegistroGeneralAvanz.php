@@ -41,6 +41,10 @@ class RegistroGeneralAvanz extends Component
     public $apertura;
     public $origen;
     public $productos;
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
+    public $tipoDocumentoRef;
 
     public $lenIdenId;
     public $tipoDocDescripcion;
@@ -221,7 +225,10 @@ class RegistroGeneralAvanz extends Component
                     'monedaId',
                     'tasaIgvId',
                     'observaciones',
-                    'entidad'
+                    'entidad',
+                    'id_t10tdocMod',
+                    'serieMod',
+                    'numeroMod'
                 ]);
             }
         } else {
@@ -241,6 +248,7 @@ class RegistroGeneralAvanz extends Component
         $this->tasasIgv = TasaIgv::all();
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->cuentas = Cuenta::whereIn('id_tcuenta', [2, 3])->get();
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
     // Function to calculate the total price dynamically
     public function calculatePrecio()
@@ -352,7 +360,10 @@ class RegistroGeneralAvanz extends Component
                 INN1.id_cuentas,
                 INN2.numero_de_operacion,
                 CO1.detraccion,
-                CO1.montoNeto
+                CO1.montoNeto,
+                CO1.id_t10tdocMod,
+                CO1.serieMod,
+                CO1.numeroMod
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -374,7 +385,10 @@ class RegistroGeneralAvanz extends Component
                     documentos.otroTributo, 
                     documentos.precio,
                     documentos.detraccion,
-                    documentos.montoNeto
+                    documentos.montoNeto,
+                    id_t10tdocMod,
+                    serieMod,
+                    numeroMod
                 FROM 
                     documentos 
                 ) CO1
@@ -414,6 +428,9 @@ class RegistroGeneralAvanz extends Component
         $this->cod_operacion = $result->numero_de_operacion;
         $this->montoDetraccion = $result->detraccion;
         $this->montoNeto = $result->montoNeto;
+        $this->id_t10tdocMod = $result->id_t10tdocMod;
+        $this->serieMod = $result->serieMod;
+        $this->numeroMod = $result->numeroMod;
 
         // Variables financieras
         $this->basImp = $result->base_imponible; // Base imponible
@@ -599,7 +616,10 @@ class RegistroGeneralAvanz extends Component
                 'idDocumento' => $this->IdDocumento,
                 'porcentaje' => $this->porcentaje,
                 'montoDetraccion' => $this->montoDetraccion,
-                'montoNeto' => $this->montoNeto
+                'montoNeto' => $this->montoNeto,
+                'id_t10tdocMod' => $this->id_t10tdocMod ?? null,
+                'serieMod' => $this->serieMod ?? null,
+                'numeroMod' => $this->numeroMod ?? null,
             ];
         }else{
             $data = [
@@ -635,6 +655,7 @@ class RegistroGeneralAvanz extends Component
         }
         Log::info("Informacion del comprobante: ",$data);
 
+        
         // Llamar al servicio para guardar el documento
         $result = $this->RegistroDocAvanzService->guardarDocumento($data);
 

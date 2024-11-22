@@ -52,6 +52,7 @@ class RegistroDocumentosCxp extends Component
     public $entidad;
     public $nuevoDestinatario;
     public $centroDeCostos; // Abelardo = Recoje el centro de costos
+    public $tipoDocumentoRef;
 
     public $familias = []; // Lista de familias
     public $subfamilias = []; // Lista de subfamilias filtradas
@@ -64,6 +65,9 @@ class RegistroDocumentosCxp extends Component
     public $destinatarioVisible = false; // Mostrar u ocultar destinatario
     public $disableFieldsEspecial = false; 
     public $user;
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
 
     public $detraccion;
     public $porcetajeDetraccion;
@@ -321,6 +325,7 @@ class RegistroDocumentosCxp extends Component
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all();
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
 
   
@@ -519,7 +524,10 @@ class RegistroDocumentosCxp extends Component
             'monedaId',
             'tasaIgvId',
             'observaciones',
-            'entidad'
+            'entidad',
+            'id_t10tdocMod',
+            'serieMod',
+            'numeroMod'
         ]);
     }
 
@@ -601,7 +609,7 @@ class RegistroDocumentosCxp extends Component
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
-                    'id_dh' => 2,
+                    'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
                     'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
@@ -615,7 +623,7 @@ class RegistroDocumentosCxp extends Component
                         'fec' => $fechaEmi,
                         'id_documentos' => $documentoId,
                         'id_cuentas' => 4,
-                        'id_dh' => 2,
+                        'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
                         'monto' => $detraConvertido,
                         'montodo' => null,
                         'glosa' => $this->observaciones,
