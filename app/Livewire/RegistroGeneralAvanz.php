@@ -662,9 +662,9 @@ class RegistroGeneralAvanz extends Component
         // Manejar la respuesta del servicio
         if (isset($result['success'])) {
             session()->flash('message', $result['success']);
-            if ($this->origen === "cxc" ||  $this->origen === "editar cxc"){
+            if ($this->origen === "cxc" ||  $this->origen === "editar_cxc"){
                 return $this->redirect(route('cxc'));
-            }elseif($this->origen === "cxp" || $this->origen === "editar cxp"){
+            }elseif($this->origen === "cxp" || $this->origen === "editar_cxp"){
                 return $this->redirect(route('cxp'));
             }else{
                 return $this->redirect(route('apertura.edit', ['aperturaId' => $this->aperturaId]), navigate: true);
