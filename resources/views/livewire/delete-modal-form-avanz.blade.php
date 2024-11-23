@@ -11,13 +11,13 @@
                     <p class="text-red-600 font-semibold">
                         Estás a punto de <b>eliminar el siguiente 
                         @if ($origen === 'editar_cxc' || $origen === 'cxc')
-                            movimiento de Compras por Cobrar (CXC)
+                            movimiento de Compras por Cobrar (CXC) con Id: {{$IdDocumento}}
                         @elseif ($origen === 'editar_cxp' || $origen === 'cxp')
-                            movimiento de Compras por Pagar (CXP)
+                            movimiento de Compras por Pagar (CXP) con Id: {{$IdDocumento}}
                         @else
                             {{ str_replace('_', ' ', $origen) }}
                         @endif
-                        :</b>
+                        </b>
                     </p>
                     <p class="mt-2">Esta acción es <b>permanente</b> y no podrás deshacerla. Al eliminar este registro, se perderán todos los datos asociados.</p>
                     <p class="text-red-600 mt-3">¿Estás absolutamente seguro de que deseas continuar con esta eliminación?</p>

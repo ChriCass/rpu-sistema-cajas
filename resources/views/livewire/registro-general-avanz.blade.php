@@ -205,7 +205,7 @@
                     <x-input wire:model.live='observaciones' label="Observaciones:"
                         oninput="this.value = this.value.toUpperCase()" />
                 </div>
-                @if ($origen === 'ingreso' || $origen === 'egreso' || $origen === 'editar ingreso' || $origen === 'editar egreso')
+                @if ($origen === 'ingreso' || $origen === 'egreso' || $origen === 'editar_ingreso' || $origen === 'editar_egreso')
                     <div class="w-full md:w-2/12 mt-4  px-2">
                         <x-input wire:model.live='cod_operacion' label="Codigo de operacion"
                         oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
@@ -322,7 +322,7 @@
 
                     @if ($origen === 'editar_cxc' || $origen === 'editar_cxp')
                     <div>
-                        @livewire('delete-modal-form-avanz', ['origen' => $origen])
+                        @livewire('delete-modal-form-avanz', ['origen' => $origen, 'IdDocumento' => $IdDocumento])
                     </div>
                 @endif
                 

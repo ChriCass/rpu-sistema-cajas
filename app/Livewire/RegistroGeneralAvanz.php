@@ -193,7 +193,7 @@ class RegistroGeneralAvanz extends Component
 
                 $entidad = Entidad::where('id', $this->docIdent)->first();
                 $this->entidad = $entidad->descripcion;
-                if ($this->origen == 'cxc' || $this->origen == 'cxp' || $this->origen == 'editar cxc' || $this->origen == 'editar cxp'){
+                if ($this->origen == 'cxc' || $this->origen == 'cxp' || $this->origen == 'editar_cxc' || $this->origen == 'editar_cxp'){
                     $fecha = (new DateTime())->format('Y-m-d');
                 }else{
                     $fecha = (new DateTime($this->apertura->fecha))->format('Y-m-d');
@@ -591,7 +591,7 @@ class RegistroGeneralAvanz extends Component
         Log::info("La Lista de productos es:",$this->productos);
 
         // Preparar los datos para el servicio
-        if ($this->origen === 'cxc' || $this->origen === 'cxp' || $this->origen === 'editar cxc' || $this->origen === 'editar cxp'){
+        if ($this->origen === 'cxc' || $this->origen === 'cxp' || $this->origen === 'editar_cxc' || $this->origen === 'editar_cxp'){
             $data = [
                 'tipoDocumento' => $this->tipoDocumento,
                 'tipoDocDescripcion' => $this->tipoDocDescripcion,

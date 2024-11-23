@@ -52,7 +52,19 @@ class RegistroDocAvanzService
                 }
             }
 
-            if($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
+            $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
+                        ->where('id_documentos', $data['idDocumento'])
+                        ->lockForUpdate() // Bloqueo pesimista
+                        ->get()
+                        ->toArray();
+
+            if($data['origen'] == 'editar_cxp' || $data['origen'] == 'editar_cxc'){
+                if (count($comprobacion) !== 0) {
+                    return ['error' => 'No se puede editar el documento porque tiene movimientos de caja.'];
+                }
+            }
+
+            if($data['origen'] == 'ingreso' || $data['origen'] == 'editar_ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar_cxc'){
                 $idTipMov = 1;
             }else{
                 $idTipMov = 2;
@@ -240,7 +252,7 @@ class RegistroDocAvanzService
     {
 
         try {
-            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar_ingreso' || $data['origen'] == 'cxc' || $data['origen'] == 'editar_cxc'){
                 $libro = '1';
                 $dh = $data['tipoDocumento'] == '07' ? '2' : '1';
             } else{
@@ -267,7 +279,7 @@ class RegistroDocAvanzService
 
             if(!empty($data['montoDetraccion'])){
 
-                if($data['origen'] == 'cxc' || $data['origen'] == 'editar cxc'){
+                if($data['origen'] == 'cxc' || $data['origen'] == 'editar_cxc'){
                     $cuentasDetraccion = 2;
                 }else{
                     $cuentasDetraccion = 4;
@@ -311,7 +323,7 @@ class RegistroDocAvanzService
             
     
             // Registrar movimientos relacionados con la apertura
-            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso' || $data['origen'] == 'egreso' || $data['origen'] == 'editar egreso'){
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar_ingreso' || $data['origen'] == 'egreso' || $data['origen'] == 'editar_egreso'){
                 $this->registrarAperturaRelacionada($documentoId, $nuevoMov, $precioConvertido, $data);
             }
     
@@ -366,7 +378,7 @@ class RegistroDocAvanzService
             
             $cuenta = $this->obtenerCuentaDesdeTipoCaja($data['apertura']['id_tipo']);
 
-            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar ingreso'){
+            if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar_ingreso'){
                 // Registro de transacción en caja
                 MovimientoDeCaja::create([
                     'id_libro' => 3,

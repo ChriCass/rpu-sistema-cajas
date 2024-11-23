@@ -179,7 +179,7 @@ class TablaDetalleApertura extends Component
         // Si el monto es positivo y no cae en las categorías anteriores
         elseif ($monto > 0) {
             if($form[0]['id_tip_form']=='2'){
-                $this->redirect(route('apertura.avanzado', ['aperturaId' => $this->aperturaId, 'numeroMovimiento' => $numeroMovimiento , 'origen' => 'editar ingreso' ]));
+                $this->redirect(route('apertura.avanzado', ['aperturaId' => $this->aperturaId, 'numeroMovimiento' => $numeroMovimiento , 'origen' => 'editar_ingreso' ]));
             }else{
                 // Enviar booleano para mostrar ed-registro-documentos-ingreso
                 $this->dispatch('mostrarComponente', 'EditarIngreso', $numeroMovimiento);
@@ -189,7 +189,7 @@ class TablaDetalleApertura extends Component
         // Si el monto es negativo y no cae en las categorías anteriores
         else {
             if($form[0]['id_tip_form']=='2'){
-                $this->redirect(route('apertura.avanzado', ['aperturaId' => $this->aperturaId, 'numeroMovimiento' => $numeroMovimiento , 'origen' => 'editar egreso' ]));
+                $this->redirect(route('apertura.avanzado', ['aperturaId' => $this->aperturaId, 'numeroMovimiento' => $numeroMovimiento , 'origen' => 'editar_egreso' ]));
             }else{
                 // Enviar booleano para mostrar ed-registro-documentos-egreso
                 $this->dispatch('mostrarComponente', 'EditarSalida', $numeroMovimiento);
