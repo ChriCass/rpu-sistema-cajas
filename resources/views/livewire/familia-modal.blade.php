@@ -15,8 +15,8 @@
                 </x-alert>
                 @endif
                 <div class="w-full sm:w-6/12 px-4">
-                    <x-maskable wire:model="nuevafamilia" mask="AAAAAAAAAAAAAAAAAAA" label="Nueva familia"
-                        class="w-full" />
+                    <x-input wire:model="nuevafamilia"  class="w-full"  label="Nueva familia" oninput="this.value = this.value.toUpperCase()"/>
+  
                     @error('nuevafamilia')
                     @enderror
                 </div>

@@ -18,7 +18,8 @@
                 </div>
             
                 <div class="w-full sm:w-6/12 px-4">
-                    <x-maskable wire:model="nuevaSubfamilia" mask="AAAAAAAAAAAAAAAAAAA"  label="descripcion" class="w-full" />
+                    <x-input wire:model="nuevaSubfamilia"  class="w-full"    label="descripcion" oninput="this.value = this.value.toUpperCase()"/>
+ 
                 </div>
                 <x-slot name="footer" class="flex justify-end gap-x-4">
                     <x-button flat label="Cancelar" wire:click="$set('openModal', false)" />
