@@ -17,6 +17,7 @@ use App\Livewire\EditVaucherDePago;
 use App\Livewire\EditVaucherDePagoVentas;
 use App\Livewire\RegistroDeIngresoAvanz;
 use App\Livewire\AplicacionDetail;
+use App\Livewire\BalanceCuentasView;
 use App\Livewire\EdRegistroDocumentosCxc;
 
 
@@ -28,6 +29,11 @@ use App\Livewire\ReporteCajaXAnioView;
 use App\Livewire\ResultadoPorCentroDeCostos;
 use App\Livewire\TraspasoDetail;
 use App\Livewire\RegistroGeneralAvanz;
+use App\Livewire\ReporteAnaliticoCostoView;
+use App\Livewire\ReporteDiarioMatrizView;
+use App\Livewire\ReporteInconcistenciasView;
+use App\Livewire\ReporteRegistroComprasView;
+use App\Livewire\ReporteRegistroVentasView;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +134,11 @@ Route::middleware([
     Route::get('/reportes/reporte-caja-mes', ReporteCajaXMesView::class)->name('reportes.reporte.caja.mes');
     Route::get('/reportes/reporte-caja-anio', ReporteCajaXAnioView::class)->name('reportes.reporte.caja.anio');
     Route::get('/reportes/Resultado-Por-Centro-De-Costos', ResultadoPorCentroDeCostos::class)->name('resultado.por.centro.de.costos');
-
+    Route::get('/reportes/reporte-registro-compras', ReporteRegistroComprasView::class)->name('reporte.registro.compras');
+Route::get('/reportes/reporte-registro-ventas', ReporteRegistroVentasView::class)->name('reporte.registro.ventas');
+Route::get('/reportes/balance-cuentas', BalanceCuentasView::class)->name('balance.cuentas');
+Route::get('/reportes/reporte-analitico-costo', ReporteAnaliticoCostoView::class)->name('reporte.analitico.costo');
+Route::get('/reportes/reporte-inconsistencias', ReporteInconcistenciasView::class)->name('reporte.inconsistencias');
+Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->name('reporte.diario.matriz');
  
 });
