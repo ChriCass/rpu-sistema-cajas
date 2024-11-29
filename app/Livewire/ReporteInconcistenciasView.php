@@ -5,14 +5,28 @@ namespace App\Livewire;
 use Livewire\Component;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\InconsistenciasService;
+
 class ReporteInconcistenciasView extends Component
 {
+
+    public $registros;
+    protected $inconsistenciasService;
+
+    public function hydrate(InconsistenciasService $inconsistenciasService)
+    {
+        $this->inconsistenciasService = $inconsistenciasService;
+    }
+
     public function procesarReporte()
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Definición: El principio de responsabilidad única establece que una clase, método o componente 
-        // debe tener una única razón para cambiar, es decir, debe estar enfocado en realizar una sola tarea o propósito.
-     
+        try {
+            $this->registros = collect($this->inconsistenciasService->InconsistenciasReporte());
+            session()->flash('message', 'Reporte procesado exitosamente');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Hubo un error al procesar el reporte');
+        }
     }
     
 

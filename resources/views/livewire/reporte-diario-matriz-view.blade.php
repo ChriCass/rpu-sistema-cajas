@@ -30,7 +30,9 @@
           <!-- Flexbox principal para organizar elementos -->
           <div class="flex flex-wrap -mx-4">
               <div class="w-full md:w-1/3 px-4 mb-6">
-              
+                <x-select label="Año" placeholder="Selecc." :options="$años" wire:model="año" />
+                <x-select label="Mes" placeholder="Selecc." :options="$meses" wire:model="mes"
+                    option-label="descripcion" option-value="id" />
               </div>
 
               <div class="w-full md:w-1/3 flex flex-col items-center px-4 mb-6">
@@ -49,24 +51,14 @@
 
 
           <div class="flex justify-center space-x-4 mt-6">
-              <!-- Botón de Exportar en PDF -->
-              <button wire:click="exportarPDF"
-                  class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15.362 5.214A4 4 0 1012 2v4h4a4.002 4.002 0 00-.638-4.786zM9 5v4a4 4 0 11-4-4h4zm5 8h3a3 3 0 013 3v5H3v-5a3 3 0 013-3h3m6 0v-2a6 6 0 00-12 0v2m12 0v2a6 6 0 0112 0v-2z" />
-                  </svg>
-                  <span>Exportar en PDF</span>
-              </button>
           
-              <!-- Botón de Exportar en Excel 
-              <button wire:click="exportarCentroCostos"
+              <button wire:click="exportExcel"
                   class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M16 17l-4-4 4-4m-4 4H4" />
                   </svg>
-                  <span>Exportar en Excel</span> -->
+                  <span>Exportar en Excel</span>
               </button>
           </div>
           
@@ -86,47 +78,7 @@
                   </x-alert>
               @endif
 
-              <table class="min-w-full bg-white border border-gray-300">
-                  <thead class="bg-gray-200">
-                      <tr>
-                          <th class="px-4 py-2 border-b">FAMILIA</th>
-                          <th class="px-4 py-2 border-b">SUBFAMILIA</th>
-                          <th class="px-4 py-2 border-b">DETALLE</th>
-                          <th class="px-4 py-2 border-b">ENERO</th>
-                          <th class="px-4 py-2 border-b">FEBRERO</th>
-                          <th class="px-4 py-2 border-b">MARZO</th>
-                          <th class="px-4 py-2 border-b">ABRIL</th>
-                          <th class="px-4 py-2 border-b">MAYO</th>
-                          <th class="px-4 py-2 border-b">JUNIO</th>
-                          <th class="px-4 py-2 border-b">JULIO</th>
-                          <th class="px-4 py-2 border-b">AGOSTO</th>
-                          <th class="px-4 py-2 border-b">SETIEMBRE</th>
-                          <th class="px-4 py-2 border-b">OCTUBRE</th>
-                          <th class="px-4 py-2 border-b">NOVIEMBRE</th>
-                          <th class="px-4 py-2 border-b">DICIEMBRE</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="px-4 py-2 border-b"> aqui </td>
-                      <td class="px-4 py-2 border-b"> ira </td>
-                      <td class="px-4 py-2 border-b"> el bucle</td>
-                      <td class="px-4 py-2 border-b"> que consideres</td>
-                      <td class="px-4 py-2 border-b"> adecuado </td>
-                      <td class="px-4 py-2 border-b"> para </td>
-                      <td class="px-4 py-2 border-b"> este  </td>
-                      <td class="px-4 py-2 border-b">reporte</td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                  </tr>
-                  </tbody>
-              </table>
-          </div>
+            </div>
       </x-card>
 
 

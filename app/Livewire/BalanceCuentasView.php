@@ -3,18 +3,57 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\Mes;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Services\BalanceService;
+use Illuminate\Support\Facades\Log;
+
 class BalanceCuentasView extends Component
 {
+    public $años;
+    public $meses;
+    public $año;
+    public $mes;
+    public $registros;
+    public $totales;
+
+    protected $balanceService;
+
+    public function mount(){
+        $this->inicializarDatos();
+    }
     public function procesarReporte()
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Definición: El principio de responsabilidad única establece que una clase, método o componente 
-        // debe tener una única razón para cambiar, es decir, debe estar enfocado en realizar una sola tarea o propósito.
+        if (empty($this->año) || empty($this->mes)) {
+            session()->flash('error', 'Parametros de año y mes son obligarios.');
+            return;
+        }
+        
+        try {
+            
+            $this->registros = collect($this->balanceService->Balance($this->mes,$this->año));
+            session()->flash('message', 'Reporte procesado exitosamente');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Hubo un error al procesar el reporte');
+        }
      
     }
-    
+
+    public function hydrate(BalanceService $balanceService)
+    {
+        $this->balanceService = $balanceService;
+    }
+
+
+
+    private function inicializarDatos()
+    {
+        $currentYear = now()->year;
+        $this->años = [$currentYear, $currentYear + 1, $currentYear + 2];
+        $this->meses = Mes::all();
+    }
 
 
     public function exportCaja()

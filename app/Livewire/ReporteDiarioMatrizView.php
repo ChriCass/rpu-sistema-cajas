@@ -3,30 +3,58 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\Mes;
+use App\Services\DiarioMatrizService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReporteDiarioMatrizExport;
+use Illuminate\Support\Facades\Log;
 
 
 class ReporteDiarioMatrizView extends Component
 {
-    public function procesarReporte()
-    {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Definición: El principio de responsabilidad única establece que una clase, método o componente 
-        // debe tener una única razón para cambiar, es decir, debe estar enfocado en realizar una sola tarea o propósito.
-     
+
+    public $años;
+    public $meses;
+    public $año;
+    public $mes;
+    public $registros;
+    protected $diarioMatrizService;
+
+    public function mount(){
+        $this->inicializarDatos();
     }
-    
 
-
-    public function exportCaja()
+    public function hydrate(DiarioMatrizService $diarioMatrizService)
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar y exportar un archivo relacionado con los reportes de caja.
-        // Ya he creado los exports en caso los necesites, están en la dirección:
-        // App/Exports/Nombredelreporteenespecifico.php
-        // Si no los necesitas, puedes ignorarlos. 
-        // Recuerda que esta lógica debe mantenerse exclusiva a este componente.
+        $this->diarioMatrizService = $diarioMatrizService;
+    }
+
+    private function inicializarDatos()
+    {
+        $currentYear = now()->year;
+        $this->años = [$currentYear, $currentYear + 1, $currentYear + 2];
+        $this->meses = Mes::all();
+    }
+
+
+
+    public function exportExcel()
+    {
+        if (empty($this->año) || empty($this->mes)) {
+            session()->flash('error', 'Parametros de año y mes son obligarios.');
+            return;
+        }
+        try {
+            
+            $this->registros = collect($this->diarioMatrizService->Diario($this->mes,$this->año));
+            return Excel::download(new ReporteDiarioMatrizExport($this->registros), 'DiarioMatriz.xlsx');
+            session()->flash('message', 'Reporte procesado exitosamente');
+            
+        } catch (\Exception $e) {
+            Log::error($e);
+            session()->flash('error', 'Hubo un error al procesar el reporte');
+        }
     }
 
     public function exportarPDF()

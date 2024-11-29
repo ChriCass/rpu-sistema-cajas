@@ -30,7 +30,9 @@
           <!-- Flexbox principal para organizar elementos -->
           <div class="flex flex-wrap -mx-4">
               <div class="w-full md:w-1/3 px-4 mb-6">
-              
+                <x-select label="Año" placeholder="Selecc." :options="$años" wire:model="año" />
+                <x-select label="Mes" placeholder="Selecc." :options="$meses" wire:model="mes"
+                    option-label="descripcion" option-value="id" />
               </div>
 
               <div class="w-full md:w-1/3 flex flex-col items-center px-4 mb-6">
@@ -44,6 +46,33 @@
                       </svg>
                       <span>Procesar</span>
                   </button>
+                  <div class="bg-white border border-teal-500 rounded-lg p-6 shadow-md w-full max-w-full mx-auto">
+                    <h3 class="text-teal-600 font-bold text-lg mb-6">Resumen de Totales</h3>
+                    <div class="flex flex-nowrap gap-4 items-center justify-between">
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-700 font-bold">BAS IMP:</p>
+                            <p class="text-gray-700 font-normal">{{ number_format($totales['basImp'] ?? 0, 2, '.', ',') ?? 0.00 }}</p>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-700 font-bold">IGV:</p>
+                            <p class="text-gray-700 font-normal">{{ number_format($totales['IGV'] ?? 0, 2, '.', ',') ?? 0.00 }}</p>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-700 font-bold">NO GRA:</p>
+                            <p class="text-gray-700 font-normal">{{ number_format($totales['NoGravado'] ?? 0, 2, '.', ',') ?? 0.00 }}</p>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-700 font-bold">OTR TRI:</p>
+                            <p class="text-gray-700 font-normal">{{ number_format($totales['Otri'] ?? 0, 2, '.', ',') ?? 0.00 }}</p>
+                        </div>
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-700 font-bold">PRECIO:</p>
+                            <p class="text-gray-700 font-normal">{{ number_format($totales['precio'] ?? 0, 2, '.', ',') ?? 0.00 }}</p>
+                        </div>
+                    </div>
+                </div>
+                                
+                                
               </div>
           </div>
 
@@ -89,41 +118,61 @@
               <table class="min-w-full bg-white border border-gray-300">
                   <thead class="bg-gray-200">
                       <tr>
-                          <th class="px-4 py-2 border-b">FAMILIA</th>
-                          <th class="px-4 py-2 border-b">SUBFAMILIA</th>
-                          <th class="px-4 py-2 border-b">DETALLE</th>
-                          <th class="px-4 py-2 border-b">ENERO</th>
-                          <th class="px-4 py-2 border-b">FEBRERO</th>
-                          <th class="px-4 py-2 border-b">MARZO</th>
-                          <th class="px-4 py-2 border-b">ABRIL</th>
-                          <th class="px-4 py-2 border-b">MAYO</th>
-                          <th class="px-4 py-2 border-b">JUNIO</th>
-                          <th class="px-4 py-2 border-b">JULIO</th>
-                          <th class="px-4 py-2 border-b">AGOSTO</th>
-                          <th class="px-4 py-2 border-b">SETIEMBRE</th>
-                          <th class="px-4 py-2 border-b">OCTUBRE</th>
-                          <th class="px-4 py-2 border-b">NOVIEMBRE</th>
-                          <th class="px-4 py-2 border-b">DICIEMBRE</th>
+                          <th class="px-4 py-2 border-b">FECHA EMISION</th>
+                          <th class="px-4 py-2 border-b">FECHA VENCIMIENTO</th>
+                          <th class="px-4 py-2 border-b">TIPO DE DOCUMENTO</th>
+                          <th class="px-4 py-2 border-b">SERIE</th>
+                          <th class="px-4 py-2 border-b">NUMERO</th>
+                          <th class="px-4 py-2 border-b">TIPO DE IDENTIDAD</th>
+                          <th class="px-4 py-2 border-b">ID ENTIDAD</th>
+                          <th class="px-4 py-2 border-b">ENTIDAD</th>
+                          <th class="px-4 py-2 border-b">TASA</th>
+                          <th class="px-4 py-2 border-b">BAS IMP</th>
+                          <th class="px-4 py-2 border-b">IGV</th>
+                          <th class="px-4 py-2 border-b">NO GRAVADAS</th>
+                          <th class="px-4 py-2 border-b">OTROS TRIBUTOS</th>
+                          <th class="px-4 py-2 border-b">PRECIO</th>
+                          <th class="px-4 py-2 border-b">DETRACCION</th>
+                          <th class="px-4 py-2 border-b">MONTO NETO</th>
+                          <th class="px-4 py-2 border-b">MONEDA</th>
+                          <th class="px-4 py-2 border-b">TIPO DOC REFERENCIA</th>
+                          <th class="px-4 py-2 border-b">SERIE REFERENCIA</th>
+                          <th class="px-4 py-2 border-b">NUMERO REFERENCIA</th>
+                          <th class="px-4 py-2 border-b">OBSERVACIONES</th>
                       </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td class="px-4 py-2 border-b"> aqui </td>
-                      <td class="px-4 py-2 border-b"> ira </td>
-                      <td class="px-4 py-2 border-b"> el bucle</td>
-                      <td class="px-4 py-2 border-b"> que consideres</td>
-                      <td class="px-4 py-2 border-b"> adecuado </td>
-                      <td class="px-4 py-2 border-b"> para </td>
-                      <td class="px-4 py-2 border-b"> este  </td>
-                      <td class="px-4 py-2 border-b">reporte</td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                  </tr>
+                    @if(!empty($registros) && $registros->count())
+                        @foreach ($registros as $registro)
+                        <tr>
+                            <td class="px-4 py-2 border-b">{{ $registro->fechaEmi }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->fechaVen }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->tdoc }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->serie }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->numero }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->id_t02tcom }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->id_entidades }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->rz }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->tasa }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->basImp ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->IGV ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->noGravadas ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->otroTributo ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->precio ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->detraccion ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->montoNeto ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->id_t04tipmon }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->descripcion }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->serieMod }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->numeroMod }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->observaciones }}</td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="10" class="px-4 py-2 border-b text-center">No hay movimientos disponibles</td>
+                        </tr>
+                    @endif
                   </tbody>
               </table>
           </div>

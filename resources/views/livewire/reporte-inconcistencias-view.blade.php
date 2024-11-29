@@ -89,41 +89,31 @@
               <table class="min-w-full bg-white border border-gray-300">
                   <thead class="bg-gray-200">
                       <tr>
-                          <th class="px-4 py-2 border-b">FAMILIA</th>
-                          <th class="px-4 py-2 border-b">SUBFAMILIA</th>
-                          <th class="px-4 py-2 border-b">DETALLE</th>
-                          <th class="px-4 py-2 border-b">ENERO</th>
-                          <th class="px-4 py-2 border-b">FEBRERO</th>
-                          <th class="px-4 py-2 border-b">MARZO</th>
-                          <th class="px-4 py-2 border-b">ABRIL</th>
-                          <th class="px-4 py-2 border-b">MAYO</th>
-                          <th class="px-4 py-2 border-b">JUNIO</th>
-                          <th class="px-4 py-2 border-b">JULIO</th>
-                          <th class="px-4 py-2 border-b">AGOSTO</th>
-                          <th class="px-4 py-2 border-b">SETIEMBRE</th>
-                          <th class="px-4 py-2 border-b">OCTUBRE</th>
-                          <th class="px-4 py-2 border-b">NOVIEMBRE</th>
-                          <th class="px-4 py-2 border-b">DICIEMBRE</th>
+                          <th class="px-4 py-2 border-b">ID</th>
+                          <th class="px-4 py-2 border-b">ENTIDADES</th>
+                          <th class="px-4 py-2 border-b">NOMBRE ENTIDAD</th>
+                          <th class="px-4 py-2 border-b">TIPO DE DOCUMENTO</th>
+                          <th class="px-4 py-2 border-b">SERIE</th>
+                          <th class="px-4 py-2 border-b">NUMERO</th>
                       </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td class="px-4 py-2 border-b"> aqui </td>
-                      <td class="px-4 py-2 border-b"> ira </td>
-                      <td class="px-4 py-2 border-b"> el bucle</td>
-                      <td class="px-4 py-2 border-b"> que consideres</td>
-                      <td class="px-4 py-2 border-b"> adecuado </td>
-                      <td class="px-4 py-2 border-b"> para </td>
-                      <td class="px-4 py-2 border-b"> este  </td>
-                      <td class="px-4 py-2 border-b">reporte</td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                      <td class="px-4 py-2 border-b"> </td>
-                  </tr>
+                    @if(!empty($registros) && $registros->count())
+                        @foreach ($registros as $registro)
+                        <tr>
+                            <td class="px-4 py-2 border-b">{{ $registro->id }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->id_entidades }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->rz }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->tdoc }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->serie }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->numero }}</td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="10" class="px-4 py-2 border-b text-center">No hay movimientos disponibles</td>
+                        </tr>
+                    @endif
                   </tbody>
               </table>
           </div>

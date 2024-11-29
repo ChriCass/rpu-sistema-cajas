@@ -31,8 +31,7 @@
               <!-- Flexbox principal para organizar elementos -->
               <div class="flex flex-wrap -mx-4">
                   <div class="w-full md:w-1/3 px-4 mb-6">
-                  
-                  </div>
+                    </div>
     
                   <div class="w-full md:w-1/3 flex flex-col items-center px-4 mb-6">
                       <button wire:click="procesarReporte"
@@ -47,9 +46,57 @@
                       </button>
                   </div>
               </div>
+
+              <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="Tipo" placeholder="Selecc." :options="$libros" wire:model="libro"
+                        option-label="Tipo" option-value="Libro" />
+                </div>
+
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="Año" placeholder="Selecc." :options="$años" wire:model="año" />
+                </div>
+
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="Mes" placeholder="Selecc." :options="$meses" wire:model="mes"
+                        option-label="descripcion" option-value="id" />
+                </div>
+            </div>
+              
+              <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
+                <!-- Select Familia -->
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="Familia:" placeholder="Selecciona..." wire:model.live="familiaId"
+                        :options="$familias" option-label="descripcion" option-value="id" />
+                </div>
+
+                <!-- Select Sub-Familia -->
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="Sub-Familia:" placeholder="Selecciona..." wire:model.live="subfamiliaId"
+                        :options="$subfamilias" option-label="desripcion" option-value="ic"/>
+                </div>
+
+                <!-- Select Detalle -->
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="Detalle:" placeholder="Selecciona..." wire:model.live="detalleId"
+                        :options="$detalles" option-label="descripcion" option-value="id"/>
+                </div>
+
+
+            </div>
+
+            <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
+
+                <div class="w-full md:w-3/12 px-2">
+                    <x-select label="CC:" placeholder="Selecciona..." wire:model="CCid"
+                        :options="$CC" option-label="descripcion" option-value="id" />
+                </div>
+
+            </div>
     
     
               <div class="flex justify-center space-x-4 mt-6">
+
                   <!-- Botón de Exportar en PDF -->
                   <button wire:click="exportarPDF"
                       class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
@@ -90,47 +137,43 @@
                   <table class="min-w-full bg-white border border-gray-300">
                       <thead class="bg-gray-200">
                           <tr>
+                              <th class="px-4 py-2 border-b">FECHA</th>
                               <th class="px-4 py-2 border-b">FAMILIA</th>
                               <th class="px-4 py-2 border-b">SUBFAMILIA</th>
                               <th class="px-4 py-2 border-b">DETALLE</th>
-                              <th class="px-4 py-2 border-b">ENERO</th>
-                              <th class="px-4 py-2 border-b">FEBRERO</th>
-                              <th class="px-4 py-2 border-b">MARZO</th>
-                              <th class="px-4 py-2 border-b">ABRIL</th>
-                              <th class="px-4 py-2 border-b">MAYO</th>
-                              <th class="px-4 py-2 border-b">JUNIO</th>
-                              <th class="px-4 py-2 border-b">JULIO</th>
-                              <th class="px-4 py-2 border-b">AGOSTO</th>
-                              <th class="px-4 py-2 border-b">SETIEMBRE</th>
-                              <th class="px-4 py-2 border-b">OCTUBRE</th>
-                              <th class="px-4 py-2 border-b">NOVIEMBRE</th>
-                              <th class="px-4 py-2 border-b">DICIEMBRE</th>
+                              <th class="px-4 py-2 border-b">ENTIDAD</th>
+                              <th class="px-4 py-2 border-b">SERIE</th>
+                              <th class="px-4 py-2 border-b">NUMERO</th>
+                              <th class="px-4 py-2 border-b">MONTO</th>
+                              <th class="px-4 py-2 border-b">GLOSA</th>
+                              <th class="px-4 py-2 border-b">CENTRO DE COSTOS</th>
                           </tr>
                       </thead>
                       <tbody>
+                        @if(!empty($registros) && $registros->count())
+                        @foreach ($registros as $registro)
                         <tr>
-                          <td class="px-4 py-2 border-b"> aqui </td>
-                          <td class="px-4 py-2 border-b"> ira </td>
-                          <td class="px-4 py-2 border-b"> el bucle</td>
-                          <td class="px-4 py-2 border-b"> que consideres</td>
-                          <td class="px-4 py-2 border-b"> adecuado </td>
-                          <td class="px-4 py-2 border-b"> para </td>
-                          <td class="px-4 py-2 border-b"> este  </td>
-                          <td class="px-4 py-2 border-b">reporte</td>
-                          <td class="px-4 py-2 border-b"> </td>
-                          <td class="px-4 py-2 border-b"> </td>
-                          <td class="px-4 py-2 border-b"> </td>
-                          <td class="px-4 py-2 border-b"> </td>
-                          <td class="px-4 py-2 border-b"> </td>
-                          <td class="px-4 py-2 border-b"> </td>
-                          <td class="px-4 py-2 border-b"> </td>
-                      </tr>
+                            <td class="px-4 py-2 border-b">{{ $registro->fec }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->familia_descripcion }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->subfamilia_descripcion }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->detalle_descripcion }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->descripcion }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->serie }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->numero }}</td>
+                            <td class="px-4 py-2 border-b">{{ number_format($registro->monto ?? 0, 2, '.', ',') }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->glosa }}</td>
+                            <td class="px-4 py-2 border-b">{{ $registro->CC }}</td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="10" class="px-4 py-2 border-b text-center">No hay movimientos disponibles</td>
+                        </tr>
+                    @endif
                       </tbody>
                   </table>
               </div>
           </x-card>
-    
-    
       </div>
      
  

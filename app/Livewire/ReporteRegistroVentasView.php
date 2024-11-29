@@ -3,19 +3,54 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Services\RegistroComprasVentasService;
+use App\Models\Mes;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 class ReporteRegistroVentasView extends Component
 {
+    public $años;
+    public $meses;
+    public $año;
+    public $mes;
+    public $registros;
+    public $totales;
+    protected $registroComprasVentasService;
+
+
+    public function mount(){
+        $this->inicializarDatos();
+    }
+    public function hydrate(RegistroComprasVentasService $registroComprasVentasService)
+    {
+        $this->registroComprasVentasService = $registroComprasVentasService;
+    }
+
 
     public function procesarReporte()
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Definición: El principio de responsabilidad única establece que una clase, método o componente 
-        // debe tener una única razón para cambiar, es decir, debe estar enfocado en realizar una sola tarea o propósito.
+        if (empty($this->año) || empty($this->mes)) {
+            session()->flash('error', 'Parametros de año y mes son obligarios.');
+            return;
+        }
+
+        try {
+            
+            $this->registros = collect($this->registroComprasVentasService->RComprasVentas(1,$this->mes,$this->año));
+            $this->totales = $this->registroComprasVentasService->Totales($this->registros);
+            session()->flash('message', 'Reporte procesado exitosamente');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Hubo un error al procesar el reporte');
+        }
      
     }
-    
+    private function inicializarDatos()
+    {
+        $currentYear = now()->year;
+        $this->años = [$currentYear, $currentYear + 1, $currentYear + 2];
+        $this->meses = Mes::all();
+    }
 
 
     public function exportCaja()
