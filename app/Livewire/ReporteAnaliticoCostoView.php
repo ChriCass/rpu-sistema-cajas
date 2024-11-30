@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Exports\ReporteAnaliticoCostoExport;
 use Livewire\Component;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -92,25 +93,27 @@ class ReporteAnaliticoCostoView extends Component
         $this->reset('detalleId'); // Reiniciar detalle
     }
 
-    public function exportCaja()
+    public function exportReporteAnalCosto()
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar y exportar un archivo relacionado con los reportes de caja.
-        // Ya he creado los exports en caso los necesites, están en la dirección:
-        // App/Exports/Nombredelreporteenespecifico.php
-        // Si no los necesitas, puedes ignorarlos. 
-        // Recuerda que esta lógica debe mantenerse exclusiva a este componente.
+        try {
+            // Verificar si hay registros para exportar
+            if (empty($this->registros)) {
+                session()->flash('error', 'No hay datos para exportar.');
+                return;
+            }
+            $nombreArchivo = 'reporte_analitico_costo_' . $this->libros[$this->libro - 1]['Tipo'] . '_' . $this->año . '_' . str_pad($this->mes, 2, '0', STR_PAD_LEFT) . '.xlsx';
+
+            // Llamar al servicio de exportación (si ya tienes un exportador específico para este reporte)
+            return Excel::download(new ReporteAnaliticoCostoExport($this->registros),  $nombreArchivo);
+            
+        } catch (\Exception $e) {
+         
+            session()->flash('error', 'Hubo un error al exportar los datos.');
+        }
     }
 
-    public function exportarPDF()
-    {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar un reporte en formato PDF.
-        // Ya están creadas las vistas concretas para el PDF en los archivos correspondientes.
-        // Puedes tomar de referencia las otras exportaciones que consideres necesarias.
-        // Si sientes que necesitas ayuda o prefieres no hacerlo, avísame y lo puedo desarrollar por ti.
-    }
-
+ 
+   
     public function render()
     {
         return view('livewire.reporte-analitico-costo-view')->layout('layouts.app');

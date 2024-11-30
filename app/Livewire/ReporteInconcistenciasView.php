@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Exports\ReporteInconcistenciasExport;
 use Livewire\Component;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
@@ -31,25 +32,26 @@ class ReporteInconcistenciasView extends Component
     
 
 
-    public function exportCaja()
+    public function exportInconsistencias()
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar y exportar un archivo relacionado con los reportes de caja.
-        // Ya he creado los exports en caso los necesites, están en la dirección:
-        // App/Exports/Nombredelreporteenespecifico.php
-        // Si no los necesitas, puedes ignorarlos. 
-        // Recuerda que esta lógica debe mantenerse exclusiva a este componente.
-    }
+        try {
+            // Verificar si hay registros para exportar
+            if (empty($this->registros)) {
+                session()->flash('error', 'No hay datos para exportar.');
+                return;
+            }
+            $nombreArchivo = 'reporte_inconsistencias_' . $this->año . '.xlsx';
 
-    public function exportarPDF()
-    {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar un reporte en formato PDF.
-        // Ya están creadas las vistas concretas para el PDF en los archivos correspondientes.
-        // Puedes tomar de referencia las otras exportaciones que consideres necesarias.
-        // Si sientes que necesitas ayuda o prefieres no hacerlo, avísame y lo puedo desarrollar por ti.
-    }
 
+            // Llamar al servicio de exportación (si ya tienes un exportador específico para este reporte)
+            return Excel::download(new ReporteInconcistenciasExport($this->registros),  $nombreArchivo);
+            
+        } catch (\Exception $e) {
+         
+            session()->flash('error', 'Hubo un error al exportar los datos.');
+        }
+    }
+    
 
     public function render()
     {

@@ -2,10 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Exports\ReporteRegistroVentasExport;
 use Livewire\Component;
 use App\Services\RegistroComprasVentasService;
 use App\Models\Mes;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 class ReporteRegistroVentasView extends Component
 {
@@ -53,24 +55,25 @@ class ReporteRegistroVentasView extends Component
     }
 
 
-    public function exportCaja()
+    public function exportVentas()
     {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar y exportar un archivo relacionado con los reportes de caja.
-        // Ya he creado los exports en caso los necesites, están en la dirección:
-        // App/Exports/Nombredelreporteenespecifico.php
-        // Si no los necesitas, puedes ignorarlos. 
-        // Recuerda que esta lógica debe mantenerse exclusiva a este componente.
+        try {
+            // Verificar si hay registros para exportar
+            if (empty($this->registros)) {
+                session()->flash('error', 'No hay datos para exportar.');
+                return;
+            }
+            $nombreArchivo = 'registro_ventas_' . $this->año . '_' . str_pad($this->mes, 2, '0', STR_PAD_LEFT) . '.xlsx';
+            // Llamar al servicio de exportación (si ya tienes un exportador específico para este reporte)
+            return Excel::download(new ReporteRegistroVentasExport($this->registros),  $nombreArchivo);
+            
+        } catch (\Exception $e) {
+            Log::error("Error al exportar los registros de compras/ventas: " . $e->getMessage());
+            session()->flash('error', 'Hubo un error al exportar los datos.');
+        }
     }
-
-    public function exportarPDF()
-    {
-        // Respeta el principio SOLID de responsabilidad única.
-        // Este método podría encargarse de generar un reporte en formato PDF.
-        // Ya están creadas las vistas concretas para el PDF en los archivos correspondientes.
-        // Puedes tomar de referencia las otras exportaciones que consideres necesarias.
-        // Si sientes que necesitas ayuda o prefieres no hacerlo, avísame y lo puedo desarrollar por ti.
-    }
+    
+ 
 
 
     public function render()

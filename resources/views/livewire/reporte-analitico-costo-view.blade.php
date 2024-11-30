@@ -97,7 +97,7 @@
     
               <div class="flex justify-center space-x-4 mt-6">
 
-                  <!-- Botón de Exportar en PDF -->
+                  <!-- Botón de Exportar en PDF 
                   <button wire:click="exportarPDF"
                       class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,16 +105,16 @@
                               d="M15.362 5.214A4 4 0 1012 2v4h4a4.002 4.002 0 00-.638-4.786zM9 5v4a4 4 0 11-4-4h4zm5 8h3a3 3 0 013 3v5H3v-5a3 3 0 013-3h3m6 0v-2a6 6 0 00-12 0v2m12 0v2a6 6 0 0112 0v-2z" />
                       </svg>
                       <span>Exportar en PDF</span>
-                  </button>
+                  </button> -->
               
-                  <!-- Botón de Exportar en Excel 
-                  <button wire:click="exportarCentroCostos"
+                  <!-- Botón de Exportar en Excel -->
+                  <button wire:click="exportReporteAnalCosto"
                       class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex items-center space-x-2">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M16 17l-4-4 4-4m-4 4H4" />
                       </svg>
-                      <span>Exportar en Excel</span> -->
+                      <span>Exportar en Excel</span> 
                   </button>
               </div>
               
