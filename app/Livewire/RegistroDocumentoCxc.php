@@ -565,7 +565,7 @@ class RegistroDocumentoCxc extends Component
         ]);
     
         // Determinar si es una transferencia o no
-        $lib = ($this->familiaId == '001') ? '5' : '1';
+        $lib = ($this->familiaId == '002') ? '1' : '7';
         Log::info('Determinado tipo de libro', ['lib' => $lib]);
     
         // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
@@ -607,14 +607,13 @@ class RegistroDocumentoCxc extends Component
         Log::info('Nuevo movimiento asignado', ['nuevoMov' => $nuevoMov]);
     
         // Registro en movimientosdecaja para ingresos
-        if ($this->familiaId == '002') { // INGRESOS
             // Crear el primer registro en todos los casos
             MovimientoDeCaja::create([
                 'id_libro' => $lib,
                 'mov' => $nuevoMov,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
-                'id_cuentas' => 1,
+                'id_cuentas' => $cuentaId,
                 'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                 'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                 'montodo' => null,
@@ -634,7 +633,6 @@ class RegistroDocumentoCxc extends Component
                     'montodo' => null,
                     'glosa' => $this->observaciones,
                 ]);
-            }
 
             // Registrar en el log
             Log::info('Registro de ingresos en movimientosdecaja realizado', [

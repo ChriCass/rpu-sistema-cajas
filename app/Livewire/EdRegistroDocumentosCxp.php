@@ -429,7 +429,7 @@ class EdRegistroDocumentosCxp extends Component
 
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'not like', '0%')->get();
+        $this->familias = Familia::where('id', '<>', '002')->get();
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -633,21 +633,35 @@ class EdRegistroDocumentosCxp extends Component
     
             // Verificar si es del tipo de familia que necesita ingresar movimientos
             if ($tipoFamilia[0]['id_tipofamilias'] == '2') {
+                $Lib = '2'; 
+            }else{
+                $Lib = '7';
+            }
+
+            Log::info('Datos obtenidos de MovimientoDeCaja:', [
+                'familiaId' => $this->familiaId,
+                'idmov' => $idmov,
+            ]);
+    
+
+
+
                 // Obtener el movimiento de caja con bloqueo pesimista
                 $datos = MovimientoDeCaja::select('mov')
                     ->lockForUpdate() // Bloqueo pesimista
                     ->where('id_documentos', $idmov)
-                    ->where('id_libro', '2')
+                    ->where('id_libro', $Lib)
                     ->get()
                     ->toArray();
-    
+
+
                 // Asegurarse de que existan datos
                 if (count($datos) > 0) {
                     $data['movlibro'] = $datos[0]['mov'];
                 } else {
                     $data['movlibro'] = null; // Si no hay registros, se guarda como null
                 }
-            }
+            
     
             // Eliminar registros relacionados de movimientos de caja
             MovimientoDeCaja::where('id_documentos', $idmov)->delete();
@@ -682,8 +696,14 @@ class EdRegistroDocumentosCxp extends Component
                 'familiaId' => $this->familiaId,
             ]);
     
+            $tipoFamilia = Familia::select('id_tipofamilias')
+            ->lockForUpdate() // Bloqueo pesimista
+            ->where('id', $this->familiaId)
+            ->get()
+            ->toArray();
+
             // Determinar si es una transferencia o no
-            $lib = ($this->familiaId == '001') ? '5' : '2';
+            $lib = ($tipoFamilia[0]['id_tipofamilias'] == '2') ? '2' : '7';
             Log::info('Determinado tipo de libro', ['lib' => $lib]);
     
             // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
@@ -717,14 +737,8 @@ class EdRegistroDocumentosCxp extends Component
                 Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
             }
     
-            $tipoFamilia = Familia::select('id_tipofamilias')
-                ->lockForUpdate() // Bloqueo pesimista
-                ->where('id', $this->familiaId)
-                ->get()
-                ->toArray();
     
             // Registro en movimientosdecaja para ingresos
-            if ($tipoFamilia[0]['id_tipofamilias'] == '2') {
                 // Crear el primer registro en todos los casos
                 MovimientoDeCaja::create([
                     'id_libro' => $lib,
@@ -758,8 +772,7 @@ class EdRegistroDocumentosCxp extends Component
                     'id_documentos' => $documentoId,
                     'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido
                 ]);
-            }
-    
+            
             // Confirmación de registro exitoso
             Log::info('Documento y movimiento de caja registrados exitosamente');
             session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');

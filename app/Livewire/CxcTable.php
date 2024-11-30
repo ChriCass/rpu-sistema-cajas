@@ -60,7 +60,8 @@ final class CxcTable extends PowerGridComponent
             ->leftJoin('users', 'documentos.id_user', '=', 'users.id')
             ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
             ->leftJoin('tasas_igv', 'documentos.id_tasasIgv', '=', 'tasas_igv.id')
-            ->where('documentos.id_tipmov', 1);
+            ->where('documentos.id_tipmov', 1)
+            ->orderBy(DB::raw('MONTH(fechaEmi)'), 'desc');;
     }
 
     public function relationSearch(): array

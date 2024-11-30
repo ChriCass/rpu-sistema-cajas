@@ -320,7 +320,7 @@ class RegistroDocumentosCxp extends Component
 
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'not like', '0%')->get();
+        $this->familias = Familia::where('id', '<>', '002')->get();
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -548,8 +548,14 @@ class RegistroDocumentosCxp extends Component
                 'familiaId' => $this->familiaId,
             ]);
     
+            // Obtener tipo de familia con bloqueo pesimista
+            $tipoFamilia = Familia::select('id_tipofamilias')
+                ->where('id', $this->familiaId)
+                ->lockForUpdate() // Bloqueo pesimista
+                ->first();
+                
             // Determinar si es una transferencia o no
-            $lib = ($this->familiaId == '001') ? '5' : '2';
+            $lib = ($tipoFamilia && $tipoFamilia->id_tipofamilias == '2') ? '2' : '7';
             Log::info('Determinado tipo de libro', ['lib' => $lib]);
     
             // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle con bloqueo pesimista
@@ -594,15 +600,9 @@ class RegistroDocumentosCxp extends Component
             $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
             Log::info('Nuevo movimiento asignado', ['nuevoMov' => $nuevoMov]);
     
-            // Obtener tipo de familia con bloqueo pesimista
-            $tipoFamilia = Familia::select('id_tipofamilias')
-                ->where('id', $this->familiaId)
-                ->lockForUpdate() // Bloqueo pesimista
-                ->first();
+            
     
-            // Registro en movimientos de caja para ingresos
-            if ($tipoFamilia && $tipoFamilia->id_tipofamilias == '2') {
-                // Crear el primer registro en todos los casos
+            
                 MovimientoDeCaja::create([
                     'id_libro' => $lib,
                     'mov' => $nuevoMov,
@@ -635,7 +635,6 @@ class RegistroDocumentosCxp extends Component
                     'id_documentos' => $documentoId,
                     'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido
                 ]);
-            }
     
             // Confirmar la transacción
             DB::commit();

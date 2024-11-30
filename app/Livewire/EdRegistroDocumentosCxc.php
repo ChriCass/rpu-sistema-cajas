@@ -427,7 +427,13 @@ class EdRegistroDocumentosCxc extends Component
 
     public function loadInitialData()
     {
-        $this->familias = Familia::all();
+        $familiasBase = Familia::where('id', 'like', '0%')->get();
+
+        $familiasBalance = Familia::where('id', 'like', '1%')
+            ->where('id_tipofamilias', '=', '1')
+            ->get();
+
+        $this->familias = $familiasBase->merge($familiasBalance);
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -629,17 +635,22 @@ public function borrarRegistrosed($idmov)
 
         // Aplicar bloqueo pesimista para evitar conflictos de concurrencia
         if ($this->familiaId == '002') {
+            $lib = '1';
+        }else{
+            $lib = '7';
+        }
+
             $datos = MovimientoDeCaja::select('mov')
                 ->where('id_documentos', $idmov)
-                ->where('id_libro', '1')
+                ->where('id_libro', $lib)
                 ->lockForUpdate() // Bloquear fila para evitar conflictos
                 ->get()
                 ->toArray();
-            
+
             if (!empty($datos)) {
                 $data['movlibro'] = $datos[0]['mov'];
             }
-        }
+        
 
         // Borrar movimientos de caja relacionados al documento
         MovimientoDeCaja::where('id_documentos', $idmov)
@@ -680,7 +691,7 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
         ]);
 
         // Determinar si es una transferencia o no
-        $lib = ($this->familiaId == '001') ? '5' : '1';
+        $lib = ($this->familiaId == '002') ? '1' : '7';
         Log::info('Determinado tipo de libro', ['lib' => $lib]);
 
         // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
@@ -718,14 +729,14 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
         MovimientoDeCaja::lockForUpdate()->where('id_documentos', $documentoId)->first();
 
         // Registro en movimientosdecaja para ingresos
-        if ($this->familiaId == '002') { // INGRESOS
+
             // Crear el primer registro en todos los casos
             MovimientoDeCaja::create([
                 'id_libro' => $lib,
                 'mov' => $movLibro,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
-                'id_cuentas' => 1,
+                'id_cuentas' => $cuentaId,
                 'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                 'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                 'montodo' => null,
@@ -745,7 +756,6 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
                     'montodo' => null,
                     'glosa' => $this->observaciones,
                 ]);
-            }
 
             // Registrar en el log
             Log::info('Registro de ingresos en movimientosdecaja realizado', [
