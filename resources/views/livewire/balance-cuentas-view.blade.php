@@ -120,7 +120,9 @@
                                             <x-button wire:navigate
                                                 href="{{ route('balance.cuenta.analisis', [
                                                     'tipoDeCuenta' => $registro->tipoDeCuenta,
-                                                    'cuenta' => str_replace(' ', '_', $registro->cuenta),  
+                                                    'cuenta' => str_replace(' ', '_', $registro->cuenta),
+                                                    'annio' => $año,
+                                                    'mes' => $mes, 
                                                 ]) }}"
                                                 label="Analizar" primary />
                                     </td>
