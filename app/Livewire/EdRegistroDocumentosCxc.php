@@ -250,7 +250,7 @@ class EdRegistroDocumentosCxc extends Component
             LEFT JOIN 
                 tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
             LEFT JOIN 
-                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+                tipodecaja ON CO1.id_dest_tipcaja = tipodecaja.id 
             WHERE 
                 CO1.id_tipmov = 1
                 AND CO1.id = ?
