@@ -248,7 +248,7 @@ class EdRegistroDocumentosEgreso extends Component
             LEFT JOIN 
                 tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
             LEFT JOIN 
-                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+                tipodecaja ON CO1.id_dest_tipcaja = tipodecaja.id 
             LEFT JOIN
                 (select distinct id_documentos,numero_de_operacion from movimientosdecaja where id_libro = '3') INN1 on INN1.id_documentos = CO1.id
             WHERE 
