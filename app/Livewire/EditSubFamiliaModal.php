@@ -20,14 +20,14 @@ class EditSubFamiliaModal extends ModalComponent
         return 'lg';
     }
 
-    public function mount(int $subfamiliaId)
+    public function mount($subfamiliaId,$familiasId)
     {
         Log::info("Mounting EditSubFamiliaModal with subfamiliaId: {$subfamiliaId}");
 
         $this->subfamiliaId = $subfamiliaId;
-        $subfamilia = SubFamilia::findOrFail($subfamiliaId);
-        $this->descripcion = $subfamilia->desripcion;
-        $this->idFamilia = $subfamilia->id_familias;
+        $subfamilia = SubFamilia::where('id',$subfamiliaId)->where('id_familias',$familiasId)->first();
+        $this->descripcion = $subfamilia['desripcion'];
+        $this->idFamilia = $familiasId;
         $this->familias = Familia::all()->map(function ($familia) {
             return ['id' => $familia->id, 'descripcion' => $familia->descripcion];
         })->toArray();

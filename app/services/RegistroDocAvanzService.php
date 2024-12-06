@@ -52,13 +52,13 @@ class RegistroDocAvanzService
                 }
             }
 
-            $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
+
+            if($data['origen'] == 'editar_cxp' || $data['origen'] == 'editar_cxc'){
+                $comprobacion = MovimientoDeCaja::whereIn('id_libro', ['3', '4'])
                         ->where('id_documentos', $data['idDocumento'])
                         ->lockForUpdate() // Bloqueo pesimista
                         ->get()
                         ->toArray();
-
-            if($data['origen'] == 'editar_cxp' || $data['origen'] == 'editar_cxc'){
                 if (count($comprobacion) !== 0) {
                     return ['error' => 'No se puede editar el documento porque tiene movimientos de caja.'];
                 }
