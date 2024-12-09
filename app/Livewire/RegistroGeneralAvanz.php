@@ -399,7 +399,7 @@ class RegistroGeneralAvanz extends Component
             LEFT JOIN 
                 tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
             LEFT JOIN 
-                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+                tipodecaja ON CO1.id_dest_tipcaja = tipodecaja.id 
             LEFT JOIN
 				(select id_documentos,id_cuentas from movimientosdecaja where id_libro in ('1','2')) INN1 on CO1.id = INN1.id_documentos
             LEFT JOIN

@@ -19,7 +19,14 @@ class BalanceCuentasAnalisisService {
                 left join entidades on documentos.id_entidades = entidades.id
                 left join tabla10_tipodecomprobantedepagoodocumento on documentos.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id
                 left join cuentas on movimientosdecaja.id_cuentas = cuentas.id
-                where fec <= '{$fecha}' and id_cuentas = '{$idCuenta}' group by id_documentos,id_cuentas having sum(if(id_dh = '1',monto,monto*-1)) <> 0";
+                where fec <= '{$fecha}' and id_cuentas = '{$idCuenta}' group by  movimientosdecaja.id_documentos,
+                documentos.id_entidades,
+                entidades.descripcion,
+                tabla10_tipodecomprobantedepagoodocumento.descripcion,
+                documentos.serie,
+                documentos.numero,
+                cuentas.descripcion,
+                documentos.observaciones having sum(if(id_dh = '1',monto,monto*-1)) <> 0";
         return DB::select($query);
     }
 
