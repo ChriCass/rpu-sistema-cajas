@@ -46,11 +46,11 @@
 
                 </div>
                 <div class="w-full sm:w-3/12 mt-3 px-4">
-                    <x-maskable mask="######" label="Cantidad" wire:model.live="cantidad" />
+                    <x-input label="Cantidad" wire:model.live="cantidad" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                 </div>
                 
                 <div class="w-full sm:w-3/12 mt-3 px-4">
-                    <x-maskable mask="######" label="C/U" wire:model.live="precioUnitario" />
+                    <x-input label="C/U" wire:model.live="precioUnitario" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                 </div>
                 
                 <div class="w-full sm:w-3/12 mt-3 px-4">

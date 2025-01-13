@@ -462,13 +462,13 @@ class EdRegistroDocumentosEgreso extends Component
                             -> where('desripcion', 'GENERAL')-> get() ->toarray();
         $this->subfamiliaId = $subfamilia[0]['ic'];
 
-        $detalle = Detalle::where('descripcion', 'RENDICIONES POR PAGAR')->first(); // Encontrar el detalle correcto
+        $detalle = Detalle::where('descripcion', 'RENDICIONES POR COBRAR')->first(); // Encontrar el detalle correcto
 
         if ($detalle) {
             $this->detalleId = $detalle->id;
             Log::info('Detalle encontrado: ', ['id' => $detalle->id, 'descripcion' => $detalle->descripcion]);
         } else {
-            Log::warning('No se encontró el detalle con la descripción: RENDICIONES POR PAGAR');
+            Log::warning('No se encontró el detalle con la descripción: RENDICIONES POR COBRAR');
         }
 
         $this->tasaIgvId = TasaIgv::where('tasa', 'No Gravado')->first()->tasa;

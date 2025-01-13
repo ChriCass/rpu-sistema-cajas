@@ -14,9 +14,9 @@ class ModalProductoGeneralAvanz extends Component
     public $productoSelecDescripcion;
     public $codigoProducto;        // Código del producto
     public $openModal = false;
-    public $cantidad = 0;
-    public $precioUnitario = 0;
-    public $total = 0;
+    public $cantidad;
+    public $precioUnitario;
+    public $total;
     public $tasaImpositiva;
     public $CentroDeCostos;
     public $CC;
@@ -37,7 +37,16 @@ class ModalProductoGeneralAvanz extends Component
      // Método que calcula el total
      private function calcularTotal()
      {
-         $this->total = $this->cantidad * $this->precioUnitario;
+        try {
+            $cantidad = empty($this->cantidad) ? 0 : $this->cantidad;
+            $precioUnitario = empty($this->precioUnitario) ? 0 : $this->precioUnitario;
+    
+            $this->total = $cantidad * $precioUnitario;
+        } catch (\Throwable $e) {
+            // Manejar el error, por ejemplo, registrar el error y establecer un valor predeterminado
+            $this->total = 0;
+            Log::error("Error al calcular el total: " . $e->getMessage());
+        }
      }
 
      public function mount()
@@ -81,7 +90,7 @@ class ModalProductoGeneralAvanz extends Component
         $this->validate([
             'codigoProducto' => 'required',
             'productoSelecDescripcion' => 'required',
-            'cantidad' => 'required|integer|min:1',
+            'cantidad' => 'required|numeric|min:0.01',
             'precioUnitario' => 'required|numeric|min:0.01',
             'tasaImpositiva' => 'required',
             'total' => 'required',
