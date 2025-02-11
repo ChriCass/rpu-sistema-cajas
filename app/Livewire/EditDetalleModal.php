@@ -76,7 +76,7 @@ class EditDetalleModal extends ModalComponent
 
         $detalle->descripcion = $this->descripcion;
         $detalle->id_familias = $this->familia;
-        $detalle->id_subfamilia = $this->subfamilia;
+        $detalle->id_subfamilia = str_pad((string) $this->subfamilia, 3, '0', STR_PAD_LEFT);  // Asegura que subfamilia tenga 3 caracteres;
         $detalle->id_cuenta = $this->cuenta;
 
         $detalle->save();

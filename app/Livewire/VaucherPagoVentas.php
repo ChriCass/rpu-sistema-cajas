@@ -29,7 +29,7 @@ class VaucherPagoVentas extends Component
     public $balance = 0.0; // Nueva variable para almacenar el balance (Debe - Haber)
     public $caja;
     public $tipoCaja;
-
+    public $cod_operacion;
 
     public function mount($aperturaId)
     {
@@ -223,6 +223,7 @@ class VaucherPagoVentas extends Component
                  'monto' => $this->debe,
                  'montodo' => null,
                  'glosa' => 'PAGO DE CXC',
+                 'numero_de_operacion' => $this->cod_operacion ?? null,
              ]);
      
              // Procesar cada detalle en el contenedor
@@ -247,6 +248,7 @@ class VaucherPagoVentas extends Component
                      'monto' => $detalle['monto'],
                      'montodo' => null,
                      'glosa' => $glo,
+                     'numero_de_operacion' => $this->cod_operacion ?? null,
                  ]);
      
                  Log::info("Movimiento de caja insertado: ID Cuenta: {$cta}, Debe/Haber: 2, Monto: {$detalle['monto']}");

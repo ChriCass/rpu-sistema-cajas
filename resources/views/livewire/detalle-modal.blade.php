@@ -40,7 +40,8 @@
 
                 <!-- Campo de descripción del nuevo producto -->
                 <div class="w-full sm:w-6/12 px-4">
-                    <x-maskable wire:model="nuevo_producto" mask="AAAAAAAAAAAAAAAAAAA" label="Descripción"/>
+                    <x-input wire:model="nuevo_producto"  class="w-full"    label="descripcion" oninput="this.value = this.value.toUpperCase()"/>
+                  
                     @error('nuevo_producto') <span class="text-red-500">{{ $message }}</span> @enderror
                 </div>
                 

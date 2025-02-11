@@ -37,7 +37,7 @@
             </div>
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full md:w-4/12 px-2">
-                    <x-input readonly label="Fecha:" wire:model="fecha" />
+                    <x-input readonly label="Fecha:" wire:model="fechaApertura" />
                 </div>
                 <div class="w-full md:w-4/12 px-2">
                     <x-input readonly label="Moneda:" wire:model="moneda" />
@@ -155,9 +155,16 @@
                 </table>
             </div>
 
-            <div class="flex justify-end mt-4 space-x-2">
-                <x-button label="Cancelar" wire:click="$dispatch('mostrarComponente', {componente: 'cancelar'})" outline secondary />
-                <x-button label="Aceptar" wire:click='submit' primary />
+            <div class="flex justify-between mt-4 space-x-2">
+                <div class="w-2/12    px-2">
+                    <x-input wire:model.live='cod_operacion'  description="codigo de operacion"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                </div>
+                <div>
+                    <x-button label="Cancelar" wire:click="$dispatch('mostrarComponente', {componente: 'cancelar'})" outline secondary />
+                    <x-button label="Aceptar" wire:click='submit' primary />
+                </div>
+              
             </div>
         </x-card>
     </div>

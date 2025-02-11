@@ -40,7 +40,8 @@ class VaucherDeAplicaciones extends Component
     public function mount()
     {
         $this->monedas = TipoDeMoneda::all();
-        $this->fecha = Carbon::now()->toDateString();
+        $this->fecha = Carbon::now('America/Lima')->toDateString();
+
     }
 
     #[On('sendingContenedorAplicaciones')]
@@ -59,11 +60,10 @@ class VaucherDeAplicaciones extends Component
 
         // Agregar los nuevos detalles recibidos al contenedor
         foreach ($detallesSeleccionados as $detalle) {
-            $idtc = Cuenta:: where('descripcion',$detalle['Descripcion'])
-                            -> get()
-                            -> toarray();
+            $idtc = $detalle['rt'];
+
             // Asignar valores a las columnas dependiendo del tipo de cuenta
-            if ($idtc[0]['id_tcuenta'] == '2') {
+            if ($idtc == 'DEBE') {
                 $detalle['montodebe'] = null;
                 $detalle['montohaber'] = $detalle['monto'];
             } else {

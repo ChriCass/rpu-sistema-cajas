@@ -47,8 +47,9 @@ class EdRegistroDocumentosCxc extends Component
     public $entidad;
     public $nuevoDestinatario;
     public $centroDeCostos;
-    public  $monedaId;
-    public        $tasaIgvId;
+    public $monedaId;
+    public $tasaIgvId;
+    public $tipoDocumentoRef;
 
     // Variables para la consulta secundaria
     public $basImp;
@@ -72,6 +73,9 @@ class EdRegistroDocumentosCxc extends Component
     public $tipoDocIdentidades;
     public $destinatarioVisible = false;
     public $user;
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
 
 
     ///tiene detraccion
@@ -81,7 +85,7 @@ class EdRegistroDocumentosCxc extends Component
     public $montoNeto;
     public $porcentaje;
     public $validacionDet;
-
+    public $cod_operacion;
     public function updatedmontoDetraccion ($value){
         if($value <> ''){
             $this -> montoNeto = $this -> precio - $value;
@@ -192,7 +196,10 @@ class EdRegistroDocumentosCxc extends Component
                 CO1.detalle_producto, -- Detalle del producto
                 CO1.id_centroDeCostos,
                 CO1.detraccion,
-                CO1.montoNeto
+                CO1.montoNeto,
+                CO1.id_t10tdocMod,
+                CO1.serieMod,
+                CO1.numeroMod
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -219,7 +226,10 @@ class EdRegistroDocumentosCxc extends Component
                     detalle.descripcion AS detalle_producto, -- Descripción del producto
                     d_detalledocumentos.id_centroDeCostos,
                     detraccion,
-                    montoNeto
+                    montoNeto,
+                    id_t10tdocMod,
+                    serieMod,
+                    numeroMod
                 FROM 
                     documentos 
                 LEFT JOIN 
@@ -240,7 +250,7 @@ class EdRegistroDocumentosCxc extends Component
             LEFT JOIN 
                 tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
             LEFT JOIN 
-                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+                tipodecaja ON CO1.id_dest_tipcaja = tipodecaja.id 
             WHERE 
                 CO1.id_tipmov = 1
                 AND CO1.id = ?
@@ -275,6 +285,9 @@ class EdRegistroDocumentosCxc extends Component
             $this->otrosTributos = $result->otroTributo; // Otros tributos
             $this->precio = $result->precio; // Precio total
             $this->montoDetraccion = $result->detraccion;
+            $this->id_t10tdocMod = $result->id_t10tdocMod;
+            $this->serieMod = $result->serieMod;
+            $this->numeroMod = $result->numeroMod;
             if($result->montoNeto>0){
                 $this->montoNeto = $result->montoNeto;
                 $this->porcentaje = round(($this->montoDetraccion/$result->precio) * 100,0);
@@ -414,11 +427,18 @@ class EdRegistroDocumentosCxc extends Component
 
     public function loadInitialData()
     {
-        $this->familias = Familia::all();
+        $familiasBase = Familia::where('id', 'like', '0%')->get();
+
+        $familiasBalance = Familia::where('id', 'like', '1%')
+            ->where('id_tipofamilias', '=', '1')
+            ->get();
+
+        $this->familias = $familiasBase->merge($familiasBalance);
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all();
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
 
     public function resetForm()
@@ -437,7 +457,10 @@ class EdRegistroDocumentosCxc extends Component
             'monedaId',
             'tasaIgvId',
             'observaciones',
-            'entidad'
+            'entidad',
+            'id_t10tdocMod',
+            'serieMod',
+            'numeroMod'
         ]);
     }
 
@@ -464,7 +487,7 @@ class EdRegistroDocumentosCxc extends Component
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'observaciones' => 'required|string|max:500', // TextBox29
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -612,17 +635,22 @@ public function borrarRegistrosed($idmov)
 
         // Aplicar bloqueo pesimista para evitar conflictos de concurrencia
         if ($this->familiaId == '002') {
+            $lib = '1';
+        }else{
+            $lib = '7';
+        }
+
             $datos = MovimientoDeCaja::select('mov')
                 ->where('id_documentos', $idmov)
-                ->where('id_libro', '1')
+                ->where('id_libro', $lib)
                 ->lockForUpdate() // Bloquear fila para evitar conflictos
                 ->get()
                 ->toArray();
-            
+
             if (!empty($datos)) {
                 $data['movlibro'] = $datos[0]['mov'];
             }
-        }
+        
 
         // Borrar movimientos de caja relacionados al documento
         MovimientoDeCaja::where('id_documentos', $idmov)
@@ -663,7 +691,7 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
         ]);
 
         // Determinar si es una transferencia o no
-        $lib = ($this->familiaId == '001') ? '5' : '1';
+        $lib = ($this->familiaId == '002') ? '1' : '7';
         Log::info('Determinado tipo de libro', ['lib' => $lib]);
 
         // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
@@ -701,15 +729,15 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
         MovimientoDeCaja::lockForUpdate()->where('id_documentos', $documentoId)->first();
 
         // Registro en movimientosdecaja para ingresos
-        if ($this->familiaId == '002') { // INGRESOS
+
             // Crear el primer registro en todos los casos
             MovimientoDeCaja::create([
                 'id_libro' => $lib,
                 'mov' => $movLibro,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
-                'id_cuentas' => 1,
-                'id_dh' => 1,
+                'id_cuentas' => $cuentaId,
+                'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                 'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                 'montodo' => null,
                 'glosa' => $this->observaciones,
@@ -723,12 +751,11 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => 2,
-                    'id_dh' => 1,
+                    'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                     'monto' => $detraConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
                 ]);
-            }
 
             // Registrar en el log
             Log::info('Registro de ingresos en movimientosdecaja realizado', [

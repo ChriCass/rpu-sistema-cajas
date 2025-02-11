@@ -21,7 +21,7 @@
                     @enderror
                 </div>
                 <div class="w-full sm:w-4/12 px-4">
-                    <x-select wire:model="nuevo_año"  label="Año" placeholder="Selecciona..." :options="$años" option-label="year" option-value="key" />
+                    <x-select wire:model="nuevo_año"  label="Año" placeholder="Selecciona..." :options="$años"/>
                     @error('nuevo_año')
                     @enderror
                 </div>

@@ -14,39 +14,69 @@ class VaucherAplicacionesPendientesModal extends Component
     public $moneda;
     public $aplicaciones = [];
     public $contenedor = [];  // Para acumular los detalles seleccionados
-    public $filterColumn = 'id_entidades';  // Columna por defecto para el filtro
-    public $searchTerm = '';  // Término de búsqueda
+ 
+    public $filterColumn  = 'id_documentos';  // Columna por defecto
+    public $searchValue;               // Valor de búsqueda
+    
+    public function updatedSearchValue()
+    {
+        $this->applyFilters();
+    }
+    
+    public function updatedFilterColumn()
+    {
+        $this->applyFilters();
+    }
+    
+    public function applyFilters()
+    {
+        // Obtener todas las aplicaciones
+        $aplicaciones = collect($this->loadAplicaciones());
+    
+        // Limpiar el valor de búsqueda para evitar espacios en blanco innecesarios
+        $searchValue = trim($this->searchValue);
 
+        // Si el valor de búsqueda está vacío después de limpiar, mostramos todas las aplicaciones
+        if (empty($searchValue)) {
+            $this->aplicaciones = $aplicaciones->all();
+        } else {
+            // Filtrar según la columna seleccionada y el valor ingresado
+            $this->aplicaciones = $aplicaciones->filter(function ($aplicacion) use ($searchValue) {
+                $filterColumn = $this->filterColumn;
+
+                // Verificar si la propiedad existe y no es null
+                if (!isset($aplicacion->$filterColumn) || is_null($aplicacion->$filterColumn)) {
+                    return false;
+                }
+
+                // Convertimos el valor de la columna a string y hacemos la búsqueda insensible a mayúsculas/minúsculas
+                $columnValue = (string) $aplicacion->$filterColumn;
+
+                return stripos($columnValue, $searchValue) !== false;
+            })->values()->all();
+        }
+    }
     // Monta el componente con los parámetros necesarios
     public function mount($fecha, $moneda)
     {
         $this->fecha = $fecha;
         $this->moneda = $moneda;
-        $this->loadAplicaciones();
+       $this->aplicaciones =  $this->loadAplicaciones();
     }
 
     // Actualiza los resultados de búsqueda cuando cambian los términos
-    public function updatedSearchTerm()
-    {
-        $this->loadAplicaciones();
-    }
-
-    // Actualiza los resultados de búsqueda cuando cambia la columna de filtrado
-    public function updatedFilterColumn()
-    {
-        $this->loadAplicaciones();
-    }
+ 
 
     // Cargar las aplicaciones según los filtros aplicados
-    private function loadAplicaciones()
+    public function loadAplicaciones()
     {
         $query = "
             SELECT id_documentos, tdoc, id_entidades, RZ, Num, Mon, Descripcion, 
-                IF(Mon = 'PEN', monto, montodo) AS monto 
+                IF(Mon = 'PEN', monto, montodo) AS monto, rt
             FROM (
                 SELECT id_documentos, fechaEmi, tabla10.descripcion AS tdoc, id_entidades, entidades.descripcion AS RZ, 
                     Num, IF(CON3.Descripcion = 'DETRACCIONES POR COBRAR', 'PEN', id_t04tipmon) AS Mon, 
-                    CON3.Descripcion, monto, montodo 
+                    CON3.Descripcion, monto, montodo, 'DEBE' as rt 
                 FROM (
                     SELECT id_documentos, 
                         documentos.fechaEmi,  
@@ -84,7 +114,7 @@ class VaucherAplicacionesPendientesModal extends Component
 
                 SELECT id_documentos, fechaEmi,tabla10.descripcion AS tdoc, id_entidades, entidades.descripcion AS RZ, 
                     Num, IF(CON3.Descripcion = 'DETRACCIONES POR PAGAR', 'PEN', id_t04tipmon) AS Mon, 
-                    CON3.Descripcion, monto, montodo 
+                    CON3.Descripcion, monto, montodo, 'HABER' as rh
                 FROM (
                     SELECT id_documentos, 
                         documentos.fechaEmi,
@@ -121,10 +151,10 @@ class VaucherAplicacionesPendientesModal extends Component
             WHERE fechaEmi <= ? 
             AND Mon = ?
             AND ROUND(monto, 2) <> 0 
-            ORDER BY CAST(id_documentos AS UNSIGNED) ASC;
+            ORDER BY rt asc,CAST(id_documentos AS UNSIGNED) ASC;
         ";
     
-        $this->aplicaciones = DB::select($query, [
+        return DB::select($query, [
             $this->fecha,
             $this->moneda
         ]);

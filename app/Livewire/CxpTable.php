@@ -53,13 +53,15 @@ final class CxpTable extends PowerGridComponent
             'documentos.id_t04tipmon',
             'tasas_igv.tasa',
             'documentos.precio',
-            'users.name AS usuario'
+            'users.name AS usuario',
+            'id_tip_form'
         )
             ->leftJoin('entidades', 'documentos.id_entidades', '=', 'entidades.id')
             ->leftJoin('users', 'documentos.id_user', '=', 'users.id')
             ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
             ->leftJoin('tasas_igv', 'documentos.id_tasasIgv', '=', 'tasas_igv.id')
-            ->where('documentos.id_tipmov', 2);
+            ->where('documentos.id_tipmov', 2)
+            ->orderBy(DB::raw('MONTH(fechaEmi)'), 'desc');
     }
 
     public function relationSearch(): array
@@ -191,10 +193,18 @@ final class CxpTable extends PowerGridComponent
 
     public function actions(Documento $row): array
     {
-        return [
-            Button::add('edit')
-                ->slot('Editar ')
-                ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->dispatch('showEdCxp', ['idcxp' => $row->id]),
-        ];
+        if($row->id_tip_form == "1"){
+            return [
+                Button::add('edit')
+                    ->slot('Editar ')
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->dispatch('showEdCxp', ['idcxp' => $row->id]),
+            ];
+        }else{
+            return [
+                Button::add('edit')
+                    ->slot('Editar ')
+                    ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')->route('cxp.avanzado', ['origen' => 'editar_cxp', 'numeroMovimiento' => $row->id]),
+            ];   
+        }
     }
 }

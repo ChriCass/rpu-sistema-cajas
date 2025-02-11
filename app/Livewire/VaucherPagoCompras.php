@@ -32,6 +32,7 @@ class VaucherPagoCompras extends Component
     public $editingIndex = null; // Para rastrear la fila en edición
     public $editingMonto = null; // Para almacenar temporalmente el valor del monto que se está editando
     public $warningMessage = [];
+    public $cod_operacion;
     public function mount($aperturaId)
     {
         $this->aperturaId = $aperturaId;
@@ -256,6 +257,7 @@ class VaucherPagoCompras extends Component
                     'monto' => $monto,
                     'montodo' => null,
                     'glosa' => $glo,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 Log::info("Movimiento de caja insertado: ID Cuenta: {$cta}, Debe/Haber: {$dh}, Monto: {$monto}");
@@ -276,6 +278,7 @@ class VaucherPagoCompras extends Component
                 'monto' => $this->haber,
                 'montodo' => null,
                 'glosa' => 'PAGO DE CXP',
+                'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     
             DB::commit(); // Confirmar la transacción

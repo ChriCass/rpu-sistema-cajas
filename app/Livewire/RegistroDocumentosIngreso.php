@@ -85,6 +85,8 @@ class RegistroDocumentosIngreso extends Component
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa
 
+    public $cod_operacion;
+
 
    protected $tasaIgvMapping = [
     '18%' => 0.18,
@@ -163,7 +165,7 @@ public function updatedIgv($value)
 }
 
 
-    public function mount($aperturaId, ApiService $apiService)
+    public function mount($aperturaId )
     {
         $this->aperturaId = $aperturaId;
         $this->apertura = Apertura::findOrFail($aperturaId);
@@ -171,7 +173,7 @@ public function updatedIgv($value)
         $this->user = Auth::user()->id;
         $this->loadInitialData();
         $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
-        $this->apiService = $apiService; // Abelardo = Asigne el servicio inyectado para la api.
+        
        
     }
 
@@ -183,7 +185,13 @@ public function updatedIgv($value)
     // Cargar datos iniciales
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'like', '0%')->get();
+        $familias1 = Familia::where('id', 'like', '0%')->get();
+
+        $familias2 = Familia::where('id', 'like', '1%')
+            ->where('id_tipofamilias', '=', '1')
+            ->get();
+
+        $this->familias = $familias1->merge($familias2);
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -556,7 +564,7 @@ public function updatedIgv($value)
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'observaciones' => 'required|string|max:500', // TextBox29
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -768,6 +776,7 @@ public function updatedIgv($value)
                 'monto' => $precioConvertido,
                 'montodo' => null,
                 'glosa' => $this->observaciones,
+                'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     
             // Pago de documento
@@ -782,6 +791,7 @@ public function updatedIgv($value)
                 'monto' => $precioConvertido,
                 'montodo' => null,
                 'glosa' => $this->observaciones,
+                'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     
             Log::info('Registro de movimientos relacionado con apertura realizado', [

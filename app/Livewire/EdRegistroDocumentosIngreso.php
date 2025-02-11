@@ -87,7 +87,7 @@ class EdRegistroDocumentosIngreso extends Component
         '10%' => 0.10,
         'No Gravado' => 0.00,
     ];
-    
+    public $cod_operacion;
     public function calculateIgv()
     {
         // Convertir base imponible a número flotante para evitar errores
@@ -202,7 +202,8 @@ class EdRegistroDocumentosIngreso extends Component
                 CO1.otroTributo, 
                 CO1.precio, 
                 CO1.detalle_producto, -- Detalle del producto
-                CO1.id_centroDeCostos
+                CO1.id_centroDeCostos,
+                INN1.numero_de_operacion
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -248,7 +249,9 @@ class EdRegistroDocumentosIngreso extends Component
             LEFT JOIN 
                 tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
             LEFT JOIN 
-                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+                tipodecaja ON CO1.id_dest_tipcaja = tipodecaja.id 
+            LEFT JOIN
+                (select distinct id_documentos,numero_de_operacion from movimientosdecaja where id_libro = '3') INN1 on INN1.id_documentos = CO1.id
             WHERE 
                 CO1.id_tipmov = 1 -- cxc
                 AND CO1.id = ?
@@ -277,6 +280,7 @@ class EdRegistroDocumentosIngreso extends Component
         $this->entidad = $result->entidad_descripcion; // Descripción de la entidad
         $this->nuevoDestinatario = $result->tipo_caja_descripcion; // Destinatario o tipo de caja
         $this->centroDeCostos = $result->id_centroDeCostos;
+        $this->cod_operacion = $result->numero_de_operacion;
 
         // Variables financieras
         $this->basImp = $result->base_imponible; // Base imponible
@@ -295,7 +299,13 @@ class EdRegistroDocumentosIngreso extends Component
     // Cargar datos iniciales
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'like', '0%')->get();
+        $familias1 = Familia::where('id', 'like', '0%')->get();
+
+        $familias2 = Familia::where('id', 'like', '1%')
+            ->where('id_tipofamilias', '=', '1')
+            ->get();
+
+        $this->familias = $familias1->merge($familias2);
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
@@ -669,7 +679,7 @@ class EdRegistroDocumentosIngreso extends Component
             'igv' => 'required|numeric|min:0',
             'noGravado' => 'required|numeric|min:0',
             'precio' => 'required|numeric|min:0.01',
-            'observaciones' => 'nullable|string|max:500',
+            'observaciones' => 'required|string|max:500',
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -802,6 +812,13 @@ class EdRegistroDocumentosIngreso extends Component
     
                 if (!empty($datos)) {
                     $data['movlibro'] = $datos[0]['mov'];
+                }else{
+                    $ultimoMovimiento = MovimientoDeCaja::where('id_libro', '1')
+                        ->lockForUpdate() // Bloqueo pesimista
+                        ->orderByRaw('CAST(mov AS UNSIGNED) DESC')
+                        ->first();
+                    $nuevoMov = $ultimoMovimiento ? intval($ultimoMovimiento->mov) + 1 : 1;
+                    $data['movlibro'] = $nuevoMov;
                 }
             }
     
@@ -939,6 +956,7 @@ class EdRegistroDocumentosIngreso extends Component
                     'monto' => $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 // El pago de documento
@@ -953,6 +971,7 @@ class EdRegistroDocumentosIngreso extends Component
                     'monto' => $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 Log::info('Registro de movimientos relacionado con apertura realizado', [

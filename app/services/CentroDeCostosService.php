@@ -51,27 +51,29 @@ class CentroDeCostosService
                     CO1.id_centroDeCostos
                 FROM (
                     SELECT 
-                        aperturas.id_tipo,
-                        movimientosdecaja.fec,
-                        movimientosdecaja.id_apertura,
-                        movimientosdecaja.mov,
-                        movimientosdecaja.id_documentos,
-                        INN1.id_detalle,
-                        documentos.id_entidades,
-                        CONCAT(documentos.serie, '-', documentos.numero) AS numero,
-                        id_cuentas,
-                        IF(id_dh = '1', monto, monto * -1) AS monto,
-                        glosa,
-                        id_centroDeCostos
-                    FROM movimientosdecaja
-                    LEFT JOIN documentos ON movimientosdecaja.id_documentos = documentos.id
-                    LEFT JOIN (
-                        SELECT id_referencia, id_detalle, id_centroDeCostos
-                        FROM d_detalledocumentos 
-                        LEFT JOIN l_productos ON d_detalledocumentos.id_producto = l_productos.id
-                    ) INN1 ON documentos.id = INN1.id_referencia
-                    LEFT JOIN aperturas ON movimientosdecaja.id_apertura = aperturas.id
-                    WHERE id_libro IN ('1', '2')
+                    aperturas.id_tipo,
+                    movimientosdecaja.fec,
+                    movimientosdecaja.id_apertura,
+                    movimientosdecaja.mov,
+                    movimientosdecaja.id_documentos,
+                    INN1.id_detalle,
+                    documentos.id_entidades,
+                    CONCAT(documentos.serie, '-', documentos.numero) AS numero,
+                    id_cuentas,
+                    if(id_tip_form = '1',IF(id_dh = '1', monto, monto * -1),if(id_tasasIgv='0',IF(id_dh = '1', monto*(total/(noGravadas)), 
+                    (monto*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '1', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
+                    IF(id_dh = '1', (precio-noGravadas)*(total/(basImp)), ((precio-noGravadas)*(total/(basImp))) * -1)))) AS monto,
+                    glosa,
+                    id_centroDeCostos
+                FROM movimientosdecaja
+                LEFT JOIN documentos ON movimientosdecaja.id_documentos = documentos.id
+                LEFT JOIN (
+                    SELECT id_referencia, id_detalle,total,id_tasas, id_centroDeCostos
+                    FROM d_detalledocumentos 
+                    LEFT JOIN l_productos ON d_detalledocumentos.id_producto = l_productos.id
+                ) INN1 ON documentos.id = INN1.id_referencia
+                LEFT JOIN aperturas ON movimientosdecaja.id_apertura = aperturas.id
+                WHERE id_libro IN ('1', '2')
                 ) CO1
                 LEFT JOIN detalle ON CO1.id_detalle = detalle.id
             ) CO2

@@ -17,6 +17,8 @@ use App\Livewire\EditVaucherDePago;
 use App\Livewire\EditVaucherDePagoVentas;
 use App\Livewire\RegistroDeIngresoAvanz;
 use App\Livewire\AplicacionDetail;
+use App\Livewire\BalanceCuentaAnalisis;
+use App\Livewire\BalanceCuentasView;
 use App\Livewire\EdRegistroDocumentosCxc;
 
 
@@ -26,7 +28,13 @@ use App\Livewire\ReporteCajaView;
 use App\Livewire\ReporteCajaXMesView;
 use App\Livewire\ReporteCajaXAnioView;
 use App\Livewire\ResultadoPorCentroDeCostos;
-
+use App\Livewire\TraspasoDetail;
+use App\Livewire\RegistroGeneralAvanz;
+use App\Livewire\ReporteAnaliticoCostoView;
+use App\Livewire\ReporteDiarioMatrizView;
+use App\Livewire\ReporteInconcistenciasView;
+use App\Livewire\ReporteRegistroComprasView;
+use App\Livewire\ReporteRegistroVentasView;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,14 +64,30 @@ Route::middleware([
         return view('tesoreria.aplicaciones', ['routeName' => 'aplicaciones']);
     })->name('aplicaciones');
 
-    Route::get('/pendientes/cxc', function () {
-        return view('deudas.documentos-cxc', ['routeName' => 'cxc']);
-    })->name('cxc');
+    Route::get('/tesoreria/traspasos', function () {
+        return view('tesoreria.traspasos', ['routeName' => 'traspasos']);
+    })->name('traspasos');
 
-    Route::get('/pendientes/cxp', function () {
-        return view('deudas.documentos-cxp', ['routeName' => 'cxp']);
-    })->name('cxp');
+    
 
+    Route::prefix('pendientes')->group(function () {
+        Route::get('/cxc', function () {
+            return view('deudas.documentos-cxc', ['routeName' => 'cxc']);
+        })->name('cxc');
+    
+        Route::get('/cxc/avanzado', RegistroGeneralAvanz::class)->name('cxc.avanzado');
+    
+        Route::get('/cxp', function () {
+            return view('deudas.documentos-cxp', ['routeName' => 'cxp']);
+        })->name('cxp');
+    
+        Route::get('/cxp/avanzado', RegistroGeneralAvanz::class)->name('cxp.avanzado');
+
+        Route::get('/importar', function () {
+            return view('deudas.importar', ['routeName' => 'importar']);
+        })->name('importar');
+    });
+    
     Route::get('/productos/familias', function () {
         return view('logistica.familia', ['routeName' => 'familias']);
     })->name('familias');
@@ -87,23 +111,9 @@ Route::middleware([
 
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
-        
-        Route::get('/registodocumentosingreso/avanzado', RegistroDeIngresoAvanz::class)->name('apertura.edit.registodocumentosingreso.avanzado');
-      /** 
-        Route::get('/registodocumentosingreso/edit', EditRegistroDocumentosIngreso::class)->name('apertura.edit.editregistodocumentosingreso');
-        Route::get('/registodocumentosegreso', RegistroDocumentosEgreso::class)->name('apertura.edit.registodocumentosegreso');
-        Route::get('/registodocumentosegreso/edit', EditRegistroDocumentosEgreso::class)->name('apertura.edit.editregistodocumentosegreso');
-        Route::get('/vaucherdepagos', VaucherPagoCompras::class)->name('apertura.edit.vaucherdepagos');
-        Route::get('/vaucherdepagos/edit', EditVaucherDePago::class)->name('apertura.edit.editvaucherdepagos');
-        Route::get('/vaucherdepagos/registrocxp', RegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp');
-        Route::get('/vaucherdepagos/registrocxp/nuevo', FormRegistroCxp::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxp');
-        Route::get('/vaucherdepagosventas', VaucherPagoVentas::class)->name('apertura.edit.vaucherdepagosventas');
-        Route::get('/vaucherdepagosventas/edit', EditVaucherDePagoVentas::class)->name('apertura.edit.editvaucherdepagosventas');
-        Route::get('/vaucherdepagosventas/registrocxc', RegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxc');
-        Route::get('/vaucherdepagosventas/registrocxc/nuevo', FormRegistroCxc::class)->name('apertura.edit.vaucherdepagos.registrocxp.formregistrocxc');
-        Route::get('/cuadroaplicaciones', CuadroAplicaciones::class)->name('apertura.edit.cuadroaplicaciones'); 
-        Route::get('/registodocumentosingreso', RegistroDocumentosIngreso::class)->name('apertura.edit.registodocumentosingreso');
-        */
+        Route::get('/avanzado',  RegistroGeneralAvanz::class)->name('apertura.avanzado');
+     
+     
 
     });
    /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
@@ -113,6 +123,11 @@ Route::middleware([
         Route::get('/', AplicacionDetail::class)->name('aplicacion.show');
     });
 
+    Route::prefix('traspasos/{traspasoId}')->group(function (){
+        Route::get('/', TraspasoDetail::class)->name('traspaso.show');
+    }); 
+    
+
     Route::get('/reportes/matriz-cobros', MatrizDeCobrosView::class)->name('reportes.matriz.cobros');
     Route::get('/reportes/matriz-pagos', MatrizDePagosView::class)->name('reportes.matriz.pagos');
 
@@ -120,6 +135,20 @@ Route::middleware([
     Route::get('/reportes/reporte-caja-mes', ReporteCajaXMesView::class)->name('reportes.reporte.caja.mes');
     Route::get('/reportes/reporte-caja-anio', ReporteCajaXAnioView::class)->name('reportes.reporte.caja.anio');
     Route::get('/reportes/Resultado-Por-Centro-De-Costos', ResultadoPorCentroDeCostos::class)->name('resultado.por.centro.de.costos');
+    Route::get('/reportes/reporte-registro-compras', ReporteRegistroComprasView::class)->name('reporte.registro.compras');
+Route::get('/reportes/reporte-registro-ventas', ReporteRegistroVentasView::class)->name('reporte.registro.ventas');
 
+Route::get('/reportes/balance-cuentas', BalanceCuentasView::class)->name('balance.cuentas');
+
+Route::prefix('/reportes/balance-cuentas/{tipoDeCuenta}')->group(function (){
+    Route::get('/', BalanceCuentaAnalisis::class)->name('balance.cuenta.analisis');
+}); 
+
+
+
+
+Route::get('/reportes/reporte-analitico-costo', ReporteAnaliticoCostoView::class)->name('reporte.analitico.costo');
+Route::get('/reportes/reporte-inconsistencias', ReporteInconcistenciasView::class)->name('reporte.inconsistencias');
+Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->name('reporte.diario.matriz');
  
 });

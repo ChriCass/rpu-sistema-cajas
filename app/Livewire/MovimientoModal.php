@@ -23,7 +23,7 @@ class MovimientoModal extends Component
 
     protected $rules = [
         'tipo_caja' => 'required',
-        'nuevo_año' => 'required|string',
+        'nuevo_año' => 'required',
         'nueva_fecha' => 'required|date',
         'nuevo_mes' => 'required',
         'nuevo_numero' => 'required',
@@ -130,12 +130,8 @@ public function insertNewApertura()
     {
         $this->tipoCajas = TipoDeCaja::all();
         $this->meses = Mes::all();
-        $años = Apertura::select('año')->distinct()->pluck('año')->toArray();
-        
-        // Formatear los años como un array de objetos con las claves 'key' y 'year'
-        $this->años = array_map(function ($año) {
-            return ['key' => $año, 'year' => $año];
-        }, $años);
+        $currentYear = now()->year;
+        $this->años = [$currentYear - 1,$currentYear, $currentYear + 1, $currentYear + 2];
  
     }
 

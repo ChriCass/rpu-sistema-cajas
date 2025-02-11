@@ -22,11 +22,15 @@
                 @endif
                 <div class="flex flex-wrap -mx-2">
                     <div class="mx-5">
-                        <button type="button" disabled
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button 
+                            type="button" 
+                            wire:navigate href="{{ route('cxc.avanzado', ['origen' => 'cxc']) }}" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             Avanzado
                         </button>
                     </div>
+                    
 
 
                     <div class="w-full flex justify-around flex-wrap -mx-2 mt-4 px-2">
@@ -121,7 +125,28 @@
                             </div>
                         </div>
                     </div>
+                    
+                <div class="w-full md:w-5/12 px-2">
+                    <div class="flex flex-wrap -mx-2 mt-4">
+                        <fieldset class="border border-gray-300 p-10 rounded-md w-full">
+                            <legend class="text-sm font-medium text-gray-700">T. Referencia</legend>
+                            <div class="flex flex-wrap">
+                                <div class="w-full md:w-7/12 px-2">
+                                    <x-select label="T.doc" placeholder="Selecc." :options="$tipoDocumentoRef" wire:model="id_t10tdocMod"
+                                    option-label="descripcion" option-value="id" />
 
+                                </div>
+                                <div class="w-full md:w-5/12 px-2 flex gap-3">
+                                    <x-input label="Serie" :disabled="$disableFields" wire:model="serieMod"
+                                        oninput="this.value = this.value.toUpperCase()" maxlength="4" />
+
+                                        <x-input label="Numero" :disabled="$disableFields" wire:model="numeroMod"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
                 </div>
                 <div class="flex flex-wrap -mx-2 mt-4">
                     <div class="w-full px-2">

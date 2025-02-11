@@ -25,16 +25,28 @@
 
                 <!-- Filtros de búsqueda -->
                 <div class="flex flex-wrap -mx-2 mt-4">
-                    <div class="w-3/12">
-                        <select wire:model.live="filterColumn" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm">
+                    <div class="w-full md:w-2/12 px-2">
+                        <select id="filterColumn" 
+                                x-data 
+                                x-ref="filterColumn" 
+                                @change="$wire.set('filterColumn', $refs.filterColumn.value).then(() => $wire.applyFilters())" 
+                                class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                            <option value="id_documentos">ID</option>
                             <option value="id_entidades">Entidades</option>
                             <option value="RZ">Descripción</option>
                             <option value="Descripcion">Cuenta</option>
+                            <option value="Num">Numero</option>
                         </select>
                     </div>
-                    <div class="w-7/12">
-                        <input wire:model.live="searchTerm" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm" placeholder="Buscar..." />
+                    
+                    <div class="w-6/12">
+                        <x-input id="searchInput" 
+                                 x-data 
+                                 x-ref="searchInput" 
+                                 @input.debounce.500ms="$wire.set('searchValue', $refs.searchInput.value).then(() => $wire.applyFilters())" 
+                                 placeholder="Buscar..." />
                     </div>
+                    
                 </div>
 
                 <!-- Tabla de aplicaciones -->
@@ -51,6 +63,7 @@
                                 <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">Moneda</th>
                                 <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">Cuenta</th>
                                 <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">Monto</th>
+                                <th class="py-2 px-4 bg-gray-200 text-left text-xs font-semibold text-gray-700 uppercase">DH</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,6 +91,7 @@
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->Mon }}</td>
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->Descripcion }}</td>
                                     <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->monto }}</td>
+                                    <td class="py-2 px-4 border-b border-gray-200 text-sm">{{ $aplicacion->rt }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

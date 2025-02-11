@@ -28,14 +28,26 @@
                         <x-input readonly label="Moneda" wire:model="moneda" />
                     </div>
                     <div class="w-full md:w-4/12 px-2">
-                        <select id="filterColumn" class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                        <select id="filterColumn" 
+                                x-data 
+                                x-ref="filterColumn" 
+                                @change="$wire.set('filterColumn', $refs.filterColumn.value).then(() => $wire.applyFilters())" 
+                                class="w-full mb-3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                            <option value="id_documentos">ID</option>
                             <option value="id_entidades">Entidades</option>
                             <option value="RZ">Descripción</option>
                             <option value="Descripcion">Cuenta</option>
+                            <option value="Num">Numero</option>
                         </select>
-                        
-                        <x-input id="searchInput" placeholder="Buscar..." />
+                    
+                        <x-input id="searchInput" 
+                                 x-data 
+                                 x-ref="searchInput" 
+                                 @input.debounce.500ms="$wire.set('searchValue', $refs.searchInput.value).then(() => $wire.applyFilters())" 
+                                 placeholder="Buscar..." />
                     </div>
+                    
+                    
                 </div>
 
                 <div class="overflow-x-auto mt-5">
@@ -94,38 +106,4 @@
     </x-modal>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const filterColumn = document.getElementById('filterColumn');
-        const searchInput = document.getElementById('searchInput');
-        const table = document.getElementById('pendientesTable').getElementsByTagName('tbody')[0];
-
-        searchInput.addEventListener('input', function () {
-            const searchTerm = this.value.toLowerCase();
-            const selectedColumn = filterColumn.value;
-            const columnIndex = getColumnIndex(selectedColumn);
-
-            for (let row of table.rows) {
-                const cell = row.cells[columnIndex];
-                if (cell && cell.textContent.toLowerCase().includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
-
-        function getColumnIndex(column) {
-            switch (column) {
-                case 'id_entidades':
-                    return 3;
-                case 'RZ':
-                    return 4;
-                case 'Descripcion':
-                    return 7;
-                default:
-                    return 1; 
-            }
-        }
-    });
-</script>
+ 

@@ -79,7 +79,7 @@ class RegistroDocumentosEgreso extends Component
     public $noGravado = 0;
     public $precio = 0;
     public $tipoCaja;
-
+    public $cod_operacion;
     protected $apiService; // Abelardo = Cree un service para el Api de busqueda de Ruc 
     // Add a method to calculate the price
    // Function to calculate IGV based on base imponible and tasa 
@@ -346,13 +346,13 @@ public function updatedIgv($value)
                             -> where('desripcion', 'GENERAL')-> get() ->toarray();
         $this->subfamiliaId = $subfamilia[0]['ic'];
 
-        $detalle = Detalle::where('descripcion', 'RENDICIONES POR PAGAR')->first(); // Encontrar el detalle correcto
+        $detalle = Detalle::where('descripcion', 'RENDICIONES POR COBRAR')->first(); // Encontrar el detalle correcto
 
         if ($detalle) {
             $this->detalleId = $detalle->id;
             Log::info('Detalle encontrado: ', ['id' => $detalle->id, 'descripcion' => $detalle->descripcion]);
         } else {
-            Log::warning('No se encontró el detalle con la descripción: RENDICIONES POR PAGAR');
+            Log::warning('No se encontró el detalle con la descripción: RENDICIONES POR COBRAR');
         }
 
         $this->tasaIgvId = TasaIgv::where('tasa', 'No Gravado')->first()->tasa;
@@ -453,14 +453,14 @@ public function updatedIgv($value)
                             -> where('desripcion', 'GENERAL')-> get() ->toarray();
         $this->subfamiliaId = $subfamilia[0]['ic'];
 
-        // Obtener detalle por descripcion 'ANTICIPOS A CLIENTES'
-        $detalle = Detalle::where('descripcion', 'ANTICIPOS A CLIENTES')->first();
+        // Obtener detalle por descripcion 'ANTICIPOS DE PROVEEDORES'
+        $detalle = Detalle::where('descripcion', 'ANTICIPOS DE PROVEEDORES')->first();
 
         if (!empty($detalle)) {
             $this->detalleId = $detalle->id; // Asignamos el ID
             Log::info('Detalle encontrado: ', ['id' => $detalle->id, 'descripcion' => $detalle->descripcion]);
         } else {
-            Log::warning('No se encontró el detalle con la descripción: ANTICIPOS A CLIENTES');
+            Log::warning('No se encontró el detalle con la descripción: ANTICIPOS DE PROVEEDORES');
         }
         $tasaIgv = TasaIgv::where('tasa', 'No Gravado')->first();
 
@@ -556,7 +556,7 @@ public function updatedIgv($value)
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'observaciones' => 'required|string|max:500', // TextBox29
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -798,6 +798,7 @@ public function updatedIgv($value)
                     'monto' => $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 // Registro del pago del documento
@@ -812,6 +813,7 @@ public function updatedIgv($value)
                     'monto' => $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
+                    'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
     
                 Log::info('Registro de movimientos relacionado con apertura realizado', [

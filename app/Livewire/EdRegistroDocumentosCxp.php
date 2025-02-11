@@ -48,9 +48,9 @@ class EdRegistroDocumentosCxp extends Component
     public $entidad;
     public $nuevoDestinatario;
     public $centroDeCostos;
-    public  $monedaId;
-    public        $tasaIgvId;
-
+    public $monedaId;
+    public $tasaIgvId;
+    public $tipoDocumentoRef;
     // Variables para la consulta secundaria
     public $basImp;
     public $igv = 0;
@@ -73,6 +73,9 @@ class EdRegistroDocumentosCxp extends Component
     public $tipoDocIdentidades;
     public $destinatarioVisible = false;
     public $user;
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
     ///tiene detraccion
 
     public $toggle = false;
@@ -193,7 +196,10 @@ class EdRegistroDocumentosCxp extends Component
                 CO1.detalle_producto, -- Detalle del producto
                 CO1.id_centroDeCostos,
                 CO1.detraccion,
-                CO1.montoNeto
+                CO1.montoNeto,
+                CO1.id_t10tdocMod,
+                CO1.serieMod,
+                CO1.numeroMod
             FROM 
                 (SELECT 
                     documentos.id, 
@@ -220,7 +226,10 @@ class EdRegistroDocumentosCxp extends Component
                     detalle.descripcion AS detalle_producto, -- Descripción del producto
                     d_detalledocumentos.id_centroDeCostos,
                     detraccion,
-                    montoNeto
+                    montoNeto,
+                    id_t10tdocMod,
+                    serieMod,
+                    numeroMod
                 FROM 
                     documentos 
                 LEFT JOIN 
@@ -241,7 +250,7 @@ class EdRegistroDocumentosCxp extends Component
             LEFT JOIN 
                 tasas_igv ON CO1.id_tasasIgv = tasas_igv.id 
             LEFT JOIN 
-                tipoDeCaja ON CO1.id_dest_tipcaja = tipoDeCaja.id 
+                tipodecaja ON CO1.id_dest_tipcaja = tipodecaja.id 
             WHERE 
                 CO1.id_tipmov = 2-- cxc
                 AND CO1.id = ?
@@ -276,6 +285,9 @@ class EdRegistroDocumentosCxp extends Component
         $this->otrosTributos = $result->otroTributo; // Otros tributos
         $this->precio = $result->precio; // Precio total
         $this->montoDetraccion = $result->detraccion;
+        $this->id_t10tdocMod = $result->id_t10tdocMod;
+        $this->serieMod = $result->serieMod;
+        $this->numeroMod = $result->numeroMod;
         if($result->montoNeto>0){
             $this->montoNeto = $result->montoNeto;
             $this->porcentaje = round(($this->montoDetraccion/$result->precio) * 100,0);
@@ -323,7 +335,7 @@ class EdRegistroDocumentosCxp extends Component
         '10%' => 0.10,
         'No Gravado' => 0.00,
     ];
-    
+    public $cod_operacion;
     public function calculateIgv()
     {
         // Convertir base imponible a número flotante para evitar errores
@@ -417,11 +429,12 @@ class EdRegistroDocumentosCxp extends Component
 
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'not like', '0%')->get();
+        $this->familias = Familia::where('id', '<>', '002')->get();
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all(); 
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
 
     public function submit()
@@ -446,7 +459,7 @@ class EdRegistroDocumentosCxp extends Component
                 'igv' => 'required|numeric|min:0',
                 'noGravado' => 'required|numeric|min:0',
                 'precio' => 'required|numeric|min:0.01',
-                'observaciones' => 'nullable|string|max:500',
+                'observaciones' => 'required|string|max:500',
             ], [
                 'required' => 'El campo es obligatorio',
                 'numeric' => 'Debe ser un valor numérico',
@@ -599,7 +612,10 @@ class EdRegistroDocumentosCxp extends Component
             'monedaId',
             'tasaIgvId',
             'observaciones',
-            'entidad'
+            'entidad',
+            'id_t10tdocMod',
+            'serieMod',
+            'numeroMod'
         ]);
     }
 
@@ -617,21 +633,35 @@ class EdRegistroDocumentosCxp extends Component
     
             // Verificar si es del tipo de familia que necesita ingresar movimientos
             if ($tipoFamilia[0]['id_tipofamilias'] == '2') {
+                $Lib = '2'; 
+            }else{
+                $Lib = '7';
+            }
+
+            Log::info('Datos obtenidos de MovimientoDeCaja:', [
+                'familiaId' => $this->familiaId,
+                'idmov' => $idmov,
+            ]);
+    
+
+
+
                 // Obtener el movimiento de caja con bloqueo pesimista
                 $datos = MovimientoDeCaja::select('mov')
                     ->lockForUpdate() // Bloqueo pesimista
                     ->where('id_documentos', $idmov)
-                    ->where('id_libro', '2')
+                    ->where('id_libro', $Lib)
                     ->get()
                     ->toArray();
-    
+
+
                 // Asegurarse de que existan datos
                 if (count($datos) > 0) {
                     $data['movlibro'] = $datos[0]['mov'];
                 } else {
                     $data['movlibro'] = null; // Si no hay registros, se guarda como null
                 }
-            }
+            
     
             // Eliminar registros relacionados de movimientos de caja
             MovimientoDeCaja::where('id_documentos', $idmov)->delete();
@@ -666,8 +696,14 @@ class EdRegistroDocumentosCxp extends Component
                 'familiaId' => $this->familiaId,
             ]);
     
+            $tipoFamilia = Familia::select('id_tipofamilias')
+            ->lockForUpdate() // Bloqueo pesimista
+            ->where('id', $this->familiaId)
+            ->get()
+            ->toArray();
+
             // Determinar si es una transferencia o no
-            $lib = ($this->familiaId == '001') ? '5' : '2';
+            $lib = ($tipoFamilia[0]['id_tipofamilias'] == '2') ? '2' : '7';
             Log::info('Determinado tipo de libro', ['lib' => $lib]);
     
             // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
@@ -701,14 +737,8 @@ class EdRegistroDocumentosCxp extends Component
                 Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
             }
     
-            $tipoFamilia = Familia::select('id_tipofamilias')
-                ->lockForUpdate() // Bloqueo pesimista
-                ->where('id', $this->familiaId)
-                ->get()
-                ->toArray();
     
             // Registro en movimientosdecaja para ingresos
-            if ($tipoFamilia[0]['id_tipofamilias'] == '2') {
                 // Crear el primer registro en todos los casos
                 MovimientoDeCaja::create([
                     'id_libro' => $lib,
@@ -716,7 +746,7 @@ class EdRegistroDocumentosCxp extends Component
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
-                    'id_dh' => 2,
+                    'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
                     'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
@@ -730,7 +760,7 @@ class EdRegistroDocumentosCxp extends Component
                         'fec' => $fechaEmi,
                         'id_documentos' => $documentoId,
                         'id_cuentas' => 4,
-                        'id_dh' => 2,
+                        'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
                         'monto' => $detraConvertido,
                         'montodo' => null,
                         'glosa' => $this->observaciones,
@@ -742,8 +772,7 @@ class EdRegistroDocumentosCxp extends Component
                     'id_documentos' => $documentoId,
                     'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido
                 ]);
-            }
-    
+            
             // Confirmación de registro exitoso
             Log::info('Documento y movimiento de caja registrados exitosamente');
             session()->flash('message', 'Documento y movimiento de caja registrados exitosamente.');

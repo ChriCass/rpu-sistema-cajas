@@ -23,12 +23,12 @@
             <div class="flex flex-wrap -mx-2">
                 <div class="mx-5">
                     <button 
-                        type="button" 
-                        disabled
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Avanzado
-                    </button>
+                    type="button" 
+                    wire:navigate href="{{ route('apertura.avanzado', ['aperturaId' => $aperturaId, 'origen' => 'egreso' ]) }}" 
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Avanzado
+                </button>
                 </div>
                 
 
@@ -133,6 +133,10 @@
             <div class="flex flex-wrap -mx-2 mt-4">
                 <div class="w-full px-2">
                     <x-input wire:model.live='observaciones'   label="Observaciones:" oninput="this.value = this.value.toUpperCase()"/>
+                </div>
+                <div class="w-full md:w-2/12 mt-4  px-2">
+                    <x-input wire:model.live='cod_operacion' label="Codigo de operacion"
+                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
                 </div>
             </div>
             <div class="flex flex-wrap justify-between -mx-2 mt-4">

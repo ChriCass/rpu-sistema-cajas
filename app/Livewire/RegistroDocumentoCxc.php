@@ -36,6 +36,7 @@ class RegistroDocumentoCxc extends Component
     public $tasaIgvId; // ID de la tasa de IGV seleccionada
     public $monedaId; // ID de la moneda seleccionada
     public $tipoDocumento; // ID del tipo de documento seleccionado
+    public $tipoDocumentoRef;
     public $serieNumero1; // Parte 1 del número de serie
     public $serieNumero2; // Parte 2 del número de serie
     public $tipoDocId; // Tipo de documento de identificación
@@ -49,6 +50,9 @@ class RegistroDocumentoCxc extends Component
     public $nuevoDestinatario;
     public $centroDeCostos; // Abelardo = Recoje el centro de costos
     public $lenIdenId; // Abelardo = recoje el largo del imput
+    public $id_t10tdocMod;
+    public $serieMod;
+    public $numeroMod;
 
     public $familias = []; // Lista de familias
     public $subfamilias = []; // Lista de subfamilias filtradas
@@ -89,6 +93,8 @@ class RegistroDocumentoCxc extends Component
     public $porcentaje;
     public $validacionDet;
 
+
+    public $cod_operacion;
     public function updatedmontoDetraccion ($value){
         if($value <> ''){
             $this -> montoNeto = $this -> precio - $value;
@@ -228,11 +234,18 @@ class RegistroDocumentoCxc extends Component
     // Cargar datos iniciales
     public function loadInitialData()
     {
-        $this->familias = Familia::where('id', 'like', '002%')->get();
+        $familias1 = Familia::where('id', 'like', '0%')->get();
+
+        $familias2 = Familia::where('id', 'like', '1%')
+            ->where('id_tipofamilias', '=', '1')
+            ->get();
+
+        $this->familias = $familias1->merge($familias2);
         $this->tasasIgv = TasaIgv::all();
         $this->monedas = TipoDeMoneda::all();
         $this->detalles = Detalle::all();
         $this->CC = CentroDeCostos::all(); // Abelardo = Añadi para el select de centro de costos
+        $this->tipoDocumentoRef = TipoDeComprobanteDePagoODocumento::all();
     }
 
     public function buscarDescripcionTipoDocumento()
@@ -369,7 +382,10 @@ class RegistroDocumentoCxc extends Component
             'monedaId',
             'tasaIgvId',
             'observaciones',
-            'entidad'
+            'entidad',
+            'id_t10tdocMod',
+            'serieMod',
+            'numeroMod' 
         ]);
     }
 
@@ -411,7 +427,7 @@ class RegistroDocumentoCxc extends Component
             'igv' => 'required|numeric|min:0', // TextBox14
             'noGravado' => 'required|numeric|min:0', // TextBox13
             'precio' => 'required|numeric|min:0.01', // TextBox17
-            'observaciones' => 'nullable|string|max:500', // TextBox29
+            'observaciones' => 'required|string|max:500', // TextBox29
         ], [
             'required' => 'El campo es obligatorio',
             'numeric' => 'Debe ser un valor numérico',
@@ -549,7 +565,7 @@ class RegistroDocumentoCxc extends Component
         ]);
     
         // Determinar si es una transferencia o no
-        $lib = ($this->familiaId == '001') ? '5' : '1';
+        $lib = ($this->familiaId == '002') ? '1' : '7';
         Log::info('Determinado tipo de libro', ['lib' => $lib]);
     
         // Obtener la cuenta de caja o el ID de cuenta desde Logistica.detalle
@@ -591,15 +607,14 @@ class RegistroDocumentoCxc extends Component
         Log::info('Nuevo movimiento asignado', ['nuevoMov' => $nuevoMov]);
     
         // Registro en movimientosdecaja para ingresos
-        if ($this->familiaId == '002') { // INGRESOS
             // Crear el primer registro en todos los casos
             MovimientoDeCaja::create([
                 'id_libro' => $lib,
                 'mov' => $nuevoMov,
                 'fec' => $fechaEmi,
                 'id_documentos' => $documentoId,
-                'id_cuentas' => 1,
-                'id_dh' => 1,
+                'id_cuentas' => $cuentaId,
+                'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                 'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
                 'montodo' => null,
                 'glosa' => $this->observaciones,
@@ -613,12 +628,11 @@ class RegistroDocumentoCxc extends Component
                     'fec' => $fechaEmi,
                     'id_documentos' => $documentoId,
                     'id_cuentas' => 2,
-                    'id_dh' => 1,
+                    'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
                     'monto' => $detraConvertido,
                     'montodo' => null,
                     'glosa' => $this->observaciones,
                 ]);
-            }
 
             // Registrar en el log
             Log::info('Registro de ingresos en movimientosdecaja realizado', [

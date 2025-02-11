@@ -140,23 +140,25 @@ FROM (
         CO1.glosa 
     FROM (
         SELECT 
-            movimientosdecaja.mov,
-            movimientosdecaja.id_documentos,
-            INN1.id_detalle,
-            documentos.id_entidades,
-            CONCAT(documentos.serie, '-', documentos.numero) AS numero,
-            IF(id_dh = '2', monto, monto * -1) AS monto,
-            glosa
-        FROM 
-            movimientosdecaja
-        LEFT JOIN 
-            documentos ON movimientosdecaja.id_documentos = documentos.id
-        LEFT JOIN 
-			(select id_referencia,id_detalle from d_detalledocumentos left join l_productos on d_detalledocumentos.id_producto = l_productos.id) 
-			INN1 ON documentos.id = INN1.id_referencia
-        WHERE 
-            id_cuentas <> ?
-            AND id_apertura = ?
+		movimientosdecaja.mov,
+		movimientosdecaja.id_documentos,
+		INN1.id_detalle,
+		documentos.id_entidades,
+		CONCAT(documentos.serie, '-', documentos.numero) AS numero,
+		if(id_tip_form = '1',IF(id_dh = '2', monto, monto * -1),if(id_tasasIgv='0',IF(id_dh = '2', monto*(total/(noGravadas)), 
+		(monto*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '2', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
+		IF(id_dh = '2', (precio-noGravadas)*(total/(basImp)), ((precio-noGravadas)*(total/(basImp))) * -1)))) AS monto,
+		glosa
+	FROM 
+		movimientosdecaja
+	LEFT JOIN 
+		documentos ON movimientosdecaja.id_documentos = documentos.id
+	LEFT JOIN 
+		(select id_referencia,id_detalle,total,id_tasas from d_detalledocumentos left join l_productos on d_detalledocumentos.id_producto = l_productos.id) 
+		INN1 ON documentos.id = INN1.id_referencia
+	WHERE 
+		id_cuentas <> ?
+		AND id_apertura = ?
     ) CO1
     LEFT JOIN 
         detalle ON CO1.id_detalle = detalle.id

@@ -17,6 +17,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Livewire\Attributes\On;
+
 final class SubFamiliaTable extends PowerGridComponent
 {
     use WithExport;
@@ -31,39 +32,43 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->type(Exportable::TYPE_XLS), 
         ];
     }
-
+     
     public function datasource(): Builder
     {
         return SubFamilia::query()
             ->join('familias', 'subfamilias.id_familias', '=', 'familias.id')
             ->where('subfamilias.id_familias', 'NOT LIKE', '0%')
             ->select(
-                'subfamilias.id', 
+                'subfamilias.id',
+                'subfamilias.id as il',  
                 'subfamilias.id_familias',
-                'subfamilias.desripcion', 
+                'subfamilias.desripcion',
+                'familias.id as familias_id',
                 'familias.descripcion as familia_descripcion'
             )
             ->orderBy('familias.id', 'ASC');
     }
-
+    
+    
     public function relationSearch(): array
     {
         return [];
     }
+    
 
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('il')
             ->add('descripcion')
             ->add('id_familias')
             ->add('familia_descripcion');
     }
-
+    
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')
+            Column::make('Id', 'il')
                 ->searchable(),
             Column::make('Descripcion', 'desripcion')
                 ->searchable(),
@@ -72,7 +77,6 @@ final class SubFamiliaTable extends PowerGridComponent
             Column::action('Acciones')->visibleInExport(visible: false)
         ];
     }
-
     public function filters(): array
     {
      
@@ -84,7 +88,7 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->dataSource(Familia::all())
                 ->optionValue('id')
                 ->optionLabel('descripcion'),
-                Filter::inputText('id')
+                Filter::inputText('il')
                 ->operators(['contains'])
                 ->builder(function (Builder $builder, $value) {
                     // Log the value to see what is received
@@ -117,9 +121,8 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-                ->openModal('edit-sub-familia-modal', ['subfamiliaId' => $row->id])
+                ->openModal('edit-sub-familia-modal', ['subfamiliaId' => $row->il,'familiasId' => $row->familias_id])
         ];
     }
-
  
 }
