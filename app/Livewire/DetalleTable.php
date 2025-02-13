@@ -145,7 +145,12 @@ final class DetalleTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-                ->openModal('edit-detalle-modal', ['detalleId' => $row->id])
+                ->openModal('edit-detalle-modal', ['detalleId' => $row->id]),
+                Button::add('edit')
+                ->slot('Borrar')
+                ->id()
+                ->class('bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded')
+                ->openModal('delete-detalle-modal', ['detalleId' => $row->id])
         ];
     }
 
