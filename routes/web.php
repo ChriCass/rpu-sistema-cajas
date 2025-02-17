@@ -113,6 +113,11 @@ Route::middleware([
         return view('configuracion.cuentas', ['routeName' => 'cuentas']);
     })->name('cuentas');
 
+    
+    Route::get('/configuracion/cajas', function () {
+        return view('configuracion.cajas', ['routeName' => 'cajas']);
+    })->name('cajas');
+
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
         Route::get('/avanzado',  RegistroGeneralAvanz::class)->name('apertura.avanzado');
