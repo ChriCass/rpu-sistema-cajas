@@ -11,8 +11,11 @@ class TipoDeCaja extends Model
 
     protected $table = 'tipodecaja';
 
-    protected $fillable = ['descripcion'];
+
+    protected $fillable = ['descripcion','t04_tipodemoneda'];
+
     public $timestamps = false;
+
     public function aperturas()
     {
         return $this->hasMany(Apertura::class, 'id_tipo');

@@ -19,10 +19,10 @@ class VaucherDeAplicaciones extends Component
     // Propiedad para controlar la visibilidad del contenido
     public $showContent = false;
     public $fecha;
-    public $moneda = 'PEN';
+    public $moneda;
     public $aplicacionesId = null;
     public $detalles = [];
-
+    public $openModal = false;
     public $monedas;
 
     public $contenedor = []; // Contenedor para acumular los detalles seleccionados
@@ -42,6 +42,10 @@ class VaucherDeAplicaciones extends Component
         $this->monedas = TipoDeMoneda::all();
         $this->fecha = Carbon::now('America/Lima')->toDateString();
 
+    }
+
+    public function updatedmoneda($value){
+        Log::info($value);
     }
 
     #[On('sendingContenedorAplicaciones')]
@@ -170,7 +174,14 @@ class VaucherDeAplicaciones extends Component
                 $monto = ($detalle['montodebe'] !== null) ? $detalle['montodebe'] : $detalle['montohaber'];
                 $id_dh = ($detalle['montodebe'] !== null) ? 1 : 2;
 
-            
+                if($this->moneda == 'USD'){
+                    $montos = $this->TTpCambio($monto, $cuenta, $detalle['id']);
+                    $montod = $monto;
+                } else {
+                    $montos = $monto;
+                    $montod = null;
+                }
+
                 // Crear movimiento de caja
                 MovimientoDeCaja::create([
                     'id_libro' => 4,
@@ -179,8 +190,8 @@ class VaucherDeAplicaciones extends Component
                     'id_documentos' => $detalle['id'],
                     'id_cuentas' => $cuenta->id,
                     'id_dh' => $id_dh,
-                    'monto' => $monto,
-                    'montodo' => null,
+                    'monto' => $montos,
+                    'montodo' => $montod,
                     'glosa' => $detalle['entidades'] . " " . $detalle['num'],
                 ]);
     
@@ -207,7 +218,55 @@ class VaucherDeAplicaciones extends Component
         }
     }
     
+    public function TTpCambio($monto,$cuenta,$id){
+
+        Log::info('Ingreso a TTpCambio', [
+            'monto' => $monto,
+            'cuenta_id' => $cuenta->id,
+            'documento_id' => $id,
+        ]);
+        
+        $dh = $cuenta->id_tcuenta == 2 ? 1 : 2; // Acceder correctamente a la propiedad del objeto
+
+        $consulta = DB::select("
+            SELECT 
+                id_documentos, 
+                id_cuentas, 
+                ROUND(SUM(IF(id_dh = :dh1, monto, monto * -1)), 2) AS total_monto,
+                ROUND(SUM(IF(id_dh = :dh2, montodo, montodo * -1)), 2) AS total_montodo 
+            FROM movimientosdecaja 
+            WHERE id_cuentas = :cuenta 
+            AND id_documentos = :id 
+            GROUP BY id_cuentas, id_documentos;
+        ", [
+            'dh1' => $dh,
+            'dh2' => $dh,
+            'cuenta' => $cuenta->id, // Acceder correctamente al ID de la cuenta
+            'id' => $id,
+        ]);
+        
+        $resultado = $consulta[0];
+
+        if ($resultado->total_montodo - $monto == 0){
+            return $resultado->total_monto;
+        }else{
+            $tipoCambio = TipoDeCambioSunat::where('fecha',$this->fecha)
+            ->lockForUpdate()
+            ->first()->venta ?? 1;
     
+            $montoConvertido = round($monto * $tipoCambio, 2);
+            
+            Log::info('Se aplicó tipo de cambio', [
+                'fecha' => $this->fecha,
+                'tipo_cambio' => $tipoCambio,
+                'monto_original' => $monto,
+                'monto_convertido' => $montoConvertido
+            ]);
+        
+            return $montoConvertido;
+        }
+
+    }
 
     // Función para alternar la visibilidad
     public function toggleContent()
@@ -239,6 +298,13 @@ class VaucherDeAplicaciones extends Component
         Log::info("Balance actualizado: $this->balance");
     }
 
+    public function largo(){
+        $this->openModal = true;
+        $data['modal'] = $this->openModal;
+        $data['moneda'] = $this->moneda;
+        $data['fecha'] = $this->fecha;
+        $this->dispatch('AbrirModal', $data);
+    }
 
     public function render()
     {

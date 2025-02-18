@@ -285,6 +285,7 @@ class RegistroDocAvanzService
                     $cuentasDetraccion = 4;
                 }
 
+
                 MovimientoDeCaja::create([
                     'id_libro' => $libro,
                     'mov' => $nuevoMov,
@@ -292,8 +293,8 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
                     'id_dh' => $dh,
-                    'monto' => $data['montoNeto'],
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $this->convertirPrecio($data['monedaId'], $data['montoNeto'], $data['fechaEmi']):$data['montoNeto'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['montoNeto']:$this->convertirPrecio($data['monedaId'], $data['montoNeto'], $data['fechaEmi']),
                     'glosa' => $data['observaciones'],
                 ]);
                 MovimientoDeCaja::create([
@@ -303,11 +304,18 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentasDetraccion,
                     'id_dh' => $dh,
-                    'monto' => $data['montoDetraccion'],
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $this->convertirPrecio($data['monedaId'], $data['montoDetraccion'], $data['fechaEmi']):$data['montoDetraccion'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['montoDetraccion']:$this->convertirPrecio($data['monedaId'], $data['montoDetraccion'], $data['fechaEmi']),
                     'glosa' => $data['observaciones'],
                 ]);
             }else{
+
+                if ($data['origen'] == 'ingreso' || $data['origen'] == 'editar_ingreso' || $data['origen'] == 'egreso' || $data['origen'] == 'editar_egreso'){
+                    $precioConvertido = $data['monedaId'] == 'USD' ? $this->convertirPrecio($data['monedaId'], $data['precio'], $data['fechaEmi']) : null;
+                }else{
+                    $precioConvertido = $this->convertirPrecio($data['monedaId'], $data['precio'], $data['fechaEmi']);
+                }
+
                 MovimientoDeCaja::create([
                     'id_libro' => $libro,
                     'mov' => $nuevoMov,
@@ -315,8 +323,8 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
                     'id_dh' => $dh,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $precioConvertido:$data['precio'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['precio']:$precioConvertido,
                     'glosa' => $data['observaciones'],
                 ]);
             }
@@ -350,14 +358,14 @@ class RegistroDocAvanzService
 
     protected function convertirPrecio($monedaId, $precio, $fechaEmi)
     {
-        if ($monedaId === 'USD') {
-            $tipoCambio = TipoDeCambioSunat::lockForUpdate()
+        $tipoCambio = TipoDeCambioSunat::lockForUpdate()
                 ->where('fecha', $fechaEmi)
                 ->first()->venta ?? 1;
+        if ($monedaId === 'USD') {
             return round($precio * $tipoCambio, 2);
+        }else{
+            return round($precio / $tipoCambio, 2);
         }
-
-        return $precio;
     }
 
     protected function registrarAperturaRelacionada(int $documentoId, int $nuevoMov, float $precioConvertido, array $data)
@@ -388,8 +396,8 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuenta->id,
                     'id_dh' => 1,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $precioConvertido:$data['precio'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['precio']:$precioConvertido,
                     'glosa' => $data['observaciones'],
                     'numero_de_operacion' => $data['cod_operacion'],
                 ]);
@@ -403,8 +411,8 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $data['cuenta'],
                     'id_dh' => 2,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $precioConvertido:$data['precio'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['precio']:$precioConvertido,
                     'glosa' => $data['observaciones'],
                     'numero_de_operacion' => $data['cod_operacion'],
                 ]);    
@@ -419,8 +427,8 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $data['cuenta'],
                     'id_dh' => 1,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $precioConvertido:$data['precio'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['precio']:$precioConvertido,
                     'glosa' => $data['observaciones'],
                     'numero_de_operacion' => $data['cod_operacion'],
                 ]); 
@@ -433,8 +441,8 @@ class RegistroDocAvanzService
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuenta->id,
                     'id_dh' => 2,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $data['monedaId'] == 'USD' ? $precioConvertido:$data['precio'],
+                    'montodo' => $data['monedaId'] == 'USD' ? $data['precio']:$precioConvertido,
                     'glosa' => $data['observaciones'],
                     'numero_de_operacion' => $data['cod_operacion'],
                 ]);

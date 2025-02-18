@@ -35,6 +35,7 @@
                     option-label="descripcion"
                     option-value="id"
                     x-model="filtroMes"
+                    x-init="filtroMes = new Date().getMonth() + 1"
                     @change="$wire.filterByMonth(filtroMes)"
                 />
             </div>
@@ -47,6 +48,7 @@
                     option-label="anio"
                     option-value="anio"
                     x-model="filtroAnio"
+                    x-init="filtroAnio = new Date().getFullYear()"
                     @change="$wire.filterByYear(filtroAnio)"
                 />
             </div>

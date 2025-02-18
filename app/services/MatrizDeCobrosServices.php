@@ -81,7 +81,7 @@ FROM (
             DATE_FORMAT(CAST(fechaVen AS DATE), '%d/%m/%Y') AS fechaVen,
             observaciones,
             id_user,
-            IF(montoNeto = 0, precio, montoNeto) AS Facturado
+            IFNULL(NULLIF(montoNeto, 0), precio) AS Facturado
         FROM (
             SELECT 
                 id_documentos,
@@ -241,7 +241,7 @@ FROM (
             DATE_FORMAT(CAST(fechaVen AS DATE), '%d/%m/%Y') AS fechaVen,
             observaciones,
             id_user,
-            IF(montoNeto = 0, precio, montoNeto) AS Facturado
+            IFNULL(NULLIF(montoNeto, 0), precio) AS Facturado
         FROM (
             SELECT 
                 id_documentos,
@@ -401,7 +401,7 @@ FROM (
             DATE_FORMAT(CAST(fechaVen AS DATE), '%d/%m/%Y') AS fechaVen,
             observaciones,
             id_user,
-            IF(montoNeto = 0, precio, montoNeto) AS Facturado
+            IFNULL(NULLIF(montoNeto, 0), precio) AS Facturado
         FROM (
             SELECT 
                 id_documentos,

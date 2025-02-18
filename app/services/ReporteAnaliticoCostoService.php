@@ -58,8 +58,8 @@ class ReporteAnaliticoCostoService {
                     documentos.serie,documentos.numero,
                     id_cuentas,
                     if(id_tip_form = '1',IF(id_dh = '1', monto, monto * -1),if(id_tasasIgv='0',IF(id_dh = '1', monto*(total/(noGravadas)), 
-                    (monto*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '1', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
-                    IF(id_dh = '1', (precio-noGravadas)*(total/(basImp)), ((precio-noGravadas)*(total/(basImp))) * -1)))) AS monto,
+                    (monto*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '1', monto*(total/(noGravadas)), (monto*(total/(noGravadas))) * -1),
+                    IF(id_dh = '1', (monto)*(total/(basImp)), ((monto)*(total/(basImp))) * -1)))) AS monto,
                     glosa,
                     id_centroDeCostos
                 FROM movimientosdecaja

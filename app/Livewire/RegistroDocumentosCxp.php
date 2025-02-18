@@ -568,12 +568,12 @@ class RegistroDocumentosCxp extends Component
                 Log::info('Cuenta asignada desde Logistica.detalle', ['cuentaId' => $cuentaId]);
             }
     
-            // Calcular tipo de cambio si la moneda es USD con bloqueo pesimista
-            if ($this->monedaId == 'USD') {
-                $tipoCambio = TipoDeCambioSunat::lockForUpdate() // Bloqueo pesimista
+
+            $tipoCambio = TipoDeCambioSunat::lockForUpdate() // Bloqueo pesimista
                     ->where('fecha', $this->fechaEmi)
                     ->first()->venta ?? 1;
-    
+            // Calcular tipo de cambio si la moneda es USD con bloqueo pesimista
+            if ($this->monedaId == 'USD') {
                 $precioConvertido = round($this->precio * $tipoCambio, 2);
                 if ($this->validacionDet == '1') {
                     $detraConvertido = round($this->montoDetraccion * $tipoCambio, 2);
@@ -584,10 +584,10 @@ class RegistroDocumentosCxp extends Component
                     'precioConvertido' => $precioConvertido
                 ]);
             } else {
-                $precioConvertido = $this->precio;
-                if ($this->validacionDet == '1') {
-                    $detraConvertido = $this->montoDetraccion;
-                    $netoConvertido = $this->montoNeto;
+                $precioConvertido = round($this->precio / $tipoCambio, 2);
+                if($this -> validacionDet == '1'){
+                    $detraConvertido = round($this->montoDetraccion / $tipoCambio, 2);
+                    $netoConvertido = round($this->montoNeto / $tipoCambio, 2);
                 }
                 Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
             }
@@ -610,8 +610,12 @@ class RegistroDocumentosCxp extends Component
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
                     'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
-                    'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
-                    'montodo' => null,
+                    'monto' => ($this->monedaId == "USD") 
+                        ? ($this->validacionDet == '1' ? $netoConvertido : $precioConvertido) 
+                        : ($this->validacionDet == '1' ? $this->montoNeto : $this->precio),
+                    'montodo' => ($this->monedaId == "USD") 
+                                ? ($this->validacionDet == '1' ? $this->montoNeto : $this->precio) 
+                                : ($this->validacionDet == '1' ? $netoConvertido : $precioConvertido),
                     'glosa' => $this->observaciones,
                 ]);
     
@@ -624,8 +628,8 @@ class RegistroDocumentosCxp extends Component
                         'id_documentos' => $documentoId,
                         'id_cuentas' => 4,
                         'id_dh' => $this->tipoDocumento == '07' ? 1 : 2,
-                        'monto' => $detraConvertido,
-                        'montodo' => null,
+                        'monto' => $this->monedaId == "USD" ? $detraConvertido : $this->montoDetraccion,
+                        'montodo' => $this->monedaId == "USD" ? $this->montoDetraccion : $detraConvertido,
                         'glosa' => $this->observaciones,
                     ]);
                 }

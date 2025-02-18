@@ -7,6 +7,7 @@ use App\Models\Apertura;
 use DateTime;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use WireUi\Actions;
 use Livewire\Attributes\On;
 
@@ -78,7 +79,10 @@ class EditCuadroDePendientesModal extends Component
         ->get();
         */
 
+        
          // Ejecutar la consulta dinámica con la nueva estructura SQL
+
+         $Movimiento = '3'.$aperturaId.$numMov;
          $this->pendientes = DB::select("
          SELECT 
              id_documentos , 
@@ -120,19 +124,22 @@ class EditCuadroDePendientesModal extends Component
                          SUM(montodo) AS montodo
                      FROM (
                          SELECT 
-                             id_documentos,
-                             id_cuentas,
-                             IF(id_dh = '2', monto, monto * -1) AS monto,
-                             IF(id_dh = '2', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo
-                         FROM movimientosdecaja
-                         LEFT JOIN (
-                             SELECT 
-                                 cuentas.id, 
-                                 tipodecuenta.id AS idTcuenta 
-                             FROM cuentas 
-                             LEFT JOIN tipodecuenta ON cuentas.id_tCuenta = tipodecuenta.id
-                         ) INN1 ON movimientosdecaja.id_cuentas = INN1.id
-                         WHERE INN1.idTcuenta <> '1' and concat(id_libro,mov) <> concat('3',:numMov)
+						CONCAT(m.id_libro, m.id_apertura, m.mov) AS identificador,
+						m.id_documentos,
+						m.id_cuentas,
+						IF(m.id_dh = '2', m.monto, m.monto * -1) AS monto,
+						IF(m.id_dh = '2', IF(m.montodo IS NULL, 0, m.montodo), IF(m.montodo IS NULL, 0, m.montodo) * -1) AS montodo
+					FROM movimientosdecaja m
+					LEFT JOIN (
+						SELECT DISTINCT 
+							c.id AS id_cuenta, 
+							t.id AS idTcuenta 
+						FROM cuentas c
+						LEFT JOIN tipodecuenta t ON c.id_tCuenta = t.id
+					) AS INN1 ON m.id_cuentas = INN1.id_cuenta
+					WHERE 
+						(INN1.idTcuenta IS NULL OR INN1.idTcuenta <> '1') 
+						AND COALESCE(CONCAT(m.id_libro, m.id_apertura, m.mov), '') <> :numMov
                      ) CON1
                      GROUP BY id_documentos, id_cuentas
                      HAVING SUM(monto) <> 0
@@ -152,7 +159,7 @@ class EditCuadroDePendientesModal extends Component
      ", [
          'fechaApertura' => $this->fechaApertura,
          'moneda' => $this->moneda,
-         'numMov' => $this->numMov
+         'numMov' => $Movimiento
      ]);
      Log::info('Contenido del array contenedor:', ['contenedor' => $this->contenedor]);
      foreach ($this->pendientes as &$pendiente) {

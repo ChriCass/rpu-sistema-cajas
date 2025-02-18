@@ -173,7 +173,8 @@ public function updatedIgv($value)
         $this->user = Auth::user()->id;
         $this->loadInitialData();
         $this->tipoCaja = $this->apertura->id_tipo; ////VALOR TIPO CAJA AHORA EN VARIABLE PUBLICA
-        
+        $this->monedaId = TipoDeCaja::where('id', $this->tipoCaja)
+        ->value('t04_tipodemoneda');
        
     }
 
@@ -253,7 +254,6 @@ public function updatedIgv($value)
                 'docIdent',
                 'fechaEmi',
                 'fechaVen',
-                'monedaId',
                 'tasaIgvId',
                 'observaciones',
                 'entidad'
@@ -519,7 +519,6 @@ public function updatedIgv($value)
             'fechaEmi',
             'fechaVen',
             'tipoDocDescripcion',
-            'monedaId',
             'tasaIgvId',
             'observaciones',
             'entidad'
@@ -704,7 +703,7 @@ public function updatedIgv($value)
                 'precioConvertido' => $precioConvertido
             ]);
         } else {
-            $precioConvertido = $this->precio;
+            $precioConvertido = null;
             Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
         }
     
@@ -725,8 +724,8 @@ public function updatedIgv($value)
                 'id_documentos' => $documentoId,
                 'id_cuentas' => 1,
                 'id_dh' => 1,
-                'monto' => $precioConvertido,
-                'montodo' => null,
+                'monto' => $this->monedaId == "USD"? $precioConvertido:$this->precio,
+                'montodo' => $this->monedaId == "USD"? $this->precio:$precioConvertido,
                 'glosa' => $this->observaciones,
             ]);
             Log::info('Registro de ingresos en movimientosdecaja realizado', [
@@ -773,8 +772,8 @@ public function updatedIgv($value)
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuenta->id, // Cuenta seleccionada de la apertura
                 'id_dh' => 1,
-                'monto' => $precioConvertido,
-                'montodo' => null,
+                'monto' => $this->monedaId == "USD"? $precioConvertido:$this->precio,
+                'montodo' => $this->monedaId == "USD"? $this->precio:$precioConvertido,
                 'glosa' => $this->observaciones,
                 'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
@@ -788,8 +787,8 @@ public function updatedIgv($value)
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuentaId,
                 'id_dh' => 2,
-                'monto' => $precioConvertido,
-                'montodo' => null,
+                'monto' => $this->monedaId == "USD"? $precioConvertido:$this->precio,
+                'montodo' => $this->monedaId == "USD"? $this->precio:$precioConvertido,
                 'glosa' => $this->observaciones,
                 'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);

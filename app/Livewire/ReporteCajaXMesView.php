@@ -40,6 +40,7 @@ class ReporteCajaXMesView extends Component
         // Obtener el año actual y dos años más
         $currentYear = now()->year;
         $this->años = [
+            $currentYear - 1,
             $currentYear,
             $currentYear + 1,
             $currentYear + 2
@@ -50,7 +51,16 @@ class ReporteCajaXMesView extends Component
 
     public function obtenerSaldoInicial()
     {
+        $moneda = TipoDeCaja::select('t04_tipodemoneda')
+            ->where('id', $this->id_caja)
+            ->get()
+            ->toarray(); 
 
+        if($moneda[0]['t04_tipodemoneda'] == 'USD'){
+            $monto = "montodo";
+        }else{
+            $monto = "monto";
+        }
 
         $desc = TipoDeCaja::select('descripcion')
             ->where('id', $this->id_caja)
@@ -64,7 +74,7 @@ class ReporteCajaXMesView extends Component
         // Obtener el saldo inicial sumando los montos antes del mes y año seleccionados
         $saldo_inicial = MovimientoDeCaja::where('id_cuentas', $idcuenta[0]['id'])
             ->whereDate('fec', '<', $this->año . '-' . $this->mes . '-01')
-            ->sum(DB::raw("IF(id_dh = '1', monto, monto * -1)"));
+            ->sum(DB::raw("IF(id_dh = '1', ".$monto.", ".$monto." * -1)"));
 
         return $saldo_inicial;
     }
@@ -72,7 +82,16 @@ class ReporteCajaXMesView extends Component
     // Método para obtener los movimientos
     public function obtenerMovimientos()
     {
+        $moneda = TipoDeCaja::select('t04_tipodemoneda')
+            ->where('id', $this->id_caja)
+            ->get()
+            ->toarray(); 
 
+        if($moneda[0]['t04_tipodemoneda'] == 'USD'){
+            $monto = "montodo";
+        }else{
+            $monto = "monto";
+        }
 
         $desc = TipoDeCaja::select('descripcion')
             ->where('id', $this->id_caja)
@@ -117,9 +136,9 @@ class ReporteCajaXMesView extends Component
                 INN1.id_detalle,
                 documentos.id_entidades,
                 CONCAT(documentos.serie, '-', documentos.numero) AS numero,
-                if(id_tip_form = '1',IF(id_dh = '2', monto, monto * -1),if(id_tasasIgv='0',IF(id_dh = '2', monto*(total/(noGravadas)), 
-                (monto*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '2', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
-                IF(id_dh = '2', (precio-noGravadas)*(total/(basImp)), ((precio-noGravadas)*(total/(basImp))) * -1)))) AS monto,
+                if(id_tip_form = '1',IF(id_dh = '2', ".$monto.", ".$monto." * -1),if(id_tasasIgv='0',IF(id_dh = '2', ".$monto."*(total/(noGravadas)), 
+                (".$monto."*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '2', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
+                IF(id_dh = '2', (".$monto.")*(total/(basImp)), ((".$monto.")*(total/(basImp))) * -1)))) AS monto,
                 glosa
             FROM 
                 movimientosdecaja

@@ -23,6 +23,7 @@ class DetalleApertura extends Component
     public $fecha;
     public $montoInicial;
     public $totalCalculado;
+    public $moneda;
 
     public function mount($aperturaId)
     {
@@ -37,6 +38,7 @@ class DetalleApertura extends Component
         $this->tipoCajas = TipoDeCaja::all()->map(function ($tipoCaja) {
             return ['id' => $tipoCaja->id, 'descripcion' => $tipoCaja->descripcion];
         })->toArray();
+
          
         $this->meses = Mes::all()->map(function ($mes) {
             return ['id' => $mes->id, 'descripcion' => $mes->descripcion];
@@ -46,6 +48,9 @@ class DetalleApertura extends Component
         $this->años = array_map(function ($año) {
             return ['key' => $año, 'year' => $año];
         }, $años);
+
+        $this->moneda = TipoDeCaja::where('id',$this->apertura['id_tipo'])
+                         ->value('t04_tipodemoneda');
     }
     
 

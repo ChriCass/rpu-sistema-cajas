@@ -95,7 +95,7 @@
                         </div>
                         <div class="w-full md:w-2/12 px-2">
                             <x-select label="Moneda:" wire:model.live="monedaId" :options="$monedas" option-label="id"
-                                option-value="id" :disabled="$disableFields" />
+                                option-value="id" :disabled="$disableFields" readonly />
                         </div>
 
                     </div>

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\On;
 
 
 class VaucherAplicacionesPendientesModal extends Component
@@ -56,6 +57,14 @@ class VaucherAplicacionesPendientesModal extends Component
             })->values()->all();
         }
     }
+
+    #[On('AbrirModal')]
+    public function handleAbrirModal($data){
+        $this->openModal = $data['modal'];
+        $this->moneda = $data['moneda'];
+        $this->fecha = $data['fecha'];
+        $this->aplicaciones =  $this->loadAplicaciones();
+    }
     // Monta el componente con los parámetros necesarios
     public function mount($fecha, $moneda)
     {
@@ -65,11 +74,12 @@ class VaucherAplicacionesPendientesModal extends Component
     }
 
     // Actualiza los resultados de búsqueda cuando cambian los términos
- 
 
     // Cargar las aplicaciones según los filtros aplicados
     public function loadAplicaciones()
     {
+
+        Log::info('Iniciando proceso de carga');
         $query = "
             SELECT id_documentos, tdoc, id_entidades, RZ, Num, Mon, Descripcion, 
                 IF(Mon = 'PEN', monto, montodo) AS monto, rt
