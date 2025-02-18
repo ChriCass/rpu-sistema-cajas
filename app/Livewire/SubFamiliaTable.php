@@ -121,7 +121,12 @@ final class SubFamiliaTable extends PowerGridComponent
                 ->slot('Editar')
                 ->id()
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-                ->openModal('edit-sub-familia-modal', ['subfamiliaId' => $row->il,'familiasId' => $row->familias_id])
+                ->openModal('edit-sub-familia-modal', ['subfamiliaId' => $row->il,'familiasId' => $row->familias_id]),
+                Button::add('edit')
+                ->slot('Borrar')
+                ->id()
+                ->class('bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded')
+                ->openModal('delete-sub-familia-modal', ['subfamiliaId' => $row->il])
         ];
     }
  

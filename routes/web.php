@@ -69,6 +69,7 @@ Route::middleware([
     })->name('traspasos');
 
     
+    
 
     Route::prefix('pendientes')->group(function () {
         Route::get('/cxc', function () {
@@ -108,6 +109,14 @@ Route::middleware([
         return view('configuracion.entidades', ['routeName' => 'entidades']);
     })->name('entidades');
 
+    Route::get('/configuracion/cuentas', function () {
+        return view('configuracion.cuentas', ['routeName' => 'cuentas']);
+    })->name('cuentas');
+
+    
+    Route::get('/configuracion/cajas', function () {
+        return view('configuracion.cajas', ['routeName' => 'cajas']);
+    })->name('cajas');
 
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');

@@ -25,7 +25,7 @@ class Cuenta extends Model
     protected $fillable = [
         'id',
         'descripcion',
-        'id_tCuenta',
+        'id_tcuenta',
     ];
 
     // Deshabilitar las marcas de tiempo

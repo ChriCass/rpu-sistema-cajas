@@ -77,9 +77,9 @@
                                                 </svg>
                                             </button>
                                             <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cuentas</a>
+                                                <a href="{{ route('cuentas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cuentas</a>
                                                 <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
-                                                
+                                                <a href="{{ route('cajas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cajas</a>
                                             </div>
                                         </div>
                                     </div>
