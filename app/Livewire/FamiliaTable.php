@@ -100,7 +100,12 @@ final class FamiliaTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('Editar')
                 ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-                ->openModal('edit-familia-modal', ['familiaId' => $row->id])
+                ->openModal('edit-familia-modal', ['familiaId' => $row->id]),
+                Button::add('edit')
+                ->slot('Borrar')
+                ->id()
+                ->class('bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded')
+                ->openModal('delete-familia-modal', ['familiaId' => $row->id])
         ];
     }
 }

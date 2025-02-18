@@ -9,18 +9,20 @@
         <div class="flex flex-wrap justify-center -mx-4">
             <div class="w-full sm:w-8/12 px-4 mb-4">
                 <div class="bg-white rounded-md p-4 shadow-lg">
-        
-                   @livewire('producto-table')
-       
+
+                    @livewire('producto-table')
+
                 </div>
             </div>
 
         </div>
-        <div class="w-full px-4 mb-4">
-            <div class="flex justify-center">
-                @livewire('producto-modal')
-            </div>
-        </div>
+        {{-- 
+<div class="w-full px-4 mb-4">
+    <div class="flex justify-center">
+        @livewire('producto-modal')
+    </div>
+</div>
+--}}
     </div>
     </div>
 </x-app-layout>

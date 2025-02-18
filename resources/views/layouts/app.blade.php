@@ -21,7 +21,15 @@
         }
     @endphp
     <title>Sistema de Cajas - {{ $pageTitle }}</title>
+    <style>
+        svg.h-5.w-5.text-pg-primary-300.mr-2.dark\:text-pg-primary-200 {
+            display: none;
+        }
 
+        div.pointer-events-none.absolute.inset-y-0.right-0.flex.items-center.px-2.text-pg-primary-700.dark\:text-pg-primary-300 {
+            display: none;
+        }
+    </style>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

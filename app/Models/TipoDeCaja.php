@@ -11,7 +11,10 @@ class TipoDeCaja extends Model
 
     protected $table = 'tipodecaja';
 
+
     protected $fillable = ['descripcion','t04_tipodemoneda'];
+
+    public $timestamps = false;
 
     public function aperturas()
     {
