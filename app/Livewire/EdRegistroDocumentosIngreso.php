@@ -368,7 +368,6 @@ class EdRegistroDocumentosIngreso extends Component
                 'docIdent',
                 'fechaEmi',
                 'fechaVen',
-                'monedaId',
                 'tasaIgvId',
                 'observaciones',
                 'entidad'
@@ -634,7 +633,6 @@ class EdRegistroDocumentosIngreso extends Component
             'fechaEmi',
             'fechaVen',
             'tipoDocDescripcion',
-            'monedaId',
             'tasaIgvId',
             'observaciones',
             'entidad'
@@ -897,7 +895,7 @@ class EdRegistroDocumentosIngreso extends Component
                     'precioConvertido' => $precioConvertido
                 ]);
             } else {
-                $precioConvertido = $this->precio;
+                $precioConvertido = null;
                 Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
             }
     
@@ -910,8 +908,8 @@ class EdRegistroDocumentosIngreso extends Component
                     'id_documentos' => $documentoId,
                     'id_cuentas' => 1,
                     'id_dh' => 1,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $this->monedaId == "USD"? $precioConvertido:$this->precio,
+                    'montodo' => $this->monedaId == "USD"? $this->precio:$precioConvertido,
                     'glosa' => $this->observaciones,
                 ]);
                 Log::info('Registro de ingresos en movimientosdecaja realizado', [
@@ -953,8 +951,8 @@ class EdRegistroDocumentosIngreso extends Component
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuenta[0]['id'], // Abelardo = que se jale del select de la apertura
                     'id_dh' => 1,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $this->monedaId == "USD"? $precioConvertido:$this->precio,
+                    'montodo' => $this->monedaId == "USD"? $this->precio:$precioConvertido,
                     'glosa' => $this->observaciones,
                     'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
@@ -968,8 +966,8 @@ class EdRegistroDocumentosIngreso extends Component
                     'id_documentos' => $documentoId,
                     'id_cuentas' => $cuentaId,
                     'id_dh' => 2,
-                    'monto' => $precioConvertido,
-                    'montodo' => null,
+                    'monto' => $this->monedaId == "USD"? $precioConvertido:$this->precio,
+                    'montodo' => $this->monedaId == "USD"? $this->precio:$precioConvertido,
                     'glosa' => $this->observaciones,
                     'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);

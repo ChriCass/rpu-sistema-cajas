@@ -21,7 +21,7 @@ class VaucherDeTraspasos extends Component
      // Propiedad para controlar la visibilidad del contenido
      public $showContent = false;
      public $fecha;
-     public $moneda = 'PEN';
+     public $moneda;
   
      public $detalles = [];
  
@@ -40,6 +40,8 @@ class VaucherDeTraspasos extends Component
      public $editingIndex = null; // Índice para manejar qué fila está en edición
      public $editingMonto = null; // Monto temporal para la edición
      public $warningMessage = []; // Para manejar mensajes de advertencia en cada fila
+
+     public $openModal;
  
  
      public function mount()
@@ -173,6 +175,8 @@ class VaucherDeTraspasos extends Component
                          ->limit(1)
                          ->value('mov');
              $mov = $mov + 1;
+
+             $suma = 0;
  
              foreach ($this->contenedor as $detalle) {
                  // Obtener la cuenta con bloqueo pesimista
@@ -183,7 +187,15 @@ class VaucherDeTraspasos extends Component
                  $monto = ($detalle['montodebe'] !== null) ? $detalle['montodebe'] : $detalle['montohaber'];
                  $id_dh = ($detalle['montodebe'] !== null) ? 1 : 2;
  
-                
+                if($this->moneda == 'USD'){
+                    $montos = $this->TTpCambio($monto, $cuenta, $detalle['id']);                   
+                    $montod = $monto;
+                    $suma =++ $montos; 
+                }else{
+                    $montos = $monto;
+                    $montod = null;
+                }
+
                  // Crear movimiento de caja
                  MovimientoDeCaja::create([
                      'id_libro' => 6,
@@ -192,8 +204,8 @@ class VaucherDeTraspasos extends Component
                      'id_documentos' => $detalle['id'],
                      'id_cuentas' => $cuenta->id,
                      'id_dh' => $id_dh,
-                     'monto' => $monto,
-                     'montodo' => null,
+                     'monto' => $montos,
+                     'montodo' => $montod,
                      'glosa' => $detalle['entidades'] . " " . $detalle['num'],
                  ]);
                 
@@ -242,9 +254,9 @@ class VaucherDeTraspasos extends Component
                 'totalNg' => 0,
                 'descuentoNg' => 0,
                 'recargoNg' => 0,
-                'noGravadas' => $monto,
+                'noGravadas' => $this->moneda == 'USD' ? $suma:$monto,
                 'otroTributo' => 0,
-                'precio' => $monto,
+                'precio' => $this->moneda == 'USD' ? $suma:$monto,
                 'detraccion' => 0,
                 'montoNeto' => 0,
                 'id_t10tdocMod' => null,
@@ -261,8 +273,8 @@ class VaucherDeTraspasos extends Component
                     'id_producto' => 'ABC001',
                     'id_tasas' => '1',
                     'cantidad' => '1',
-                    'cu' => $monto,
-                    'total' => $monto,
+                    'cu' => $this->moneda == 'USD' ? $suma:$monto,
+                    'total' => $this->moneda == 'USD' ? $suma:$monto,
                     'id_centroDeCostos' => null,]);
 
             MovimientoDeCaja::create([
@@ -272,8 +284,8 @@ class VaucherDeTraspasos extends Component
                 'id_documentos' => $nuevoDocumento->id,
                 'id_cuentas' => $this->cuenta,
                 'id_dh' => $dh,
-                'monto' => $monto,
-                'montodo' => null,
+                'monto' => $this->moneda == 'USD' ? $suma:$monto,
+                'montodo' => $this->moneda == 'USD' ? $monto:null,
                 'glosa' => 'TRASPASO NUMERO '.$serieNumero2,
             ]);
             
@@ -296,9 +308,7 @@ class VaucherDeTraspasos extends Component
              return;
          }
      }
-     
-     
- 
+    
      // Función para alternar la visibilidad
      public function toggleContent()
      {
@@ -306,16 +316,25 @@ class VaucherDeTraspasos extends Component
      }
  
      private function recalcularTotales()
-{
-    $this->total = 0; // Reiniciar el total
+    {
+        $this->total = 0; // Reiniciar el total
 
-    foreach ($this->contenedor as $detalle) {
-        if ($detalle['monto'] !== null) {
-            $this->total += $detalle['monto'];
+        foreach ($this->contenedor as $detalle) {
+            if ($detalle['monto'] !== null) {
+                $this->total += $detalle['monto'];
+            }
         }
+    
     }
- 
-}
+
+
+    public function largo(){
+        $this->openModal = true;
+        $data['modal'] = $this->openModal;
+        $data['moneda'] = $this->moneda;
+        $data['fecha'] = $this->fecha;
+        $this->dispatch('AbrirModal', $data);
+    }
 
  
      private function recalcularBalance()
@@ -323,6 +342,57 @@ class VaucherDeTraspasos extends Component
          $this->balance = $this->TotalDebe - $this->TotalHaber;  
          Log::info("Balance actualizado: $this->balance");
      }
+
+     public function TTpCambio($monto,$cuenta,$id){
+
+        Log::info('Ingreso a TTpCambio', [
+            'monto' => $monto,
+            'cuenta_id' => $cuenta->id,
+            'documento_id' => $id,
+        ]);
+        
+        $dh = $cuenta->id_tcuenta == 2 ? 1 : 2; // Acceder correctamente a la propiedad del objeto
+
+        $consulta = DB::select("
+            SELECT 
+                id_documentos, 
+                id_cuentas, 
+                ROUND(SUM(IF(id_dh = :dh1, monto, monto * -1)), 2) AS total_monto,
+                ROUND(SUM(IF(id_dh = :dh2, montodo, montodo * -1)), 2) AS total_montodo 
+            FROM movimientosdecaja 
+            WHERE id_cuentas = :cuenta 
+            AND id_documentos = :id 
+            GROUP BY id_cuentas, id_documentos;
+        ", [
+            'dh1' => $dh,
+            'dh2' => $dh,
+            'cuenta' => $cuenta->id, // Acceder correctamente al ID de la cuenta
+            'id' => $id,
+        ]);
+        
+        $resultado = $consulta[0];
+
+        if ($resultado->total_montodo - $monto == 0){
+            return $resultado->total_monto;
+        }else{
+            $tipoCambio = TipoDeCambioSunat::where('fecha',$this->fecha)
+            ->lockForUpdate()
+            ->first()->venta ?? 1;
+    
+            $montoConvertido = round($monto * $tipoCambio, 2);
+            
+            Log::info('Se aplicó tipo de cambio', [
+                'fecha' => $this->fecha,
+                'tipo_cambio' => $tipoCambio,
+                'monto_original' => $monto,
+                'monto_convertido' => $montoConvertido
+            ]);
+        
+            return $montoConvertido;
+        }
+
+    }
+
  
     public function render()
     {

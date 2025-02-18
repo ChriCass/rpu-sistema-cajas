@@ -28,12 +28,14 @@ class TablaDetalleApertura extends Component
     public $textBox8;
     public $textBox4;
     public $rutaFormulario;
+    public $moneda;
 
-    public function mount($aperturaId)
+    public function mount($aperturaId,$moneda)
     {
         $this->aperturaId = $aperturaId;
         $this->movimientos = collect(); // Asegurarse de que sea una colección vacía
         $this->consultaBD();
+        $this->$moneda = $moneda;
     }
 
 
@@ -91,8 +93,14 @@ class TablaDetalleApertura extends Component
             $fechaFormatted = DateTime::createFromFormat('d/m/Y', $this->textBox6)->format('Y-m-d');
             Log::info('Fecha formateada:', ['fechaFormatted' => $fechaFormatted]);
 
+            if($this->moneda == 'USD'){
+                $query = "ROUND(SUM(IF(id_dh = '1', montodo, montodo * -1)), 2) as monto";
+            }else{
+                $query = "ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto";
+            }
+
             // Consulta para obtener el monto inicial y redondearlo a dos decimales
-            $montoInicialQuery = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto"))
+            $montoInicialQuery = MovimientoDeCaja::select(DB::raw($query))
                 ->where('id_cuentas', $this->caja)
                 ->where('fec', '<', $fechaFormatted);
 
@@ -109,13 +117,20 @@ class TablaDetalleApertura extends Component
 
             Log::info('Monto inicial calculado', ['montoInicial' => $this->textBox8]);
 
+
+            if($this->moneda == 'USD'){
+                $query = "if(id_dh = '1',movimientosdecaja.montodo,movimientosdecaja.montodo*-1) AS Monto";
+            }else{
+                $query = "if(id_dh = '1',movimientosdecaja.monto,movimientosdecaja.monto*-1) AS Monto";
+            }
+
             // Nueva consulta SQL cruda proporcionada
             $sql = "
             SELECT 
                 IF(documentos.id IS NULL, movimientosdecaja.mov, documentos.id) AS NumeroMovimiento, -- Número de movimiento o documento
                 IF(entidades.descripcion IS NULL, 'MOVIMIENTOS', entidades.descripcion) AS Entidad, -- Descripción de la entidad relacionada
                 CONCAT(documentos.serie, '-', documentos.numero) AS NumeroDocumento, -- Número del documento (serie y número)
-                if(id_dh = '1',movimientosdecaja.monto,movimientosdecaja.monto*-1) AS Monto, -- Monto del documento (unificado)
+                ".$query.", -- Monto del documento (unificado)
                 movimientosdecaja.glosa AS Glosa, -- Glosa o descripción adicional
                 numero_de_operacion
             FROM 

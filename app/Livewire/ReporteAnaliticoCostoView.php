@@ -63,7 +63,7 @@ class ReporteAnaliticoCostoView extends Component
     private function inicializarDatos()
     {
         $currentYear = now()->year;
-        $this->años = [$currentYear, $currentYear + 1, $currentYear + 2];
+        $this->años = [$currentYear - 1,$currentYear, $currentYear + 1, $currentYear + 2];
         $this->meses = Mes::all();
         $this->familias = Familia::where('id_tipofamilias', '2')->get();
         $this->CC = CentroDeCostos::all();

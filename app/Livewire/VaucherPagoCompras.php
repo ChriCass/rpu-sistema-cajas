@@ -12,6 +12,7 @@ use App\Models\MovimientoDeCaja;
 use App\Models\Cuenta;
 use App\Models\TipoDeCaja;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 
 class VaucherPagoCompras extends Component
@@ -43,6 +44,7 @@ class VaucherPagoCompras extends Component
 
         // Obtener el tipo de caja relacionado con el ID de caja
         $this->tipoCaja = TipoDeCaja::where('id', $this->caja)->first();
+        $this->moneda = $this->tipoCaja->t04_tipodemoneda;
 
         // Registrar el tipo de caja en el log
         if ($this->tipoCaja) {
@@ -223,13 +225,9 @@ class VaucherPagoCompras extends Component
             $movc++; // Incrementa para el siguiente movimiento
             Log::info("Número de movimiento generado correctamente: {$movc}");
     
-            // Si la moneda no es PEN, calcular el tipo de cambio
-            $tipoCambio = 1;
-            if ($this->moneda !== 'PEN') {
-                $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaApertura)->value('venta') ?? 1;
-                Log::info("Tipo de cambio obtenido: {$tipoCambio}");
-            }
             Log::info($this->contenedor);
+
+            $hbr = 0;
     
             // Procesar cada detalle en el contenedor
             foreach ($this->contenedor as $detalle) {
@@ -243,7 +241,15 @@ class VaucherPagoCompras extends Component
     
                 // Determinar si es Debe o Haber y calcular el monto
                 $dh = 1; // Debe
-                $monto = $detalle['monto'];
+                if($detalle['Mon'] == 'USD'){
+                    $monto = $this -> TipoDeCambio($detalle); 
+                    $montodo = $detalle['monto'];
+                    $hbr += $monto;
+                }else{
+                    $monto = $detalle['monto'];
+                    $montodo = null;
+                }
+                
     
                 // Insertar el movimiento en la base de datos
                 MovimientoDeCaja::create([
@@ -255,7 +261,7 @@ class VaucherPagoCompras extends Component
                     'id_cuentas' => $cta,
                     'id_dh' => $dh,
                     'monto' => $monto,
-                    'montodo' => null,
+                    'montodo' => $montodo,
                     'glosa' => $glo,
                     'numero_de_operacion' => $this->cod_operacion ?? null,
                 ]);
@@ -267,6 +273,15 @@ class VaucherPagoCompras extends Component
             $ctaCaja = Cuenta::where('Descripcion', $this->tipoCaja['descripcion'])->firstOrFail()->id;
             Log::info("Cuenta de caja obtenida: {$ctaCaja}");
     
+            if($detalle['Mon'] == 'USD'){
+                $haber = $hbr;
+                $haberdo = $this->haber;
+            }else{
+                $haber = $this->haber;
+                $haberdo = null;
+            }
+                
+
             MovimientoDeCaja::create([
                 'id_libro' => 3,
                 'id_apertura' => $idapt,
@@ -275,8 +290,8 @@ class VaucherPagoCompras extends Component
                 'id_documentos' => null,
                 'id_cuentas' => $ctaCaja,
                 'id_dh' => 2,
-                'monto' => $this->haber,
-                'montodo' => null,
+                'monto' => $haber,
+                'montodo' => $haberdo,
                 'glosa' => 'PAGO DE CXP',
                 'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
@@ -295,7 +310,58 @@ class VaucherPagoCompras extends Component
         }
     }
     
+    public function TipoDeCambio($data){
 
+        $fechaFormateada = Carbon::createFromFormat('d/m/Y', $this->fechaApertura)->format('Y-m-d');
+
+        Log::info('Fecha formateada correctamente', [
+            'fecha_original' => $this->fechaApertura,
+            'fecha_formateada' => $fechaFormateada
+        ]);
+        
+        $cuenta = Cuenta::where('descripcion', $data['Descripcion'])->first(); // Obtener un solo registro
+
+        $dh = $cuenta->id_tcuenta == 2 ? 1 : 2; // Acceder correctamente a la propiedad del objeto
+
+        $consulta = DB::select("
+            SELECT 
+                id_documentos, 
+                id_cuentas, 
+                ROUND(SUM(IF(id_dh = :dh1, monto, monto * -1)), 2) AS total_monto,
+                ROUND(SUM(IF(id_dh = :dh2, montodo, montodo * -1)), 2) AS total_montodo 
+            FROM movimientosdecaja 
+            WHERE id_cuentas = :cuenta 
+            AND id_documentos = :id 
+            GROUP BY id_cuentas, id_documentos;
+        ", [
+            'dh1' => $dh,
+            'dh2' => $dh,
+            'cuenta' => $cuenta->id, // Acceder correctamente al ID de la cuenta
+            'id' => $data['id_documentos'],
+        ]);
+        
+        $resultado = $consulta[0];
+
+        if ($resultado->total_montodo - $data['monto'] == 0){
+            return $resultado->total_monto;
+        }else{
+            $tipoCambio = TipoDeCambioSunat::where('fecha',$fechaFormateada)
+            ->lockForUpdate()
+            ->first()->venta ?? 1;
+    
+            $montoConvertido = round($data['monto'] * $tipoCambio, 2);
+            
+            Log::info('Se aplicó tipo de cambio', [
+                'fecha' => $fechaFormateada,
+                'tipo_cambio' => $tipoCambio,
+                'monto_original' => $data['monto'],
+                'monto_convertido' => $montoConvertido
+            ]);
+        
+            return $montoConvertido;
+        }
+
+    }
 
     public function render()
     {

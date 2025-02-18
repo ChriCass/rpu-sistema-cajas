@@ -43,7 +43,7 @@
                     <x-input readonly label="Moneda:" wire:model="moneda" />
                 </div>
                 <div class="w-full md:w-4/12 px-2 flex items-center justify-end">
-                    @livewire('edit-cuadro-de-pendientes-modal', ['aperturaId' => $aperturaId,'numMov' => $numMov, 'contenedor' => $contenedor])
+                    @livewire('edit-cuadro-de-pendientes-modal', ['aperturaId' => $aperturaId,'numMov' => $numMov, 'contenedor' => $contenedor,'moneda' => $moneda])
                 </div>
 
             </div>

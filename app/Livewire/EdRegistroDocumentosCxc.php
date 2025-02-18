@@ -704,9 +704,9 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
             Log::info('Cuenta asignada desde Logistica.detalle', ['cuentaId' => $cuentaId]);
         }
 
+        $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaEmi)->first()->venta ?? 1;
         // Calcular tipo de cambio si la moneda es USD
         if ($this->monedaId == 'USD') {
-            $tipoCambio = TipoDeCambioSunat::where('fecha', $this->fechaEmi)->first()->venta ?? 1;
             $precioConvertido = round($this->precio * $tipoCambio, 2);
             if ($this->validacionDet == '1') {
                 $detraConvertido = round($this->montoDetraccion * $tipoCambio, 2);
@@ -717,10 +717,10 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
                 'precioConvertido' => $precioConvertido
             ]);
         } else {
-            $precioConvertido = $this->precio;
-            if ($this->validacionDet == '1') {
-                $detraConvertido = $this->montoDetraccion;
-                $netoConvertido = $this->montoNeto;
+            $precioConvertido = round($this->precio / $tipoCambio, 2);
+            if($this -> validacionDet == '1'){
+                $detraConvertido = round($this->montoDetraccion / $tipoCambio, 2);
+                $netoConvertido = round($this->montoNeto / $tipoCambio, 2);
             }
             Log::info('Precio sin conversión aplicado', ['precioConvertido' => $precioConvertido]);
         }
@@ -738,8 +738,12 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
                 'id_documentos' => $documentoId,
                 'id_cuentas' => $cuentaId,
                 'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
-                'monto' => $this->validacionDet == '1' ? $netoConvertido : $precioConvertido,
-                'montodo' => null,
+                'monto' => ($this->monedaId == "USD") 
+                        ? ($this->validacionDet == '1' ? $netoConvertido : $precioConvertido) 
+                        : ($this->validacionDet == '1' ? $this->montoNeto : $this->precio),
+                'montodo' => ($this->monedaId == "USD") 
+                            ? ($this->validacionDet == '1' ? $this->montoNeto : $this->precio) 
+                            : ($this->validacionDet == '1' ? $netoConvertido : $precioConvertido),
                 'glosa' => $this->observaciones,
             ]);
 
@@ -752,8 +756,8 @@ public function registrarMovimientoCaja($documentoId, $entidadId, $fechaEmi, $mo
                     'id_documentos' => $documentoId,
                     'id_cuentas' => 2,
                     'id_dh' => $this->tipoDocumento == '07' ? 2 : 1,
-                    'monto' => $detraConvertido,
-                    'montodo' => null,
+                    'monto' => $this->monedaId == "USD" ? $detraConvertido : $this->montoDetraccion,
+                    'montodo' => $this->monedaId == "USD" ? $this->montoDetraccion : $detraConvertido,
                     'glosa' => $this->observaciones,
                 ]);
 

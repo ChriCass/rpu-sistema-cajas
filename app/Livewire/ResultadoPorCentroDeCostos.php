@@ -40,7 +40,7 @@ class ResultadoPorCentroDeCostos extends Component
     private function inicializarDatos()
     {
         $currentYear = now()->year;
-        $this->años = [$currentYear, $currentYear + 1, $currentYear + 2];
+        $this->años = [$currentYear-1,$currentYear, $currentYear + 1, $currentYear + 2];
         $this->CC =  CentroDeCostos::all();
     }
 

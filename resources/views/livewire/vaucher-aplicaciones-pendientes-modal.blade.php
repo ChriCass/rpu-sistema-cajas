@@ -1,6 +1,4 @@
 <div>
-    <x-button label="Selecc." wire:click="$set('openModal', true)" primary />
-
     <x-modal name="persistentModal" wire:model="openModal">
         <x-card title="Aplicaciones">
             <div class="p-4">

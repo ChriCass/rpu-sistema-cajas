@@ -15,11 +15,12 @@ class AplicacionTable extends Component
     public $anios;
     public $selectedMonth;
     public $selectedYear;
+    public $anioActual;
 
     public function mount()
     {
         $this->meses = Mes::all();
-        $this->anios = collect(range(Carbon::now()->year, Carbon::now()->year + 2))->map(function($year) {
+        $this->anios = collect(range(Carbon::now()->year - 1, Carbon::now()->year + 2))->map(function($year) {
             return [
                 'anio' => $year
             ];
@@ -27,6 +28,7 @@ class AplicacionTable extends Component
         $this->selectedMonth = ''; // Inicializa el mes seleccionado como vacío para mostrar todos los registros
         $this->selectedYear = ''; // Inicializa el año seleccionado como vacío para mostrar todos los registros
         $this->loadAplicaciones(); // Carga los datos iniciales
+        $this->anioActual = date('Y');
     }
 
     public function loadAplicaciones()

@@ -70,6 +70,7 @@
 
                 <!-- Botón Nuevo -->
                 <div class="ml-auto">
+                    <x-button label="Selecc." wire:click="largo" primary />
                    @livewire('vaucher-aplicaciones-pendientes-modal', ['fecha'=> $fecha, 'moneda' => $moneda])
                 </div>
             </div>

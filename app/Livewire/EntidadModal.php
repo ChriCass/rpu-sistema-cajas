@@ -109,7 +109,7 @@ class EntidadModal extends Component
                     ->first();
 
                 // Sumar 1 al valor de id en PHP
-                $id = $entidad ? $entidad->id + 1 : null;
+                $id = $entidad ? $entidad->id + 1 : '10000001';
 
                 Log::info('Entidad creada', [
                     'id' => $id,

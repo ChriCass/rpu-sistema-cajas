@@ -40,6 +40,7 @@ class ReporteCajaView extends Component
         // Obtener el año actual y dos años más
         $currentYear = now()->year;
         $this->años = [
+            $currentYear - 1,
             $currentYear,
             $currentYear + 1,
             $currentYear + 2
@@ -70,6 +71,11 @@ class ReporteCajaView extends Component
             ->where('id', $this->id_caja)
             ->get()
             ->toarray();
+
+        $moneda = TipoDeCaja::select('t04_tipodemoneda')
+            ->where('id', $this->id_caja)
+            ->get()
+            ->toarray(); 
 
         $idcuenta = Cuenta::select('id')
             ->where('descripcion', $desc[0]['descripcion'])
@@ -107,10 +113,18 @@ class ReporteCajaView extends Component
         WHERE id_cuentas = ? AND fec < ?
     ", [$this->id_caja, $fecha_apertura])[0]->saldo_inicial ?? 0; */
         Log::info('id caja y fec valores', ['id caja' => $this->id_caja, 'fec' => $fecha_apertura]);
-        $this->saldo_inicial = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1', monto, monto * -1)), 2) as monto"))
+
+        if($moneda[0]['t04_tipodemoneda'] == 'USD'){
+            $monto = "montodo";
+        }else{
+            $monto = "monto";
+        }
+
+
+        $this->saldo_inicial = MovimientoDeCaja::select(DB::raw("ROUND(SUM(IF(id_dh = '1',".$monto.", ".$monto." * -1)), 2) as monto"))
             ->where('id_cuentas', $idcuenta[0]['id'])
             ->where('fec', '<', $fecha_apertura)
-            ->value('monto'); // Esto obtiene el valor directo de la consulta
+            ->value($monto); // Esto obtiene el valor directo de la consulta
 
         $this->saldo_inicial = number_format($this->saldo_inicial ?? 0, 2, '.', '');
 
@@ -145,9 +159,9 @@ FROM (
 		INN1.id_detalle,
 		documentos.id_entidades,
 		CONCAT(documentos.serie, '-', documentos.numero) AS numero,
-		if(id_tip_form = '1',IF(id_dh = '2', monto, monto * -1),if(id_tasasIgv='0',IF(id_dh = '2', monto*(total/(noGravadas)), 
-		(monto*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '2', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
-		IF(id_dh = '2', (precio-noGravadas)*(total/(basImp)), ((precio-noGravadas)*(total/(basImp))) * -1)))) AS monto,
+		if(id_tip_form = '1',IF(id_dh = '2', ".$monto.", ".$monto." * -1),if(id_tasasIgv='0',IF(id_dh = '2', ".$monto."*(total/(noGravadas)), 
+		(".$monto."*(total/(noGravadas))) * -1),if(id_tasas='0',IF(id_dh = '2', noGravadas*(total/(noGravadas)), (noGravadas*(total/(noGravadas))) * -1),
+		IF(id_dh = '2', (".$monto.")*(total/(basImp)), ((".$monto.")*(total/(basImp))) * -1)))) AS monto,
 		glosa
 	FROM 
 		movimientosdecaja
