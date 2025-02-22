@@ -48,7 +48,6 @@
                     placeholder="Seleccionar..."
                     option-label="descripcion"
                     option-value="id"
-                    readonly
                 />
                 @error('cuenta') <span class="text-red-500">{{ $message }}</span> @enderror
             </div>
