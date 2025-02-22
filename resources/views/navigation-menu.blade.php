@@ -40,6 +40,7 @@
                                                 <a href="{{ route('movimientos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
                                                 <a href="{{ route('aplicaciones') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Aplicaciones</a>
                                                 <a href="{{ route('traspasos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Traspasos</a>
+                                                <a href="{{ route('importador-general') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">importar</a>
                                             </div>
                                         </div>
                                         <div x-data="{ dropdownOpen: false }" class="relative">
