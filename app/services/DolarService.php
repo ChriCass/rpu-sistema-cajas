@@ -11,7 +11,8 @@ use Carbon\Carbon;
 class DolarService {
 
     public function ObtenerDolar(){
-        $hoy = Carbon::now('America/Lima')->format('Y-m-d');
+        //$hoy = Carbon::now('America/Lima')->format('Y-m-d');
+        $hoy = "2025-02-23";
         Log::info("Iniciando consulta de tipo de cambio para la fecha: {$hoy}");
     
         $tphoy = TipoDeCambioSunat::where('fecha', $hoy)->get()->toArray();
@@ -30,7 +31,11 @@ class DolarService {
         $fechaIniP = TipoDeCambioSunat::latest('Fecha')->first();
         $fechaIni = date('Y-m-d', strtotime($fechaIniP['fecha'] . ' +1 day'));
         $fechaFin = $hoy;
-        $data = $this -> ApiRest($fechaIni,$fechaFin);;
+        $data = $this -> ApiRest($fechaIni,$fechaFin);
+        if ($data == '404'){
+            Log::info('No existen datos correspondientes a la fecha indicada');
+            return;
+        }
         $diferenciaDias = Carbon::parse($fechaIni)->diffInDays($fechaFin);
         if ($diferenciaDias <> 0){
             for ($i = 0; $i <= $diferenciaDias; $i++) { 
