@@ -27,4 +27,9 @@ class TipoDeMoneda extends Model
      // Definir los campos que pueden ser asignados masivamente
      protected $fillable = ['id', 'descripcion'];
 
+     public function tipoDeCaja()
+     {
+         return $this->hasOne(TipoDeCaja::class, 't04_tipodemoneda', 'id');
+     }
+
 }

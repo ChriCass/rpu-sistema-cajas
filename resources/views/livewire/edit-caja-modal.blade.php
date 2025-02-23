@@ -18,10 +18,37 @@
 
             <!-- Campo Descripción -->
             <div class="w-full sm:w-8/12 px-4">
-                <x-input label="Descripción" wire:model="descripcion" oninput="this.value = this.value.toUpperCase()" />
+                <x-input 
+                    label="Descripción" 
+                    wire:model="descripcion" 
+                    oninput="this.value = this.value.toUpperCase()" 
+                />
                 @error('descripcion')
                     <span class="text-red-500">{{ $message }}</span>
                 @enderror
+            </div>
+
+            <!-- Campo Tipo de Moneda -->
+            <div class="w-full px-4">
+                <x-select 
+                    label="Tipo de Moneda" 
+                    wire:model="t04_tipodemoneda" 
+                    placeholder="Seleccionar..."
+                    :options="$tiposDeMoneda" 
+                    option-label="descripcion" 
+                    option-value="id" 
+                    :disabled="$hasMovimientos"
+                />
+                @error('t04_tipodemoneda')
+                    <span class="text-red-500">{{ $message }}</span>
+                @enderror
+
+                <!-- Mensaje pequeño si hay movimientos -->
+                @if ($hasMovimientos)
+                    <span class="text-sm text-gray-500">
+                        No se puede cambiar el tipo de moneda porque la caja tiene movimientos asociados.
+                    </span>
+                @endif
             </div>
 
             <!-- Botones -->

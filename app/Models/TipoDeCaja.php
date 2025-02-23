@@ -20,5 +20,10 @@ class TipoDeCaja extends Model
     {
         return $this->hasMany(Apertura::class, 'id_tipo');
     }
+
+    public function tipoDeMoneda()
+    {
+        return $this->belongsTo(TipoDeMoneda::class, 't04_tipodemoneda', 'id');
+    }
     
 }
