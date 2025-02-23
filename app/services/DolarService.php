@@ -11,7 +11,7 @@ use Carbon\Carbon;
 class DolarService {
 
     public function ObtenerDolar(){
-        $hoy = date('Y-m-d');
+        $hoy = Carbon::now('America/Lima')->format('Y-m-d');
         Log::info("Iniciando consulta de tipo de cambio para la fecha: {$hoy}");
     
         $tphoy = TipoDeCambioSunat::where('fecha', $hoy)->get()->toArray();
