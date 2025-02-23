@@ -21,7 +21,7 @@
                 <!-- Formulario -->
                 <form class="flex flex-wrap justify-center -mx-4" wire:submit.prevent="insertNewCaja">
                     <!-- Campo Descripción -->
-                    <div class="w-full px-4">
+                    <div class="w-full mb-3 px-4">
                         <x-input 
                             label="Descripción" 
                             wire:model="descripcion" 
