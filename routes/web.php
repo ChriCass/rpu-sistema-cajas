@@ -69,7 +69,9 @@ Route::middleware([
     })->name('traspasos');
 
     
-    
+    Route::get('/importador', function () {
+        return view('importadores.importador', ['routeName' => 'importador']);
+    })->name('importador');
 
     Route::prefix('pendientes')->group(function () {
         Route::get('/cxc', function () {
@@ -85,9 +87,13 @@ Route::middleware([
         Route::get('/cxp/avanzado', RegistroGeneralAvanz::class)->name('cxp.avanzado');
 
         Route::get('/importar', function () {
-            return view('deudas.importar', ['routeName' => 'importar']);
+            return view('deudas.importar', ['routeName' => 'importador-avanzado']);
         })->name('importar');
     });
+
+    Route::get('/importar', function () {
+        return view('importadores.importador', ['routeName' => 'importador-general']);
+    })->name('importador-general');
     
     Route::get('/productos/familias', function () {
         return view('logistica.familia', ['routeName' => 'familias']);
