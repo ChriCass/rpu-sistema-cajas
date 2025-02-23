@@ -42,26 +42,30 @@ final class CxcTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+        $currentYear = now()->year; // Obtiene el año actual
+    
         return Documento::select(
-            'documentos.id',
-            DB::raw("DATE_FORMAT(fechaEmi, '%d/%m/%Y') AS fechaEmi"),
-            'tabla10_tipodecomprobantedepagoodocumento.descripcion AS tipoDocumento',
-            'documentos.id_entidades as id_entidades',
-            'entidades.descripcion AS entidadDescripcion',
-            'documentos.serie',
-            'documentos.numero',
-            'documentos.id_t04tipmon',
-            'tasas_igv.tasa',
-            'documentos.precio',
-            'users.name AS usuario',
-            'id_tip_form'
-        )
+                'documentos.id',
+                DB::raw("DATE_FORMAT(fechaEmi, '%d/%m/%Y') AS fechaEmi"),
+                'tabla10_tipodecomprobantedepagoodocumento.descripcion AS tipoDocumento',
+                'documentos.id_entidades as id_entidades',
+                'entidades.descripcion AS entidadDescripcion',
+                'documentos.serie',
+                'documentos.numero',
+                'documentos.id_t04tipmon',
+                'tasas_igv.tasa',
+                'documentos.precio',
+                'users.name AS usuario',
+                'id_tip_form'
+            )
             ->leftJoin('entidades', 'documentos.id_entidades', '=', 'entidades.id')
             ->leftJoin('users', 'documentos.id_user', '=', 'users.id')
             ->leftJoin('tabla10_tipodecomprobantedepagoodocumento', 'documentos.id_t10tdoc', '=', 'tabla10_tipodecomprobantedepagoodocumento.id')
             ->leftJoin('tasas_igv', 'documentos.id_tasasIgv', '=', 'tasas_igv.id')
-            ->where('documentos.id_tipmov', 1)
-            ->orderBy(DB::raw('MONTH(fechaEmi)'), 'desc');;
+            ->where('documentos.id_tipmov', 1) // Filtra por tipo de movimiento (cuentas por cobrar)
+            ->orderByRaw("CASE WHEN YEAR(fechaEmi) = ? THEN 0 ELSE 1 END", [$currentYear]) // Ordena primero el año actual
+            ->orderBy('fechaEmi', 'desc') // Orden descendente por fecha de emisión
+            ->orderBy('documentos.id', 'desc'); // Orden descendente por ID (opcional)
     }
 
     public function relationSearch(): array
