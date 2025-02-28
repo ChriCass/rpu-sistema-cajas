@@ -39,7 +39,9 @@ final class CajaTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('id')
-            ->add('descripcion');
+            ->add('descripcion')
+            ->add('t04_tipodemoneda')
+            ;
     }
 
     public function columns(): array
@@ -52,8 +54,11 @@ final class CajaTable extends PowerGridComponent
             Column::make('Descripcion', 'descripcion')
                 ->searchable(),
 
+            
+            Column::make('Tipo de moneda', 't04_tipodemoneda')
+                ->searchable(),
 
-            Column::action('Action')
+            Column::action('Accion')
         ];
     }
 

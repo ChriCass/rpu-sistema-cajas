@@ -11,9 +11,7 @@
             <div class="bg-white rounded-md p-4 shadow-lg">
                @livewire('importador-general')
             </div>
-          
-          </div>
-           
+          </div>   
         </div>
       </div>
       

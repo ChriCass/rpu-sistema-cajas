@@ -42,6 +42,8 @@ final class AperturaTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
+        $currentYear = now()->year; // Obtiene el año actual
+    
         return Apertura::query()
             ->join('tipodecaja', 'tipodecaja.id', '=', 'aperturas.id_tipo')
             ->join('meses', 'meses.id', '=', 'aperturas.id_mes')
@@ -55,6 +57,7 @@ final class AperturaTable extends PowerGridComponent
                 'aperturas.id_tipo',
                 DB::raw("DATE_FORMAT(aperturas.fecha, '%d/%m/%Y') as fecha_formatted")
             ])
+            ->orderByRaw("CASE WHEN aperturas.año = ? THEN 0 ELSE 1 END", [$currentYear]) // Ordena primero el año actual
             ->orderBy('aperturas.id_mes', 'DESC')  // Orden descendente por mes
             ->orderBy('aperturas.numero', 'DESC'); // Orden descendente por número
     }
