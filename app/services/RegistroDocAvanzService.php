@@ -368,7 +368,7 @@ class RegistroDocAvanzService
         }
     }
 
-    protected function registrarAperturaRelacionada(int $documentoId, int $nuevoMov, float $precioConvertido, array $data)
+    protected function registrarAperturaRelacionada(int $documentoId, int $nuevoMov, ?float $precioConvertido, array $data)
     {
         $apertura = Apertura::where('numero', $data['apertura']['numero'])
             ->where('id_tipo', $data['apertura']['id_tipo'])

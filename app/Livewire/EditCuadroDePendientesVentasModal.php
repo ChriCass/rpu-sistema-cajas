@@ -91,7 +91,7 @@ class EditCuadroDePendientesVentasModal extends Component
 						AND COALESCE(CONCAT(m.id_libro, m.id_apertura, m.mov), '') <> :numMov
                      ) CON1
                      GROUP BY id_documentos, id_cuentas
-                     HAVING SUM(monto) <> 0
+                     HAVING ROUND(SUM(monto),10) <> 0
                  ) CON2
                  LEFT JOIN documentos ON CON2.id_documentos = documentos.id
                  LEFT JOIN cuentas ON CON2.id_cuentas = cuentas.id
