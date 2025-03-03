@@ -116,6 +116,35 @@ final class CxcTable extends PowerGridComponent
     public function filters(): array
     {
         return [
+                         // Filtro para 'id entidades'
+        Filter::inputText('id_entidades')
+        ->operators(['contains'])
+        ->placeholder('Buscar por ID de entidad...')
+        ->builder(function (Builder $builder, $value) {
+            if (!empty($value['value'])) {
+                $builder->where('documentos.id_entidades', 'like', "%{$value['value']}%");
+            }
+        }),
+
+    // Filtro para 'Serie'
+    Filter::inputText('serie')
+        ->operators(['contains'])
+        ->placeholder('Buscar por serie...')
+        ->builder(function (Builder $builder, $value) {
+            if (!empty($value['value'])) {
+                $builder->where('documentos.serie', 'like', "%{$value['value']}%");
+            }
+        }),
+
+    // Filtro para 'Número'
+    Filter::inputText('numero')
+        ->operators(['contains'])
+        ->placeholder('Buscar por número...')
+        ->builder(function (Builder $builder, $value) {
+            if (!empty($value['value'])) {
+                $builder->where('documentos.numero', 'like', "%{$value['value']}%");
+            }
+        }),
             // Filtro para Tipo de Documento con inputText
             Filter::inputText('tipoDocumento')
                 ->operators(['contains'])

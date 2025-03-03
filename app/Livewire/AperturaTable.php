@@ -123,6 +123,9 @@ final class AperturaTable extends PowerGridComponent
 
        
         return [
+            Filter::inputText('numero')
+            ->operators(['contains']) 
+            ->placeholder('ingresa algun numero de doc...'), 
             Filter::select('id_mes')
                 ->dataSource(Mes::all())
                 ->optionValue('id')
