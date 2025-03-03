@@ -89,6 +89,10 @@ Route::middleware([
         Route::get('/importar', function () {
             return view('deudas.importar', ['routeName' => 'importador-avanzado']);
         })->name('importar');
+
+        Route::get('/borrar-masivo', function () {
+            return view('deudas.borrar-masivo', ['routeName' => 'Borrar Masivo']);
+        })->name('borrar-masivo');
     });
 
     Route::get('/importar', function () {
