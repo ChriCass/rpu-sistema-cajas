@@ -71,7 +71,7 @@ final class CentroDeCostosTable extends PowerGridComponent
         ];
     }
 
-    #[On('cajaUpdated')]
+    #[On('centroDeCostosUpdated')]
     #[On('caja-created')]
     public function refreshTable(): void
     {
@@ -85,12 +85,12 @@ final class CentroDeCostosTable extends PowerGridComponent
             Button::add('edit')
             ->slot('Editar')
             ->class('bg-teal-500 hover:bg-teal-700 text-white py-2 px-4 rounded')
-            ->openModal('edit-caja-modal', ['cajaId' => $row->id]),
+            ->openModal('edit-costos-modal', ['costoId' => $row->id]),
             Button::add('edit')
             ->slot('Borrar')
             ->id()
             ->class('bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded')
-            ->openModal('delete-caja-modal', ['cajaId' => $row->id])
+            ->openModal('delete-costos-modal', ['costoId' => $row->id])
         ];
     }
  
