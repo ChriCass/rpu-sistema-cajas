@@ -49,10 +49,10 @@ class DeleteCostosModal extends ModalComponent
             session()->flash('message', 'Centro de costos eliminado con éxito.');
 
             // Redirige a la ruta 'centros-de-costos'
-            return redirect()->route('centros-de-costos');
+            return redirect()->route('centro-costos');
         } else {
             session()->flash('error', 'Centro de costos no encontrado.');
-            return redirect()->route('centros-de-costos');
+            return redirect()->route('centro-costos');
         }
     }
 

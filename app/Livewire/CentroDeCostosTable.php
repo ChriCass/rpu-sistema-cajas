@@ -72,7 +72,7 @@ final class CentroDeCostosTable extends PowerGridComponent
     }
 
     #[On('centroDeCostosUpdated')]
-    #[On('caja-created')]
+    #[On('costo-created')]
     public function refreshTable(): void
     {
         $this->fillData();

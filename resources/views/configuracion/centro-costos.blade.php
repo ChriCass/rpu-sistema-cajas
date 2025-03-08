@@ -37,7 +37,7 @@
             </div>
             <div class="w-full   px-4 mb-4">
                 <div class="flex justify-center">
-                    nuevo
+                    @livewire('costos-modal')
                 </div>
             </div>
         </div>
