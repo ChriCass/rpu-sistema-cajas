@@ -82,6 +82,7 @@
                                                 <a href="{{ route('cuentas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cuentas</a>
                                                 <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
                                                 <a href="{{ route('cajas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cajas</a>
+                                                <a href="{{ route('centro-costos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Centro de costos</a>
                                             </div>
                                         </div>
                                     </div>

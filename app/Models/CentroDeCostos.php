@@ -22,6 +22,8 @@ class CentroDeCostos extends Model
     // Definir los campos que pueden ser asignados masivamente
     protected $fillable = [
         'id',
+        'descripcion',
+        'abrev'
     ];
 
       // Relación uno a muchos con d_detalledocumentos
