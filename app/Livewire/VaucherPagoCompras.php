@@ -34,6 +34,8 @@ class VaucherPagoCompras extends Component
     public $editingMonto = null; // Para almacenar temporalmente el valor del monto que se está editando
     public $warningMessage = [];
     public $cod_operacion;
+    public $observacion;
+
     public function mount($aperturaId)
     {
         $this->aperturaId = $aperturaId;
@@ -195,7 +197,7 @@ class VaucherPagoCompras extends Component
         Log::info('Iniciando el proceso de submit en VaucherPagoCompras.');
     
         // Validación de campos
-        if (empty($this->fechaApertura) || empty($this->contenedor)) {
+        if (empty($this->fechaApertura) || empty($this->contenedor) || empty($this->observacion)) {
             Log::warning('Falta llenar campos: fecha o contenedor están vacíos.');
             session()->flash('error', 'Falta llenar campos');
             return;
@@ -232,7 +234,7 @@ class VaucherPagoCompras extends Component
             // Procesar cada detalle en el contenedor
             foreach ($this->contenedor as $detalle) {
                 $iddoc = $detalle['id_documentos'] ?? 'NULL';
-                $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
+                $glo = $this->observacion;
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
     
                 // Obtener la cuenta
@@ -292,7 +294,7 @@ class VaucherPagoCompras extends Component
                 'id_dh' => 2,
                 'monto' => $haber,
                 'montodo' => $haberdo,
-                'glosa' => 'PAGO DE CXP',
+                'glosa' => $glo,
                 'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     

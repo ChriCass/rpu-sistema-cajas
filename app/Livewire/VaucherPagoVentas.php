@@ -30,6 +30,7 @@ class VaucherPagoVentas extends Component
     public $caja;
     public $tipoCaja;
     public $cod_operacion;
+    public $observacion;
 
     public function mount($aperturaId)
     {
@@ -170,7 +171,7 @@ class VaucherPagoVentas extends Component
          Log::info('Iniciando el proceso de submit en VaucherPagoCompras.');
      
          // Validación de campos
-         if (empty($this->fechaApertura) || empty($this->contenedor)) {
+         if (empty($this->fechaApertura) || empty($this->contenedor) || empty($this->observacion)) {
              Log::warning('Falta llenar campos: fecha o contenedor están vacíos.');
              session()->flash('error', 'Falta llenar campos');
              return;
@@ -230,14 +231,14 @@ class VaucherPagoVentas extends Component
                  'id_dh' => 1, // Debe
                  'monto' => $debe,
                  'montodo' => $debedo,
-                 'glosa' => 'PAGO DE CXC',
+                 'glosa' => $this -> observacion,
                  'numero_de_operacion' => $this->cod_operacion ?? null,
              ]);
      
              // Procesar cada detalle en el contenedor
              foreach ($this->contenedor as $detalle) {
                  $iddoc = $detalle['id_documentos'] ?? 'NULL';
-                 $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
+                 $glo = $this->observacion;
                  Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
      
                  // Obtener la cuenta

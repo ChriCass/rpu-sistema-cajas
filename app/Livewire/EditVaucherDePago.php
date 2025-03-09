@@ -34,7 +34,7 @@ class EditVaucherDePago extends Component
     public $editingIndex = null; // Para rastrear la fila en edición
     public $editingMonto = null; // Para almacenar temporalmente el valor del monto que se está editando
     public $warningMessage = [];
-
+    public $observacion;
     public $cod_operacion;
 
     public function mount($numeroMovimiento, $aperturaId)
@@ -50,7 +50,16 @@ class EditVaucherDePago extends Component
         $this->moneda = $this->tipoCaja->t04_tipodemoneda;
         $this->numMov = $numeroMovimiento;
         $this->fechaApertura = (new DateTime($apertura->fecha))->format('d/m/Y');
-
+        $ctaCaja = Cuenta::where('Descripcion', $this->tipoCaja['descripcion'])
+                ->firstOrFail()
+                ->toArray();
+        $glosa = MovimientoDeCaja::where('id_libro','3')
+                ->where('id_apertura',$this->aperturaId)
+                ->where('id_cuentas',$ctaCaja['id'])
+                ->where('mov',$this->numMov)
+                ->select('glosa')
+                ->first();
+        $this->observacion = $glosa->glosa;
         // Cargar los datos del vaucher al inicializar el componente
         $this->loadVaucherData();
     }
@@ -225,7 +234,7 @@ class EditVaucherDePago extends Component
         Log::info($this->fechaApertura);
     
         // Validación de campos
-        if (empty($this->fechaApertura) || empty($this->contenedor)) {
+        if (empty($this->fechaApertura) || empty($this->contenedor) || empty($this->observacion)) {
             Log::warning('Falta llenar campos: fecha o contenedor están vacíos.');
             session()->flash('error', 'Falta llenar campos');
             return;
@@ -265,7 +274,7 @@ class EditVaucherDePago extends Component
             // Procesar cada detalle en el contenedor
             foreach ($this->contenedor as $detalle) {
                 $iddoc = $detalle['id_documentos'] ?? 'NULL';
-                $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
+                $glo = $this->observacion;
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
     
                 // Obtener la cuenta
@@ -323,7 +332,7 @@ class EditVaucherDePago extends Component
                 'id_dh' => 2, // Haber
                 'monto' => $haber,
                 'montodo' => $haberdo,
-                'glosa' => 'PAGO DE CXP',
+                'glosa' => $this->observacion,
                 'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     

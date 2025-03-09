@@ -155,16 +155,23 @@
                 </table>
             </div>
 
-            <div class="flex justify-between mt-4 space-x-2">
-                <div class="w-2/12    px-2">
-                    <x-input wire:model.live='cod_operacion'  description="codigo de operacion"
-                    oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+            <div class="flex justify-between items-center mt-4 w-full">
+                <!-- Contenedor de Inputs -->
+                <div class="flex w-full space-x-4">
+                    <div class="w-2/12">
+                        <x-input wire:model.live='cod_operacion' description="Código de operación"
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').slice(0, 10)"/>
+                    </div>
+                    <div class="w-8/12">
+                        <x-input wire:model.live='observacion' description="Observación"/>
+                    </div>
                 </div>
-                <div>
+                
+                <!-- Botones alineados a la derecha -->
+                <div class="flex space-x-2">
                     <x-button label="Cancelar" wire:click="$dispatch('mostrarComponente', {componente: 'cancelar'})" outline secondary />
                     <x-button label="Aceptar" wire:click='submit' primary />
                 </div>
-              
             </div>
         </x-card>
     </div>
