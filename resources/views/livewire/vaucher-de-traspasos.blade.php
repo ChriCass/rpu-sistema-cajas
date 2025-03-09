@@ -90,14 +90,6 @@
                         />
                     @endif
                 </div>
-                <!--   <div class="flex gap-3 mt-5">
-                 <div> <x-button label="Registro CXC" primary class="py-2 px-4" /></div>
-                    <div><x-button label="Registro CXP" secondary class="py-2 px-4" /></div>
-                    <div> <x-button label="Ingreso" secondary class="py-2 px-4" /></div>
-                    <div><x-button label="Gasto" secondary class="py-2 px-4" /></div>  
-                </div>  -->
-
-               
             
         <!-- Botones de acción -->
         <div class="flex space-x-2 justify-between mb-4">

@@ -31,7 +31,7 @@ class EditVaucherDePagoVentas extends Component
     public $caja;
     public $tipoCaja;
     public $fecha;
-
+    public $observacion;
     public $cod_operacion;
 
     public function mount($numeroMovimiento, $aperturaId)
@@ -47,7 +47,16 @@ class EditVaucherDePagoVentas extends Component
         $this->moneda = $this->tipoCaja->t04_tipodemoneda;
         $this->numMov = $numeroMovimiento;
         $this->fechaApertura = (new DateTime($apertura->fecha))->format('d/m/Y');
-
+        $ctaCaja = Cuenta::where('Descripcion', $this->tipoCaja['descripcion'])
+                ->firstOrFail()
+                ->toArray();
+        $glosa = MovimientoDeCaja::where('id_libro','3')
+                ->where('id_apertura',$this->aperturaId)
+                ->where('id_cuentas',$ctaCaja['id'])
+                ->where('mov',$this->numMov)
+                ->select('glosa')
+                ->first();
+        $this->observacion = $glosa->glosa;
         // Cargar los datos del vaucher al inicializar el componente
         $this->loadVaucherData();
     }
@@ -234,7 +243,7 @@ class EditVaucherDePagoVentas extends Component
         Log::info('Iniciando el proceso de submit en VaucherPagoCompras.');
     
         // Validación de campos
-        if (empty($this->fechaApertura) || empty($this->contenedor)) {
+        if (empty($this->fechaApertura) || empty($this->contenedor) || empty($this->observacion)) {
             Log::warning('Falta llenar campos: fecha o contenedor están vacíos.');
             session()->flash('error', 'Falta llenar campos');
             return;
@@ -302,14 +311,14 @@ class EditVaucherDePagoVentas extends Component
                 'id_dh' => 1, // Debe
                 'monto' => $debe,
                 'montodo' => $debedo,
-                'glosa' => 'PAGO DE CXC',
+                'glosa' => $this->observacion,
                 'numero_de_operacion' => $this->cod_operacion ?? null,
             ]);
     
             // Procesar cada detalle en el contenedor
             foreach ($this->contenedor as $detalle) {
                 $iddoc = $detalle['id_documentos'] ?? 'NULL';
-                $glo = $detalle['RZ'] . ' ' . $detalle['Num'];
+                $glo = $this->observacion;
                 Log::info("Procesando detalle: ID Documento: {$iddoc}, Glosa: {$glo}");
     
                 // Obtener la cuenta
