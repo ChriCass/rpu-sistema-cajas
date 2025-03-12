@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\TipoDeCaja;
 use App\Models\TipoDeMoneda;
+use App\Models\Cuenta;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -59,6 +60,7 @@ class CajaModal extends Component
             // Bloquear fila para evitar lecturas concurrentes
             Log::info("Obteniendo nuevo ID para la caja...");
             $newId = TipoDeCaja::lockForUpdate()->max('id') + 1;
+            $newIdCuenta = Cuenta::lockForUpdate()->max('id') + 1;
             Log::info("Nuevo ID generado: {$newId}");
 
             // Insertar la nueva caja
@@ -74,7 +76,14 @@ class CajaModal extends Component
                 't04_tipodemoneda' => $this->t04_tipodemoneda, // Incluir el tipo de moneda
             ]);
 
+            $cuenta = Cuenta::create([
+                'id' => $newIdCuenta,
+                'descripcion' => $this->descripcion,
+                'id_tcuenta' => 1,
+            ]);
+
             Log::info("Caja creada exitosamente:", $caja->toArray());
+            Log::info("Cuenta creada exitosamente:", $cuenta->toArray());
 
             // Emitir el evento para refrescar la tabla
             Log::info("Emitting caja-created event...");

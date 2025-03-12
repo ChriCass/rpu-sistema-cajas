@@ -66,14 +66,15 @@ class DeleteDetalleModal extends ModalComponent
         // Si no hay movimientos, elimina el detalle
         $detalle = Detalle::find($this->detalleId); // Cambiado de SubFamilia a Detalle
         if ($detalle) {
+            Producto::where('id_detalle',$this->detalleId)->delete();
             $detalle->delete();
             session()->flash('message', 'Detalle eliminado con éxito.');
 
             // Redirige a la ruta 'detalles'
-            return redirect()->route('detalles');
+            return redirect()->route('detalle');
         } else {
             session()->flash('error', 'Detalle no encontrado.');
-            return redirect()->route('detalles');
+            return redirect()->route('detalle');
         }
     }
     public function render()
