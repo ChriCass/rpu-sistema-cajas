@@ -68,6 +68,10 @@ Route::middleware([
         return view('tesoreria.traspasos', ['routeName' => 'traspasos']);
     })->name('traspasos');
 
+    Route::get('/acciones-de-caja', function () {
+        return view('tesoreria.acciones-de-caja', ['routeName' => 'acciones-de-caja']);
+    })->name('acciones-de-caja');
+
     
     Route::get('/importador', function () {
         return view('importadores.importador', ['routeName' => 'importador']);

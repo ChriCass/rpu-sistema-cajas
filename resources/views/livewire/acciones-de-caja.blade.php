@@ -2,12 +2,15 @@
     {{-- Because she competes with no one, no one can compete with her. --}}
     <div class="w-full p-4 mt-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
         <p class="text-sm md:text-base font-semibold flex items-center">
-            ⚠️ Solo se puede borrar el documento si no tiene movimientos en caja.
+            ⚠️ Los movimientos de caja se generaran en funcion al dia del mes.
         </p>
       </div>
       <div class="container mx-auto p-4">
           <div class="w-full max-w-2xl">
               <div class="flex flex-wrap md:flex-nowrap justify-start items-end gap-4">
+                <div class="w-full md:w-1/3">
+                    <x-select label="Caja" placeholder="Selecc." wire:model="caja" :options="$tipodecaja" option-label="descripcion" option-value="id" class="w-full" />
+                </div>
                 <div class="w-full md:w-1/3">
                     <x-select label="Año" placeholder="Selecc." wire:model="año" :options="$años" class="w-full" />
                 </div>
@@ -50,14 +53,11 @@
                 <thead>
                     <tr class="bg-gray-100">
                         <th class="border p-2">Acciones</th>
-                        <th class="border p-2">ID Documento</th>
-                        <th class="border p-2">Fecha Emisión</th>
-                        <th class="border p-2">ID Entidad</th>
-                        <th class="border p-2">Descripción</th>
-                        <th class="border p-2">Serie</th>
-                        <th class="border p-2">Número</th>
-                        <th class="border p-2">Precio</th>
-                        <th class="border p-2">Observaciones</th>
+                        <th class="border p-2">Tipo de Caja</th>
+                        <th class="border p-2">Numero</th>
+                        <th class="border p-2">Año</th>
+                        <th class="border p-2">Mes</th>
+                        <th class="border p-2">Fecha</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,43 +72,22 @@
                                     <span x-text="estado ? 'Seleccionar' : 'Borrar'"></span>
                                 </button>
                             </td>
-                            <td class="border p-2">{{ $documento['id_documentos'] }}</td>
-                            <td class="border p-2">
-                                {{ \Carbon\Carbon::parse($documento['fechaEmi'])->format('d/m/Y') }}
-                            </td>
-                            <td class="border p-2">{{ $documento['id_entidades'] }}</td>
-                            <td class="border p-2">{{ $documento['descripcion'] }}</td>
-                            <td class="border p-2">{{ $documento['serie'] }}</td>
+                            <td class="border p-2">{{ $documento['tipo'] }}</td>
                             <td class="border p-2">{{ $documento['numero'] }}</td>
-                            <td class="border p-2">S/. {{ number_format($documento['precio'], 2) }}</td>
-                            <td class="border p-2">{{ $documento['observaciones'] }}</td>
-                            
+                            <td class="border p-2">{{ $documento['anno'] }}</td>
+                            <td class="border p-2">{{ $documento['mes'] }}</td>
+                            <td class="border p-2">{{ $documento['fecha'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         <div class="mt-4 flex justify-end">
-            <x-button negative label="Eliminar" wire:click="DeleteModal" />
-            <!-- Modal de confirmación de eliminación -->
-            <x-modal name="persistentModal" wire:model="openModal" persistent>
-                <x-card>
-                    <!-- Alerta de advertencia -->
-                    <x-alert title="¡Advertencia Importante!" negative padding="small">
-                        <x-slot name="slot">
-                            <p class="text-red-600 font-semibold">Estás a punto de <b>Borrar Varios Documentos</b>.</p>
-                            <p>Esta acción es <b>permanente</b> y no podrás deshacerla.</p>
-                            <p class="text-red-600 mt-3">¿Estás seguro de que deseas continuar?</p>
-                        </x-slot>
-                    </x-alert>
-                    
-                    <!-- Footer con los botones de Cancelar y Eliminar -->
-                    <x-slot name="footer" class="flex justify-end gap-x-4">
-                        <x-button flat negative label="Cancelar" wire:click="$set('openModal', false)" />
-                        <x-button negative label="Eliminar" wire:click="BorrarDocumentos" />
-                    </x-slot>
-                </x-card>
-            </x-modal>
+            @if ($mov == '1')
+                <x-button info label="Generar" wire:click="DeleteModal" />
+            @else
+                <x-button negative label="Eliminar" wire:click="DeleteModal" />
+            @endif
         </div>        
         @endif
     @else
@@ -118,5 +97,5 @@
             </p>
         </div>
     @endif
-
+    @livewire('delete-modal-acciones-de-caja')
 </div>
