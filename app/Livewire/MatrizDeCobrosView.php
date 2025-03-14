@@ -3,52 +3,88 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\Mes;
-use App\Models\TipoDeCaja;
-use App\Models\Apertura;
-use Illuminate\Support\Facades\DB;
 use App\Services\MatrizDeCobrosServices;
+use Illuminate\Support\Facades\Log;  // Asegúrate de importar Log
+
 class MatrizDeCobrosView extends Component
 {
-
     public $movimientos = [];
-    public $status = 'pendiente'; // Radio button default value
+    public $status = 'pendiente';
+    public $filters = [];
+    public $hasFiltered = false;
+
     protected $matrizDeCobrosService;
 
-    public function hydrate(MatrizDeCobrosServices $matrizDeCobrosService)
+    public function updated($property)
     {
-        $this->matrizDeCobrosService = $matrizDeCobrosService;
-         
+        Log::info("Filtro actualizado: {$property}");
+
+        if (str_starts_with($property, 'filters.') || $property === 'status') {
+            $this->hasFiltered = true;
+            Log::info("Aplicando filtro para el campo: {$property}");
+            $this->procesar();
+        }
     }
 
     public function procesar()
     {
         try {
+            Log::info("Iniciando procesamiento con el estado: {$this->status}");
+
             switch ($this->status) {
                 case 'pendiente':
-                    $this->movimientos = $this->matrizDeCobrosService->obtenerPagosPendientes();
-                    $mensaje = 'Cobros pendientes procesados correctamente.';
+                    $movimientos = collect($this->matrizDeCobrosService->obtenerPagosPendientes());
                     break;
                 case 'pagado':
-                    $this->movimientos = $this->matrizDeCobrosService->obtenerPagosPagados();
-                    $mensaje = 'Cobros pagados procesados correctamente.';
+                    $movimientos = collect($this->matrizDeCobrosService->obtenerPagosPagados());
                     break;
                 default:
-                    $this->movimientos = $this->matrizDeCobrosService->obtenerTodosLosPagos();
-                    $mensaje = 'Todos los cobros procesados correctamente.';
+                    $movimientos = collect($this->matrizDeCobrosService->obtenerTodosLosPagos());
                     break;
             }
 
-            if (empty($this->movimientos)) {
-                session()->flash('warning', 'No hay cobros en esta ocasión.');
-            } else {
-                session()->flash('success', $mensaje);
+            Log::info("Total de movimientos antes de aplicar filtros: " . count($movimientos));
+
+            foreach ($this->filters as $key => $value) {
+                if (!empty($value)) {
+                    // Eliminar espacios al principio y al final
+                    $value = trim($value);
+                    Log::info("Aplicando filtro para el campo: {$key} con valor: '{$value}'");
+
+                    // Si el valor contiene espacios, lo tratamos como múltiples palabras
+                    if (strpos($value, ' ') !== false) {
+                        // Separar el filtro en palabras
+                        $words = explode(' ', $value);
+                        Log::info("Filtro con múltiples palabras: " . implode(', ', $words));
+
+                        // Filtrar los movimientos para que contengan todas las palabras
+                        foreach ($words as $word) {
+                            $movimientos = $movimientos->filter(fn($item) => str_contains(strtolower($item->$key ?? ''), strtolower(trim($word))));
+                            Log::info("Filtro aplicado a la palabra: {$word}");
+                        }
+                    } else {
+                        // Si no contiene espacios, se usa el filtro como está
+                        $movimientos = $movimientos->filter(fn($item) => str_contains(strtolower($item->$key ?? ''), strtolower($value)));
+                        Log::info("Filtro aplicado a: '{$value}' en el campo: {$key}");
+                    }
+                }
             }
+
+            Log::info("Total de movimientos después de aplicar filtros: " . count($movimientos));
+
+            $this->movimientos = $movimientos->toArray();
         } catch (\Exception $e) {
+            Log::error("Error al procesar los cobros: " . $e->getMessage());
             session()->flash('error', 'Ocurrió un error al procesar los cobros: ' . $e->getMessage());
         }
     }
-       public function render()
+
+    public function hydrate(MatrizDeCobrosServices $matrizDeCobrosService)
+    {
+        $this->matrizDeCobrosService = $matrizDeCobrosService;
+    }
+
+    public function render()
     {
         return view('livewire.matriz-de-cobros-view')->layout('layouts.app');
     }
