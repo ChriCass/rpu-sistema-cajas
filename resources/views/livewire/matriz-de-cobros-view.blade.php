@@ -25,6 +25,9 @@
                             value="todo">
                         <span class="ml-2">Todo</span>
                     </label>
+                    <p class="text-xs text-gray-500 w-6/12" style="margin:0;">
+                        Solo es necesario procesar los datos una vez. Puedes comenzar a intercambiar entre estas opciones ya que los datos están precargados y listos para mostrarse.
+                    </p>
                 </div>
                 <div class="flex space-x-4">
                     <div class="flex flex-col items-center">
@@ -124,7 +127,9 @@
                             <td class="px-4 py-2 border-b">{{ $movimiento->Facturado }}</td>
                             <td class="px-4 py-2 border-b">{{ $movimiento->monto }}</td>
                             <td class="px-4 py-2 border-b">{{ $movimiento->montoK }}</td>
-                            <td class="px-4 py-2 border-b">{{ $movimiento->estadoMon }}</td>
+                            <td class="px-4 py-2 border-b {{ $movimiento->estadoMon == 'URGENTE' ? 'bg-yellow-200' : ($movimiento->estadoMon == 'VENCIDO' ? 'bg-red-200' : ($movimiento->estadoMon == 'PENDIENTE' ? 'bg-green-200' : 'bg-blue-200')) }}">
+                                {{ $movimiento->estadoMon }}
+                            </td>
                             <td class="px-4 py-2 border-b">{{ $movimiento->dias ?? '-' }}</td>
                             <td class="px-4 py-2 border-b">{{ $movimiento->fechaVen }}</td>
                             <td class="px-4 py-2 border-b">{{ $movimiento->detraccion ?? '-' }}</td>
