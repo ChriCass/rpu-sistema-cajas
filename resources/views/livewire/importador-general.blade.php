@@ -64,16 +64,7 @@
         </label>
    
     </div>
-    <div class="flex   mt-5">
-        <x-select
-        label="Pertenece a:"
-        placeholder="Selecc."
-        :options="$options"
-        option-label="name"
-        option-value="id"
-        wire:model="optionsEl"
-    />
-    </div>
+    
     <div class="flex justify-center mt-5">
         <x-button wire:click="Procesar" teal label="Procesar" />
     </div>
