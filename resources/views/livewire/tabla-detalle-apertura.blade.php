@@ -38,7 +38,6 @@
             <tbody>
                 <!-- Mostrar primero todos los movimientos que NO sean de la familia 'MOVIMIENTOS' -->
                 @foreach ($movimientos as $movimiento)
-                    @if ($movimiento->Entidad !== 'MOVIMIENTOS')
                         <tr>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->NumeroMovimiento }}</td>
                             <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->Entidad }}</td>
@@ -54,28 +53,6 @@
                                 </div>
                             </td>
                         </tr>
-                    @endif
-                @endforeach
-    
-                <!-- Luego, mostrar todos los movimientos de la familia 'MOVIMIENTOS' al final -->
-                @foreach ($movimientos as $movimiento)
-                    @if ($movimiento->Entidad === 'MOVIMIENTOS')
-                        <tr>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->NumeroMovimiento }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->Entidad }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->NumeroDocumento }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->Monto }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->Glosa }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">{{ $movimiento->numero_de_operacion }}</td>
-                            <td class="py-2 px-4 border-b border-gray-200">
-                                <div class="flex gap-3 flex-col">
-                                    <div><x-button wire:click="editarMovimiento({{ $movimiento->Monto }}, '{{ $movimiento->NumeroMovimiento }}', '{{ $movimiento->Entidad }}')" label="Editar" warning />
-                                    </div>
-                                    <div wire:ignore> @livewire('delete-apertura-modal', ['numMov' => $movimiento->NumeroMovimiento, 'aperturaId' => $aperturaId, 'familias' => $movimiento->Entidad])</div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endif
                 @endforeach
             </tbody>
         </table>
