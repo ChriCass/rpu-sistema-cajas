@@ -168,7 +168,7 @@ class EditVaucherDePago extends Component
             foreach ($this->contenedor as $item) {
                 // Sumar los valores de debe y haber
                 if (isset($item['debe'])) {
-                    $this->debe += $item['debe'];
+                    $this->debe += round($item['debe'],2);
                     Log::info('Sumando al Debe', ['debe' => $item['debe'], 'debe_actual' => $this->debe]);
                 }
                 if (isset($item['haber'])) {

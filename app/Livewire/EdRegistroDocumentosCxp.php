@@ -23,6 +23,7 @@ use App\Models\Producto;
 use App\Models\DDetalleDocumento;
 use App\Models\Cuenta;
 use App\Models\Apertura;
+use App\Services\ApiService;
 
 
 
@@ -83,6 +84,24 @@ class EdRegistroDocumentosCxp extends Component
     public $montoNeto;
     public $porcentaje;
     public $validacionDet;
+    protected $apiService; 
+
+    public function EnterRuc(){ //Abelardo = Evento enter para RUC
+        if($this -> tipoDocId <> ''){
+            $data = $this -> apiService -> REntidad($this -> tipoDocId,$this -> docIdent);
+            if ($data['success'] == '1') {
+                $this -> entidad = $data['desc'];
+            }else{
+                session()->flash('error', $data['desc']);
+                $this -> docIdent = '';
+                $this -> entidad = '';    
+            }
+        }else{
+            session()->flash('error', 'Elige un Tip de Indentidad');
+            $this -> docIdent = '';
+            $this -> entidad = '';
+        }
+    }
 
     public function updatedmontoDetraccion ($value){
     if($value <> ''){
@@ -419,13 +438,20 @@ class EdRegistroDocumentosCxp extends Component
         }
     }
 
-    public function mount()
+    public function mount(ApiService $apiService)
     {
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->user = Auth::user()->id;
         $this->loadInitialData();
         $this->consultaDetallesCxp();
+        $this->apiService = $apiService;
     }
+
+    public function hydrate(ApiService $apiService) // Abelardo = Hidrate la inyecion del servicio puesto que no esta funcionando el servicio, con esta opcion logre pasar el service por las diferentes funciones
+    {
+        $this->apiService = $apiService;
+    }
+
 
     public function loadInitialData()
     {

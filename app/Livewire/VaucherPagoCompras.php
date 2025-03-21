@@ -165,7 +165,7 @@ class VaucherPagoCompras extends Component
             if (count($this->contenedor) > 1) {
                 foreach ($this->contenedor as $item) {
                     if (isset($item['monto'])) {
-                        $this->haber += $item['monto'];
+                        $this->haber += round($item['monto'],2);
                         Log::info('Sumando al Haber', ['monto' => $item['monto'], 'haber_actual' => $this->haber]);
                     }
                 }

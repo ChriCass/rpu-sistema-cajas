@@ -93,8 +93,8 @@ class CuadroDePendientesVentasModal extends Component
                     SELECT 
                         id_documentos,
                         id_cuentas,
-                        SUM(monto) AS monto,
-                        SUM(montodo) AS montodo
+                        ROUND(SUM(monto),2) AS monto,
+                        ROUND(SUM(montodo),2) AS montodo
                     FROM (
                         SELECT 
                             id_documentos,
