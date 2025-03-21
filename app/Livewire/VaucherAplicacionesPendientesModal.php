@@ -96,7 +96,8 @@ class VaucherAplicacionesPendientesModal extends Component
                         documentos.id_t04tipmon, 
                         cuentas.Descripcion, monto, montodo 
                     FROM (
-                        SELECT id_documentos, id_cuentas, SUM(monto) AS monto, SUM(montodo) AS montodo 
+                        SELECT id_documentos, id_cuentas, ROUND(SUM(monto),2) AS monto,
+                         ROUND(SUM(montodo),2) AS montodo 
                         FROM (
                             SELECT id_documentos, id_cuentas, 
                                 IF(id_dh = '1', monto, monto * -1) AS monto, 
@@ -134,7 +135,8 @@ class VaucherAplicacionesPendientesModal extends Component
                         documentos.id_t04tipmon, 
                         cuentas.Descripcion, monto, montodo 
                     FROM (
-                        SELECT id_documentos, id_cuentas, SUM(monto) AS monto, SUM(montodo) AS montodo 
+                        SELECT id_documentos, id_cuentas, ROUND(SUM(monto),2) AS monto,
+                         ROUND(SUM(montodo),2) AS montodo 
                         FROM (
                             SELECT id_documentos, id_cuentas, 
                                 IF(id_dh = '2', monto, monto * -1) AS monto, 

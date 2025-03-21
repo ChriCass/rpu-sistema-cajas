@@ -21,11 +21,7 @@
         <div class="flex flex-wrap -mx-2 mt-4">
           <div class="w-full flex justify-end gap-5 px-2">
             <div>
-              @if ($balance < 0)
-                  <x-alert title="Balance: {{ $balance }}" negative />
-              @else
-                  <x-alert title="Balance: {{ $balance }}" positive />
-              @endif
+                  <x-alert title="Balance: 0" positive />
           </div>
 
             @if (!empty($contenedor))

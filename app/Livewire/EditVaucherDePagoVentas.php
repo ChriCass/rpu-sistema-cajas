@@ -195,7 +195,7 @@ class EditVaucherDePagoVentas extends Component
     
                 // Sumar los valores de haber solo si no son nulos y mayores que 0
                 if (isset($item['haber']) && $item['haber'] > 0) {
-                    $this->haber += $item['haber'];
+                    $this->haber += round($item['haber'],2);
                     Log::info('Sumando al Haber', ['haber' => $item['haber'], 'haber_actual' => $this->haber]);
                 }
             }

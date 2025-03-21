@@ -101,8 +101,8 @@ FROM (
                     SELECT 
                         id_documentos,
                         id_cuentas,
-                        SUM(monto) AS monto,
-                        SUM(montodo) AS montodo
+                        Round(SUM(monto),2) AS monto,
+                        Round(SUM(montodo),2) AS montodo
                     FROM (
                         SELECT 
 							id_documentos,
@@ -130,26 +130,28 @@ FROM (
 ) CON6
 LEFT JOIN (
     SELECT 
-        id_documentos,
-        GROUP_CONCAT(Num ORDER BY Num SEPARATOR ' | ') AS Num
-    FROM (
-        SELECT 
-            id_documentos,
-            CONCAT(mov, ':[', fec, ']:', monto) AS Num
-        FROM (
-            SELECT 
-                id_documentos,
-                mov,
-                DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
-                IF(montodo IS NULL, monto, montodo) AS monto
-            FROM 
-                movimientosdecaja
-            WHERE 
-                id_cuentas IN ('1') 
-                AND id_libro = '3'
-        ) CON1
-    ) CON1
-    GROUP BY id_documentos
+                    id_documentos,
+                    GROUP_CONCAT(Num ORDER BY Num SEPARATOR ' | ') AS Num
+                FROM (
+                    SELECT 
+                        id_documentos,
+                        CONCAT(Apertura,':',mov, ':[', fec, ']:', round(monto,2)) AS Num
+                    FROM (
+                        SELECT 
+							concat(aperturas.id_tipo,'-',aperturas.año,'-',aperturas.id_mes,'-',aperturas.numero) as Apertura,
+                            id_documentos,
+                            mov,
+                            DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
+                            IF(montodo IS NULL, monto, montodo) AS monto
+                        FROM 
+                            movimientosdecaja
+                            left join aperturas on movimientosdecaja.id_apertura = aperturas.id
+                        WHERE 
+                            id_cuentas IN ('1') 
+                            AND id_libro IN ('3','4','5','6')
+                    ) CON1
+                ) CON1
+                GROUP BY id_documentos
 ) INN1 ON CON6.id = INN1.id_documentos
 LEFT JOIN (
     SELECT 
@@ -159,7 +161,7 @@ LEFT JOIN (
         movimientosdecaja
     WHERE 
         id_cuentas IN ('1') 
-        AND id_libro = '3'
+        AND id_libro IN ('3','4','5','6')
     GROUP BY id_documentos
 ) INN2 ON CON6.id = INN2.id_documentos
 WHERE CONCAT(estadoMon, EstadoDetr) NOT IN ('PAGADOPAGADO', 'PAGADO');
@@ -261,8 +263,8 @@ FROM (
                     SELECT 
                         id_documentos,
                         id_cuentas,
-                        SUM(monto) AS monto,
-                        SUM(montodo) AS montodo
+                        Round(SUM(monto),2) AS monto,
+                        Round(SUM(montodo),2) AS montodo
                     FROM (
                         SELECT 
 							id_documentos,
@@ -290,26 +292,28 @@ FROM (
 ) CON6
 LEFT JOIN (
     SELECT 
-        id_documentos,
-        GROUP_CONCAT(Num ORDER BY Num SEPARATOR ' | ') AS Num
-    FROM (
-        SELECT 
-            id_documentos,
-            CONCAT(mov, ':[', fec, ']:', monto) AS Num
-        FROM (
-            SELECT 
-                id_documentos,
-                mov,
-                DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
-                IF(montodo IS NULL, monto, montodo) AS monto
-            FROM 
-                movimientosdecaja
-            WHERE 
-                id_cuentas IN ('1') 
-                AND id_libro = '3'
-        ) CON1
-    ) CON1
-    GROUP BY id_documentos
+                    id_documentos,
+                    GROUP_CONCAT(Num ORDER BY Num SEPARATOR ' | ') AS Num
+                FROM (
+                    SELECT 
+                        id_documentos,
+                        CONCAT(Apertura,':',mov, ':[', fec, ']:', round(monto,2)) AS Num
+                    FROM (
+                        SELECT 
+							concat(aperturas.id_tipo,'-',aperturas.año,'-',aperturas.id_mes,'-',aperturas.numero) as Apertura,
+                            id_documentos,
+                            mov,
+                            DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
+                            IF(montodo IS NULL, monto, montodo) AS monto
+                        FROM 
+                            movimientosdecaja
+                            left join aperturas on movimientosdecaja.id_apertura = aperturas.id
+                        WHERE 
+                            id_cuentas IN ('1') 
+                            AND id_libro IN ('3','4','5','6')
+                    ) CON1
+                ) CON1
+                GROUP BY id_documentos
 ) INN1 ON CON6.id = INN1.id_documentos
 LEFT JOIN (
     SELECT 
@@ -319,7 +323,7 @@ LEFT JOIN (
         movimientosdecaja
     WHERE 
         id_cuentas IN ('1') 
-        AND id_libro = '3'
+        AND id_libro IN ('3','4','5','6')
     GROUP BY id_documentos
 ) INN2 ON CON6.id = INN2.id_documentos
 WHERE CONCAT(estadoMon, EstadoDetr)  IN ('PAGADOPAGADO', 'PAGADO');
@@ -421,8 +425,8 @@ FROM (
                     SELECT 
                         id_documentos,
                         id_cuentas,
-                        SUM(monto) AS monto,
-                        SUM(montodo) AS montodo
+                        Round(SUM(monto),2) AS monto,
+                        Round(SUM(montodo),2) AS montodo
                     FROM (
                         SELECT 
 							id_documentos,
@@ -450,27 +454,28 @@ FROM (
 ) CON6
 LEFT JOIN (
     SELECT 
-        id_documentos,
-        GROUP_CONCAT(Num ORDER BY Num SEPARATOR ' | ') AS Num
-    FROM (
-        SELECT 
-            id_documentos,
-            CONCAT(mov, ':[', fec, ']:', monto) AS Num
-        FROM (
-            SELECT 
-                id_documentos,
-                mov,
-                DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
-                IF(montodo IS NULL, monto, montodo) AS monto
-            FROM 
-                movimientosdecaja
-            WHERE 
-                id_cuentas IN ('1') 
-                AND id_libro = '3'
-        ) CON1
-    ) CON1
-    GROUP BY id_documentos
-) INN1 ON CON6.id = INN1.id_documentos
+                    id_documentos,
+                    GROUP_CONCAT(Num ORDER BY Num SEPARATOR ' | ') AS Num
+                FROM (
+                    SELECT 
+                        id_documentos,
+                        CONCAT(Apertura,':',mov, ':[', fec, ']:', round(monto,2)) AS Num
+                    FROM (
+                        SELECT 
+							concat(aperturas.id_tipo,'-',aperturas.año,'-',aperturas.id_mes,'-',aperturas.numero) as Apertura,
+                            id_documentos,
+                            mov,
+                            DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
+                            IF(montodo IS NULL, monto, montodo) AS monto
+                        FROM 
+                            movimientosdecaja
+                            left join aperturas on movimientosdecaja.id_apertura = aperturas.id
+                        WHERE 
+                            id_cuentas IN ('1') 
+                            AND id_libro IN ('3','4','5','6')
+                    ) CON1
+                ) CON1
+                GROUP BY id_documentos
 LEFT JOIN (
     SELECT 
         id_documentos,
@@ -479,7 +484,7 @@ LEFT JOIN (
         movimientosdecaja
     WHERE 
         id_cuentas IN ('1') 
-        AND id_libro = '3'
+        AND id_libro IN ('3','4','5','6')
     GROUP BY id_documentos
 ) INN2 ON CON6.id = INN2.id_documentos
  

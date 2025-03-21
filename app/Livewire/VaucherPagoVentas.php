@@ -137,7 +137,7 @@ class VaucherPagoVentas extends Component
             // Sumamos todos los montos al "Debe"
             foreach ($this->contenedor as $item) {
                 if (isset($item['monto'])) {
-                    $this->debe += $item['monto'];
+                    $this->debe += round($item['monto'],2);
                     Log::info('Sumando al Debe', ['monto' => $item['monto'], 'debe_actual' => $this->debe]);
                 }
             }

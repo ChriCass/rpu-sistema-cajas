@@ -14,7 +14,7 @@ class BalanceCuentasAnalisisService {
         $fecha = $anio."-".$mes."-".$dia;
         $idCuenta = $this -> cuentasId($cuenta);
         $query = "select movimientosdecaja.id_documentos,documentos.id_entidades,entidades.descripcion as entidades,tabla10_tipodecomprobantedepagoodocumento.descripcion as tdoc,documentos.serie,documentos.numero,
-                cuentas.descripcion as cuenta,sum(if(id_dh = '1',monto,monto*-1)) as monto,documentos.observaciones from movimientosdecaja 
+                cuentas.descripcion as cuenta,ROUND(sum(if(id_dh = '1',monto,monto*-1)),2) as monto,documentos.observaciones from movimientosdecaja 
                 left join documentos on movimientosdecaja.id_documentos = documentos.id
                 left join entidades on documentos.id_entidades = entidades.id
                 left join tabla10_tipodecomprobantedepagoodocumento on documentos.id_t10tdoc = tabla10_tipodecomprobantedepagoodocumento.id

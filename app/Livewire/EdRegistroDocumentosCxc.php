@@ -23,6 +23,7 @@ use App\Models\Producto;
 use App\Models\DDetalleDocumento;
 use App\Models\Cuenta;
 use App\Models\Apertura;
+use App\Services\ApiService;
 
 
 class EdRegistroDocumentosCxc extends Component
@@ -86,6 +87,9 @@ class EdRegistroDocumentosCxc extends Component
     public $porcentaje;
     public $validacionDet;
     public $cod_operacion;
+    protected $apiService; 
+
+
     public function updatedmontoDetraccion ($value){
         if($value <> ''){
             $this -> montoNeto = $this -> precio - $value;
@@ -418,11 +422,17 @@ class EdRegistroDocumentosCxc extends Component
         }
     }
 
-    public function mount()
+    public function mount(ApiService $apiService)
     {
         $this->tipoDocIdentidades = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->user = Auth::user()->id;
         $this->loadInitialData();
+        $this->apiService = $apiService;
+    }
+
+    public function hydrate(ApiService $apiService) // Abelardo = Hidrate la inyecion del servicio puesto que no esta funcionando el servicio, con esta opcion logre pasar el service por las diferentes funciones
+    {
+        $this->apiService = $apiService;
     }
 
     public function loadInitialData()
