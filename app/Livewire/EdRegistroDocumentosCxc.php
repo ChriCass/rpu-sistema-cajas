@@ -435,6 +435,24 @@ class EdRegistroDocumentosCxc extends Component
         $this->apiService = $apiService;
     }
 
+    public function EnterRuc(){ //Abelardo = Evento enter para RUC
+        if($this -> tipoDocId <> ''){
+            $data = $this -> apiService -> REntidad($this -> tipoDocId,$this -> docIdent);
+            if ($data['success'] == '1') {
+                $this -> entidad = $data['desc'];
+            }else{
+                session()->flash('error', $data['desc']);
+                $this -> docIdent = '';
+                $this -> entidad = '';    
+            }
+        }else{
+            session()->flash('error', 'Elige un Tip de Indentidad');
+            $this -> docIdent = '';
+            $this -> entidad = '';
+        }
+    }
+
+
     public function loadInitialData()
     {
         $familiasBase = Familia::where('id', 'like', '0%')->get();
