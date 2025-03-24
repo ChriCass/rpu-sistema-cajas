@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 use App\Livewire\AperturaEditParent;
 use App\Livewire\RegistroDocumentosIngreso;
 use App\Livewire\RegistroDocumentosEgreso;
@@ -46,7 +47,20 @@ use App\Livewire\ReporteRegistroVentasView;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Rutas para el registro de usuarios y roles administradas por el controlador
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/register', [App\Http\Controllers\UserRegistrationController::class, 'showRegistrationForm'])->name('register-admin');
+    Route::post('/register', [App\Http\Controllers\UserRegistrationController::class, 'register'])->name('register.manual');
+    Route::get('/check-roles', [App\Http\Controllers\UserRegistrationController::class, 'checkRoles']);
+    Route::get('/users', function () {
+        return view('admin.users');
+    })->name('admin.users');
+});
+
+// Ruta original
 Route::redirect('/', '/login');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
