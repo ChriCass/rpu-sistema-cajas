@@ -192,4 +192,8 @@ Route::get('/reportes/reporte-analitico-costo', ReporteAnaliticoCostoView::class
 Route::get('/reportes/reporte-inconsistencias', ReporteInconcistenciasView::class)->name('reporte.inconsistencias');
 Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->name('reporte.diario.matriz');
  
+    // Rutas para Maquinarias
+    Route::get('/maquinarias/parte-diario', function () {
+        return view('maquinarias.parte-diario', ['routeName' => 'parte-diario']);
+    })->name('parte-diario');
 });
