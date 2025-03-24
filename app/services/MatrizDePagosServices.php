@@ -168,9 +168,9 @@ class MatrizDePagosServices
         ");
     }
 
-    public function obtenerPagosPagados()
+    public function obtenerPagosPagados($empresaId = null)
     {
-        return DB::select("
+        $query = "
             SELECT 
                 id,
                 tdoc,
@@ -214,14 +214,14 @@ class MatrizDePagosServices
                         IF(detraccion = 0, 'PAGADO',
                             IF(CURDATE() > STR_TO_DATE(
                                     IF(detraccion IS NOT NULL, 
-                                        DATE_FORMAT(DATE_ADD(STR_TO_DATE(fechaemi, '%d/%m/%Y'), INTERVAL 1 YEAR), '%d/%m/%Y'),
+                                        DATE_FORMAT(DATE_ADD(STR_TO_DATE(fechaemi, '%d/%m/%Y'), INTERVAL 30 DAY), '%d/%m/%Y'),
                                         NULL), '%d/%m/%Y'), 'VENCIDO',
                                 IF(CURDATE() > DATE_ADD(STR_TO_DATE(
                                         IF(detraccion IS NOT NULL, 
-                                            DATE_FORMAT(DATE_ADD(STR_TO_DATE(fechaemi, '%d/%m/%Y'), INTERVAL 1 YEAR), '%d/%m/%Y'),
+                                            DATE_FORMAT(DATE_ADD(STR_TO_DATE(fechaemi, '%d/%m/%Y'), INTERVAL 30 DAY), '%d/%m/%Y'),
                                             NULL), '%d/%m/%Y'), INTERVAL -7 DAY), 'URGENTE', 'PENDIENTE')))
                     ) AS EstadoDetr,
-                    IF(detraccion IS NOT NULL, DATE_FORMAT(DATE_ADD(STR_TO_DATE(fechaemi, '%d/%m/%Y'), INTERVAL 1 YEAR), '%d/%m/%Y'), NULL) AS VenDetraccion,
+                    IF(detraccion IS NOT NULL, DATE_FORMAT(DATE_ADD(STR_TO_DATE(fechaemi, '%d/%m/%Y'), INTERVAL 30 DAY), '%d/%m/%Y'), NULL) AS VenDetraccion,
                     observaciones,
                     entidades.cta1,
                     entidades.cta2,
@@ -264,13 +264,13 @@ class MatrizDePagosServices
                                     id_documentos,
                                     id_cuentas,
                                     Round(SUM(monto),2) AS monto,
-                                    Round(SUM(monto),2) AS montodo
+                                    Round(SUM(montodo),2) AS montodo
                                 FROM (
                                     SELECT 
                                         id_documentos,
                                         id_cuentas,
-                                        IF(id_dh = '2', monto, monto * -1) AS monto,
-                                        IF(id_dh = '2', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo
+                                        IF(id_dh = '1', monto, monto * -1) AS monto,
+                                        IF(id_dh = '1', IF(montodo IS NULL, 0, montodo), IF(montodo IS NULL, 0, montodo) * -1) AS montodo
                                     FROM 
                                         movimientosdecaja
                                     WHERE 
@@ -300,7 +300,7 @@ class MatrizDePagosServices
                         CONCAT(Apertura,':',mov, ':[', fec, ']:', round(monto,2)) AS Num
                     FROM (
                         SELECT 
-							concat(aperturas.id_tipo,'-',aperturas.año,'-',aperturas.id_mes,'-',aperturas.numero) as Apertura,
+                            concat(aperturas.id_tipo,'-',aperturas.año,'-',aperturas.id_mes,'-',aperturas.numero) as Apertura,
                             id_documentos,
                             mov,
                             DATE_FORMAT(fec, '%d/%m/%Y') AS fec,
@@ -326,8 +326,17 @@ class MatrizDePagosServices
                     AND id_libro IN ('3','4','5','6')
                 GROUP BY id_documentos
             ) INN2 ON CON6.id = INN2.id_documentos
-            WHERE CONCAT(estadoMon, EstadoDetr)  IN ('PAGADOPAGADO', 'PAGADO')
-        ");
+            WHERE CONCAT(estadoMon, EstadoDetr) IN ('PAGADOPAGADO', 'PAGADO')";
+
+        // Si se proporciona un ID de empresa, añadir el filtro
+        if ($empresaId) {
+            $entidad = DB::table('entidades')->find($empresaId);
+            if ($entidad) {
+                $query .= " AND id_entidades = '" . $entidad->id . "'";
+            }
+        }
+
+        return DB::select($query);
     }
 
     public function obtenerTodosLosPagos()
@@ -426,7 +435,7 @@ class MatrizDePagosServices
                                     id_documentos,
                                     id_cuentas,
                                     Round(SUM(monto),2) AS monto,
-                                    Round(SUM(montodo),2) AS montodo
+                                    Round(SUM(monto),2) AS montodo
                                 FROM (
                                     SELECT 
                                         id_documentos,
