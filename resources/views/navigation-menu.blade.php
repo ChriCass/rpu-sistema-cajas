@@ -29,57 +29,39 @@
                                 <div class="hidden sm:block sm:ml-6">
                                     <div class="flex space-x-4">
                                         <a href="{{ route('dashboard') }}" wire:navigate class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                                        
                                         <div x-data="{ dropdownOpen: false }" class="relative">
                                             <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                                                Tesorería
+                                                Módulo de Caja
                                                 <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
                                             </button>
-                                            <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
+                                            <div x-show="dropdownOpen" class="absolute mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 max-h-[80vh] overflow-y-auto" x-cloak>
+                                                <!-- Tesorería -->
+                                                <div class="px-4 py-2 text-xs text-gray-600 border-b">Tesorería</div>
                                                 <a href="{{ route('movimientos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
                                                 <a href="{{ route('aplicaciones') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Aplicaciones</a>
                                                 <a href="{{ route('traspasos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Traspasos</a>
-                                                <a href="{{ route('importador-general') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">importar</a>
+                                                <a href="{{ route('importador-general') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Importar</a>
                                                 <a href="{{ route('acciones-de-caja') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Acciones de caja</a>
-                                            </div>
-                                        </div>
-                                        <div x-data="{ dropdownOpen: false }" class="relative">
-                                            <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                                                Pendientes
-                                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                                </svg>
-                                            </button>
-                                            <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
+                                                
+                                                <!-- Pendientes -->
+                                                <div class="px-4 py-2 text-xs text-gray-600 border-b border-t">Pendientes</div>
                                                 <a href="{{ route('cxc') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">CXC</a>
                                                 <a href="{{ route('cxp') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">CXP</a>
-                                                <a href="{{ route('importar') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">importar</a>
+                                                <a href="{{ route('importar') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Importar</a>
                                                 <a href="{{ route('borrar-masivo') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Borrar Masivo</a>
-                                            </div>
-                                        </div>
-                                        <div x-data="{ dropdownOpen: false }" class="relative">
-                                            <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                                                Productos
-                                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                                </svg>
-                                            </button>
-                                            <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
+
+                                                <!-- Productos -->
+                                                <div class="px-4 py-2 text-xs text-gray-600 border-b border-t">Productos</div>
                                                 <a href="{{ route('familias') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Familias</a>
                                                 <a href="{{ route('subfamilias') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Subfamilias</a>
                                                 <a href="{{ route('detalle') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Detalle</a>
                                                 <a href="{{ route('producto') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Producto</a>
-                                            </div>
-                                        </div>
-                                        <div x-data="{ dropdownOpen: false }" class="relative">
-                                            <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                                                Configuracion
-                                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                                </svg>
-                                            </button>
-                                            <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
+
+                                                <!-- Configuración -->
+                                                <div class="px-4 py-2 text-xs text-gray-600 border-b border-t">Configuración</div>
                                                 <a href="{{ route('cuentas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cuentas</a>
                                                 <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
                                                 <a href="{{ route('cajas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cajas</a>
@@ -119,7 +101,7 @@
                             <a href="{{ route('dashboard') }}" wire:navigate class="text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
                             <div x-data="{ dropdownOpen: false }" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="text-gray-900 block px-3 py-2 rounded-md text-base font-medium flex items-center">
-                                    Tesorería
+                                    Módulo de Caja
                                     <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
