@@ -191,11 +191,6 @@ class MatrizDeCobrosView extends Component
                     $this->movimientos = $this->matrizDeCobrosService->obtenerPagosPagados();
                     $mensaje = 'Movimientos pagados procesados correctamente.';
                     break;
-
-                default:
-                    $this->movimientos = $this->matrizDeCobrosService->obtenerTodosLosPagos();
-                    $mensaje = 'Todos los movimientos procesados correctamente.';
-                    break;
             }
             
             // Inicialmente, mostrar todos los movimientos

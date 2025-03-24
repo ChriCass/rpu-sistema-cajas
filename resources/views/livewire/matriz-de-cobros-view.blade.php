@@ -22,10 +22,6 @@
                                 <input type="radio" wire:model.live="tempFiltroStatus" value="pagado" class="form-radio h-5 w-5 text-blue-600">
                                 <span class="ml-2 text-gray-700">Pagado</span>
                             </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" wire:model.live="tempFiltroStatus" value="todo" class="form-radio h-5 w-5 text-blue-600">
-                                <span class="ml-2 text-gray-700">Todo</span>
-                            </label>
                         </div>
                     </div>
 
@@ -41,9 +37,9 @@
             </div>
         </div>
 
-        <!-- Filtros mejorados -->
+        <!-- Filtros mejorados y tabla con cabeceras -->
         <div class="overflow-x-auto mb-6">
-            <div class="bg-white p-4 rounded-lg shadow-md">
+            <div class="bg-white p-4 rounded-lg shadow-md mb-4">
                 <div class="mb-3">
                     <h3 class="text-lg font-semibold text-gray-700 mb-2 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
@@ -136,169 +132,170 @@
                     </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Tabla con cabeceras -->
-        <div class="overflow-x-auto">
             @if (!empty($movimientos))
-                <div class="bg-white p-3 mb-3 rounded-md shadow-sm flex justify-between items-center">
-                    <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                        </svg>
-                        <span class="font-medium text-gray-700">Resultados</span>
-                    </div>
-                    <div class="flex items-center space-x-4">
+                <div class="bg-white p-3 mb-3 rounded-md shadow-md">
+                    <div class="flex justify-between items-center mb-3">
                         <div class="flex items-center">
-                            <label for="per-page" class="text-xs font-medium text-gray-700 mr-2">Mostrar:</label>
-                            <select wire:model.live="perPage" wire:change="changePerPage($event.target.value)" class="px-4 py-2 border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm w-28">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                                <option value="0">Todo</option>
-                            </select>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                            </svg>
+                            <span class="font-medium text-gray-700">Resultados</span>
                         </div>
-                        <span class="text-sm bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-medium">
-                            {{ $totalRegistros }} {{ $totalRegistros == 1 ? 'registro encontrado' : 'registros encontrados' }}
-                        </span>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <label for="per-page" class="text-xs font-medium text-gray-700 mr-2">Mostrar:</label>
+                                <select wire:model.live="perPage" wire:change="changePerPage($event.target.value)" class="px-4 py-2 border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm w-28">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="0">Todo</option>
+                                </select>
+                            </div>
+                            <span class="text-sm bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-medium">
+                                {{ $totalRegistros }} {{ $totalRegistros == 1 ? 'registro encontrado' : 'registros encontrados' }}
+                            </span>
+                        </div>
                     </div>
-                </div>
                 
-                <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-sm">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ID</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">T. DOC</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">DOC</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">FECHA EMI</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ID ENTIDAD</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ENTIDAD</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">USUARIO</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">MONEDA</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">FACTURADO</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">MONTO</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">MONTO K</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ESTADO</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">DIAS</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">FEC VEN</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">DETRACCION</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ESTADO DETR</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">VEN DETRACCION</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">OBSERVACION</th>
-                            <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">PAGOS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($paginatedMovimientos as $index => $movimiento)
-                            <tr class="{{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-gray-100 transition-colors duration-150">
-                                <td class="px-4 py-2 border-b">{{ $movimiento->id }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->tdoc }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->Doc }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->fechaemi }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->id_entidades }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->Deski }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->name }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->id_t04tipmon }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->Facturado }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->monto }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->montoK }}</td>
-                                <td class="px-4 py-2 border-b">
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium
-                                        {{ $movimiento->estadoMon == 'URGENTE' ? 'bg-yellow-100 text-yellow-800' : 
-                                           ($movimiento->estadoMon == 'VENCIDO' ? 'bg-red-100 text-red-800' : 
-                                           ($movimiento->estadoMon == 'PENDIENTE' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800')) }}">
-                                        {{ $movimiento->estadoMon }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->dias ?? '-' }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->fechaVen }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->detraccion ?? '-' }}</td>
-                                <td class="px-4 py-2 border-b">
-                                    @if(!empty($movimiento->EstadoDetr))
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium
-                                            {{ $movimiento->EstadoDetr == 'URGENTE' ? 'bg-yellow-100 text-yellow-800' : 
-                                               ($movimiento->EstadoDetr == 'VENCIDO' ? 'bg-red-100 text-red-800' : 
-                                               ($movimiento->EstadoDetr == 'PENDIENTE' ? 'bg-green-100 text-green-800' : 
-                                               ($movimiento->EstadoDetr == 'PAGADO' ? 'bg-blue-100 text-blue-800' : ''))) }}">
-                                            {{ $movimiento->EstadoDetr }}
-                                        </span>
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->VenDetraccion ?? '-' }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->observaciones ?? '-' }}</td>
-                                <td class="px-4 py-2 border-b">{{ $movimiento->Num ?? '-' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-
-                <!-- Paginación -->
-                @if($perPage > 0)
-                <div class="flex items-center justify-between p-4">
-                    <div class="text-sm text-gray-700">
-                        Mostrando
-                        <span class="font-medium">{{ min(($currentPage - 1) * $perPage + 1, $totalRegistros) }}</span>
-                        a
-                        <span class="font-medium">{{ min($currentPage * $perPage, $totalRegistros) }}</span>
-                        de
-                        <span class="font-medium">{{ $totalRegistros }}</span>
-                        resultados
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-300 rounded-md shadow-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ID</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">T. DOC</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">DOC</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">FECHA EMI</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ID ENTIDAD</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ENTIDAD</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">USUARIO</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">MONEDA</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">FACTURADO</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">MONTO</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">MONTO K</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ESTADO</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">DIAS</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">FEC VEN</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">DETRACCION</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">ESTADO DETR</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">VEN DETRACCION</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">OBSERVACION</th>
+                                    <th class="py-3 px-4 border-b font-medium text-sm text-gray-700 uppercase tracking-wider">PAGOS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($paginatedMovimientos as $index => $movimiento)
+                                    <tr class="{{ $index % 2 == 0 ? 'bg-white' : 'bg-gray-50' }} hover:bg-gray-100 transition-colors duration-150">
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->id }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->tdoc }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->Doc }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->fechaemi }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->id_entidades }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->Deski }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->name }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->id_t04tipmon }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->Facturado }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->monto }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->montoK }}</td>
+                                        <td class="px-4 py-2 border-b">
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium
+                                                {{ $movimiento->estadoMon == 'URGENTE' ? 'bg-yellow-100 text-yellow-800' : 
+                                                   ($movimiento->estadoMon == 'VENCIDO' ? 'bg-red-100 text-red-800' : 
+                                                   ($movimiento->estadoMon == 'PENDIENTE' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800')) }}">
+                                                {{ $movimiento->estadoMon }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->dias ?? '-' }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->fechaVen }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->detraccion ?? '-' }}</td>
+                                        <td class="px-4 py-2 border-b">
+                                            @if(!empty($movimiento->EstadoDetr))
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium
+                                                    {{ $movimiento->EstadoDetr == 'URGENTE' ? 'bg-yellow-100 text-yellow-800' : 
+                                                       ($movimiento->EstadoDetr == 'VENCIDO' ? 'bg-red-100 text-red-800' : 
+                                                       ($movimiento->EstadoDetr == 'PENDIENTE' ? 'bg-green-100 text-green-800' : 
+                                                       ($movimiento->EstadoDetr == 'PAGADO' ? 'bg-blue-100 text-blue-800' : ''))) }}">
+                                                    {{ $movimiento->EstadoDetr }}
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->VenDetraccion ?? '-' }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->observaciones ?? '-' }}</td>
+                                        <td class="px-4 py-2 border-b">{{ $movimiento->Num ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-
-                    <div class="flex space-x-1">
-                        <!-- Botón Anterior -->
-                        <button wire:click="setPage({{ max($currentPage - 1, 1) }})" {{ $currentPage <= 1 ? 'disabled' : '' }} class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md {{ $currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50' }}">
-                            Anterior
-                        </button>
-
-                        <!-- Números de página -->
-                        <div class="flex space-x-1">
-                            @php
-                                $totalPages = $this->getTotalPages();
-                                $range = 2; // Mostrar 2 páginas antes y después de la actual
-                                $startPage = max(1, $currentPage - $range);
-                                $endPage = min($totalPages, $currentPage + $range);
-                            @endphp
-
-                            @if($startPage > 1)
-                                <button wire:click="setPage(1)" class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                                    1
-                                </button>
-                                @if($startPage > 2)
-                                    <span class="px-3 py-1 text-sm font-medium text-gray-700">...</span>
-                                @endif
-                            @endif
-
-                            @for($i = $startPage; $i <= $endPage; $i++)
-                                <button wire:click="setPage({{ $i }})" class="px-3 py-1 text-sm font-medium {{ $i == $currentPage ? 'text-blue-600 bg-blue-50 border-blue-500' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50' }} border rounded-md">
-                                    {{ $i }}
-                                </button>
-                            @endfor
-
-                            @if($endPage < $totalPages)
-                                @if($endPage < $totalPages - 1)
-                                    <span class="px-3 py-1 text-sm font-medium text-gray-700">...</span>
-                                @endif
-                                <button wire:click="setPage({{ $totalPages }})" class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-                                    {{ $totalPages }}
-                                </button>
-                            @endif
+                
+                    <!-- Paginación -->
+                    @if($perPage > 0)
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="text-sm text-gray-700">
+                            Mostrando
+                            <span class="font-medium">{{ min(($currentPage - 1) * $perPage + 1, $totalRegistros) }}</span>
+                            a
+                            <span class="font-medium">{{ min($currentPage * $perPage, $totalRegistros) }}</span>
+                            de
+                            <span class="font-medium">{{ $totalRegistros }}</span>
+                            resultados
                         </div>
 
-                        <!-- Botón Siguiente -->
-                        <button wire:click="setPage({{ min($currentPage + 1, $totalPages) }})" {{ $currentPage >= $totalPages ? 'disabled' : '' }} class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md {{ $currentPage >= $totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50' }}">
-                            Siguiente
-                        </button>
+                        <div class="flex space-x-1">
+                            <!-- Botón Anterior -->
+                            <button wire:click="setPage({{ max($currentPage - 1, 1) }})" {{ $currentPage <= 1 ? 'disabled' : '' }} class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md {{ $currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50' }}">
+                                Anterior
+                            </button>
+
+                            <!-- Números de página -->
+                            <div class="flex space-x-1">
+                                @php
+                                    $totalPages = $this->getTotalPages();
+                                    $range = 2; // Mostrar 2 páginas antes y después de la actual
+                                    $startPage = max(1, $currentPage - $range);
+                                    $endPage = min($totalPages, $currentPage + $range);
+                                @endphp
+
+                                @if($startPage > 1)
+                                    <button wire:click="setPage(1)" class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                        1
+                                    </button>
+                                    @if($startPage > 2)
+                                        <span class="px-3 py-1 text-sm font-medium text-gray-700">...</span>
+                                    @endif
+                                @endif
+
+                                @for($i = $startPage; $i <= $endPage; $i++)
+                                    <button wire:click="setPage({{ $i }})" class="px-3 py-1 text-sm font-medium {{ $i == $currentPage ? 'text-blue-600 bg-blue-50 border-blue-500' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50' }} border rounded-md">
+                                        {{ $i }}
+                                    </button>
+                                @endfor
+
+                                @if($endPage < $totalPages)
+                                    @if($endPage < $totalPages - 1)
+                                        <span class="px-3 py-1 text-sm font-medium text-gray-700">...</span>
+                                    @endif
+                                    <button wire:click="setPage({{ $totalPages }})" class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                        {{ $totalPages }}
+                                    </button>
+                                @endif
+                            </div>
+
+                            <!-- Botón Siguiente -->
+                            <button wire:click="setPage({{ min($currentPage + 1, $totalPages) }})" {{ $currentPage >= $totalPages ? 'disabled' : '' }} class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md {{ $currentPage >= $totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50' }}">
+                                Siguiente
+                            </button>
+                        </div>
                     </div>
+                    @else
+                    <div class="mt-4 text-sm text-gray-700">
+                        Mostrando todos los {{ $totalRegistros }} resultados
+                    </div>
+                    @endif
                 </div>
-                @else
-                <div class="p-4 text-sm text-gray-700">
-                    Mostrando todos los {{ $totalRegistros }} resultados
-                </div>
-                @endif
             @else
                 <div
                     class="px-6 py-4 rounded-lg shadow-lg text-center bg-yellow-100 text-yellow-800">
@@ -307,7 +304,6 @@
                 </div>
             @endif
         </div>
-
 
         <!-- Flecha de regresar -->
         <div class="mt-6 flex justify-start">
