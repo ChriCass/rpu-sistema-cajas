@@ -34,7 +34,7 @@ final class FamiliaTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        $query = Familia::query()->where('id', 'not like', '0%')->orderBy('id', 'asc');
+        $query = Familia::query()->orderBy('id', 'asc');
 
         $count = $query->count();
         Log::info("Número de registros después de aplicar el filtro: " . $count);
