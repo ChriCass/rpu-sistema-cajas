@@ -400,4 +400,5 @@
             </button>
         </div>
     </div>
+    @livewire('entidad-modal-generalizado')
 </div> 

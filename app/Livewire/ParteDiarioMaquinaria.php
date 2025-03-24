@@ -254,8 +254,7 @@ class ParteDiarioMaquinaria extends Component
 
     public function crearCliente()
     {
-        // Emitir evento para abrir el modal de creación de entidades
-        $this->dispatch('abrirModalCrearEntidad');
+        $this->dispatch('openModalEntidad', true);
     }
 
     public function render()
