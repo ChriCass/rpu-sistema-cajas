@@ -1,9 +1,10 @@
 <div>
-    <x-button label="Nuevo" wire:click="$set('openModal', true)" primary />
+    @if(!isset($hideButton) || !$hideButton)
+        <x-button label="Nuevo" wire:click="$set('openModal', true)" primary />
+    @endif
 
     <x-modal name="persistentModal" wire:model="openModal" persistent>
         <x-card title="Registro de entidades">
-
             <div class="flex flex-wrap justify-center -mx-4">
                 @if (session()->has('message'))
                 <x-alert title="Felicidades!" positive>
