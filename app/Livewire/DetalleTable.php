@@ -50,8 +50,7 @@ final class DetalleTable extends PowerGridComponent
                 'detalle.descripcion',
                 'familias.descripcion as familia_descripcion',
                 'subfamilias.desripcion as subfamilia_descripcion'
-            )
-            ->whereRaw('LEFT(detalle.id_familias, 1) <> ?', ['0']);
+            );
     }
 
 
@@ -92,12 +91,13 @@ final class DetalleTable extends PowerGridComponent
         $familiaIds = Detalle::select('id_familias')->distinct()->pluck('id_familias');
         
         $subfamilias = Subfamilia::whereIn('id_familias', $familiaIds)
-            ->select('id', 'desripcion')
+            ->join('familias', 'subfamilias.id_familias', '=', 'familias.id')
+            ->select('subfamilias.id', 'subfamilias.desripcion', 'subfamilias.id_familias')
             ->distinct()
             ->get()
             ->map(function($subfamilia) {
                 return [
-                    'id' => $subfamilia->id,
+                    'id' => $subfamilia->id_familias . $subfamilia->id, // Concatenamos familia y subfamilia
                     'descripcion' => $subfamilia->desripcion
                 ];
             });
@@ -116,8 +116,14 @@ final class DetalleTable extends PowerGridComponent
             Filter::select('subfamilia_descripcion', 'detalle.id_subfamilia')
                 ->dataSource($subfamilias)
                 ->optionValue('id')
-                ->optionLabel('descripcion'),
-                Filter::inputText('descripcion')
+                ->optionLabel('descripcion')
+                ->builder(function (Builder $builder, $value) {
+                    if (!empty($value['value'])) {
+                        $builder->whereRaw("CONCAT(detalle.id_familias, detalle.id_subfamilia) = ?", [$value['value']]);
+                    }
+                }),
+
+            Filter::inputText('descripcion')
                 ->operators(['contains'])
                 ->placeholder('Buscar descripción')
                 ->builder(function (Builder $builder, $value) {
@@ -127,7 +133,7 @@ final class DetalleTable extends PowerGridComponent
                     }
                 }),
             
-                Filter::inputText('id')
+            Filter::inputText('id')
                 ->operators(['contains'])
                 ->builder(function (Builder $builder, $value) {
                     if (is_array($value) && isset($value['value'])) {
