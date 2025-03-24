@@ -25,6 +25,67 @@
                         </div>
                     </div>
 
+                    <!-- Selector de Empresas - Aparece solo cuando se selecciona "pagado" -->
+                    @if($mostrarSelectorEmpresas)
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4" x-data="{ isOpen: false }">
+                        <h3 class="text-lg font-medium text-blue-800 mb-2">Seleccione una empresa</h3>
+                        <p class="text-sm text-blue-600 mb-3">Para optimizar el rendimiento, seleccione la empresa cuyos pagos desea consultar.</p>
+                        
+                        <div class="relative mb-3">
+                            <input
+                                type="text"
+                                wire:model.live.debounce.300ms="searchTerm"
+                                placeholder="Buscar por nombre o ID..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                @focus="isOpen = true"
+                                @click.away="isOpen = false"
+                                @keydown.escape.window="isOpen = false"
+                            >
+                            
+                            @if(count($this->filtrarEmpresas()) > 0 && strlen($searchTerm) > 0)
+                            <div x-show="isOpen" class="absolute z-10 w-full bg-white mt-1 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                @foreach($this->filtrarEmpresas() as $empresa)
+                                <div 
+                                    wire:key="empresa-{{ $empresa['id'] }}"
+                                    wire:click="seleccionarEmpresa({{ $empresa['id'] }})"
+                                    class="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center border-b last:border-b-0"
+                                >
+                                    <div>
+                                        <div class="font-medium">{{ $empresa['descripcion'] }}</div>
+                                        <div class="text-xs text-gray-500">ID: {{ $empresa['id'] }}</div>
+                                    </div>
+                                    <div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                            @endif
+                        </div>
+                        
+                        @if($empresaSeleccionada)
+                            @php
+                                $empresaInfo = collect($empresas)->firstWhere('id', $empresaSeleccionada);
+                            @endphp
+                            <div class="mt-3 p-3 bg-white rounded-md border border-green-200 flex justify-between items-center">
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-700">Empresa seleccionada:</span>
+                                    <span class="ml-2 text-sm text-gray-600">{{ $empresaInfo['descripcion'] }}</span>
+                                    <span class="ml-2 text-xs text-gray-500">(ID: {{ $empresaInfo['id'] }})</span>
+                                </div>
+                                <button 
+                                    wire:click="seleccionarEmpresa(null)"
+                                    class="text-xs text-red-600 hover:text-red-800 transition-colors duration-200"
+                                >
+                                    Cambiar empresa
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                    @endif
+
                     <div class="flex justify-end">
                         <button wire:click="procesar" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 disabled:opacity-25 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

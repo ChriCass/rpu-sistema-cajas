@@ -168,9 +168,9 @@ WHERE CONCAT(estadoMon, EstadoDetr) NOT IN ('PAGADOPAGADO', 'PAGADO');
         ");
     }
 
-    public function obtenerPagosPagados()
+    public function obtenerPagosPagados($empresaId = null)
     {
-        return DB::select("
+        $query = "
             SELECT 
     id,
     tdoc,
@@ -326,8 +326,17 @@ LEFT JOIN (
         AND id_libro IN ('3','4','5','6')
     GROUP BY id_documentos
 ) INN2 ON CON6.id = INN2.id_documentos
-WHERE CONCAT(estadoMon, EstadoDetr)  IN ('PAGADOPAGADO', 'PAGADO');
-        ");
+WHERE CONCAT(estadoMon, EstadoDetr)  IN ('PAGADOPAGADO', 'PAGADO')";
+
+        // Si se proporciona un ID de empresa, añadir el filtro
+        if ($empresaId) {
+            $entidad = DB::table('entidades')->find($empresaId);
+            if ($entidad) {
+                $query .= " AND id_entidades = '" . $entidad->id . "'";
+            }
+        }
+
+        return DB::select($query);
     }
 
     public function obtenerTodosLosPagos()

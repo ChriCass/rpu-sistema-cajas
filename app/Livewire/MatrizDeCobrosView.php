@@ -7,6 +7,7 @@ use App\Services\MatrizDeCobrosServices;
 use Illuminate\Support\Facades\Log;  // Asegúrate de importar Log
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
+use App\Models\Entidad; // Añadir importación del modelo Entidad
 
 #[Layout('layouts.app')]
 class MatrizDeCobrosView extends Component
@@ -39,6 +40,12 @@ class MatrizDeCobrosView extends Component
     public $movimientosFiltrados = [];
     public $totalRegistros = 0;
     public $movimientos = [];
+
+    // Nueva propiedad para el selector de empresas
+    public $mostrarSelectorEmpresas = false;
+    public $empresaSeleccionada = null;
+    public $empresas = [];
+    public $searchTerm = '';
 
     protected $matrizDeCobrosService;
 
@@ -95,7 +102,22 @@ class MatrizDeCobrosView extends Component
         $this->perPage = 10;
         $this->currentPage = 1;
         
+        // Cargamos las empresas para el selector
+        $this->cargarEmpresas();
+        
         $this->procesar();
+    }
+
+    /**
+     * Cargar empresas para el selector
+     */
+    public function cargarEmpresas()
+    {
+        // Obtenemos todas las empresas para el selector
+        $this->empresas = Entidad::select('id', 'descripcion')
+            ->orderBy('descripcion')
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -112,7 +134,15 @@ class MatrizDeCobrosView extends Component
      */
     public function updatedTempFiltroStatus($value)
     {
-        // No hace nada, solo actualiza el valor temporal
+        // Si se selecciona "pagado", mostramos el selector de empresas
+        if ($value === 'pagado') {
+            $this->mostrarSelectorEmpresas = true;
+            // Reseteamos la empresa seleccionada
+            $this->empresaSeleccionada = null;
+        } else {
+            $this->mostrarSelectorEmpresas = false;
+            $this->empresaSeleccionada = null;
+        }
     }
 
     /**
@@ -188,8 +218,15 @@ class MatrizDeCobrosView extends Component
                     break;
 
                 case 'pagado':
-                    $this->movimientos = $this->matrizDeCobrosService->obtenerPagosPagados();
-                    $mensaje = 'Movimientos pagados procesados correctamente.';
+                    // Si se ha seleccionado una empresa, filtramos por ella
+                    if ($this->empresaSeleccionada) {
+                        $this->movimientos = $this->matrizDeCobrosService->obtenerPagosPagados($this->empresaSeleccionada);
+                        $mensaje = 'Movimientos pagados procesados correctamente para la empresa seleccionada.';
+                    } else {
+                        // Si no se ha seleccionado empresa pero estamos en modo "pagado", no procesamos nada
+                        $this->movimientos = [];
+                        return;
+                    }
                     break;
             }
             
@@ -246,12 +283,41 @@ class MatrizDeCobrosView extends Component
         $this->dispatch('scrollToTop');
     }
 
+    /**
+     * Método para seleccionar una empresa
+     */
+    public function seleccionarEmpresa($id)
+    {
+        $this->empresaSeleccionada = $id;
+        // Una vez seleccionada la empresa, procesamos
+        $this->procesar();
+    }
+    
+    /**
+     * Método para filtrar empresas basado en el término de búsqueda
+     */
+    public function filtrarEmpresas()
+    {
+        return collect($this->empresas)
+            ->filter(function($empresa) {
+                return $this->searchTerm === '' || 
+                       stripos($empresa['descripcion'], $this->searchTerm) !== false || 
+                       stripos($empresa['id'], $this->searchTerm) !== false;
+            })
+            ->take(10)
+            ->toArray();
+    }
+
     public function render()
     {
+        $paginatedMovimientos = $this->getPaginatedMovimientos();
+        $totalPages = $this->getTotalPages();
+        
         return view('livewire.matriz-de-cobros-view', [
-            'paginatedMovimientos' => $this->getPaginatedMovimientos(),
-            'totalPages' => $this->getTotalPages(),
-            'totalRegistros' => count($this->movimientosFiltrados),
+            'paginatedMovimientos' => $paginatedMovimientos,
+            'totalPages' => $totalPages,
+            'filteredEmpresas' => $this->filtrarEmpresas(),
+            'currentPage' => $this->currentPage
         ]);
     }
 }
