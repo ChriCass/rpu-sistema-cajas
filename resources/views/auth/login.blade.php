@@ -14,11 +14,6 @@
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
-            <div class="flex justify-start mb-4">
-                <x-button outline orange teal href="{{ route('register') }}" wire:navigate >
-                    {{ __('Register') }}
-                </x-button>
-            </div>
             <div>
                 <x-label for="email" label="{{ __('Email') }}" />
                 <x-input id="email"   class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />

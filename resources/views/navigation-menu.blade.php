@@ -86,6 +86,21 @@
                                                 <a href="{{ route('centro-costos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Centro de costos</a>
                                             </div>
                                         </div>
+
+                                        @if(auth()->user()->hasRole('admin'))
+                                        <div x-data="{ dropdownOpen: false }" class="relative">
+                                            <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                                                Administración
+                                                <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </button>
+                                            <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
+                                                <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Gestión de Usuarios</a>
+                                                <a href="{{ route('register-admin') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Registrar Usuario</a>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -258,6 +273,18 @@
                     <x-responsive-nav-link href="{{ route('api-tokens.index') }}" :active="request()->routeIs('api-tokens.index')">
                         {{ __('API Tokens') }}
                     </x-responsive-nav-link>
+                @endif
+
+                @if(auth()->user()->hasRole('admin'))
+                <!-- Manage Users -->
+                <div class="mt-3 space-y-1">
+                    <x-responsive-nav-link href="{{ route('admin.users') }}">
+                        {{ __('Gestión de Usuarios') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link href="{{ route('register-admin') }}">
+                        {{ __('Registrar Usuario') }}
+                    </x-responsive-nav-link>
+                </div>
                 @endif
 
                 <!-- Authentication -->

@@ -105,6 +105,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Register Route Middleware
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify which middleware will be applied to the registration
+    | route. This is separate from the middleware applied to all Fortify routes.
+    |
+    */
+
+    'register_middleware' => ['web'],
+
+    /*
+    |--------------------------------------------------------------------------
     | Rate Limiting
     |--------------------------------------------------------------------------
     |

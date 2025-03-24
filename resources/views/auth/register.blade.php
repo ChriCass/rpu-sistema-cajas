@@ -6,7 +6,7 @@
 
         <x-validation-errors class="mb-4" />
 
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register.manual') }}">
             @csrf
 
             <div>
@@ -28,6 +28,17 @@
                 <x-label for="password_confirmation" label="{{ __('Confirm Password') }}" />
                 <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
+
+            <div class="mt-4">
+                <x-label for="role" label="{{ __('Role') }}" />
+                <select id="role" name="role" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
+                    @foreach(\Spatie\Permission\Models\Role::all() as $role)
+                        <option value="{{ $role->name }}">{{ $role->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <input type="hidden" name="debug" value="true">
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                 <div class="mt-4">
@@ -51,9 +62,15 @@
                     {{ __('Already registered?') }}
                 </a>
 
-                <x-button type="submit" class="ms-4">
-                    {{ __('Register') }}
-                </x-button>
+                <div class="flex space-x-2 ms-4">
+                    <x-button type="button" onclick="window.history.back()" class="bg-gray-500 hover:bg-gray-700">
+                        {{ __('Cancel') }}
+                    </x-button>
+                    
+                    <x-button type="submit">
+                        {{ __('Register') }}
+                    </x-button>
+                </div>
             </div>
         </form>
     </x-authentication-card>
