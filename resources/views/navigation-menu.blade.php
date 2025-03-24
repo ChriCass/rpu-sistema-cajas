@@ -36,7 +36,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                                 </svg>
                                             </button>
-                                            <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
+                                            <div x-show="dropdownOpen" class="absolute mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 max-h-[80vh] overflow-y-auto" x-cloak>
                                                 <!-- Tesorería -->
                                                 <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200">Tesorería</div>
                                                 <a href="{{ route('movimientos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
