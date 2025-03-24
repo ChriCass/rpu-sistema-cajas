@@ -20,13 +20,17 @@ class EntidadModal extends Component
     public $docIdent;
     public $desconozcoTipoDocumento = true;
     public $desconozcoTipoDocumento1 = false;
+    public $emitirEvento = true;
+    public $eventoNombre = 'entidad-created';
 
     protected $apiService;
 
-    public function mount(ApiService $apiService)
+    public function mount(ApiService $apiService, $emitirEvento = true, $eventoNombre = 'entidad-created')
     {
         $this->docs = TipoDocumentoIdentidad::whereIn('id', ['1', '6'])->get();
         $this->apiService = $apiService;
+        $this->emitirEvento = $emitirEvento;
+        $this->eventoNombre = $eventoNombre;
     }
 
     public function updatedDesconozcoTipoDocumento($value)
@@ -43,8 +47,6 @@ class EntidadModal extends Component
             $this->clearFields();
         }
     }
-
-
 
     protected function rules()
     {
@@ -76,7 +78,6 @@ class EntidadModal extends Component
     {
         try {
             DB::transaction(function () {
-                //$this->validate();
                 $this->tipoDocId = $this->tipoDocId ?? 1;
                 if (empty($this->entidad)) {
                     session()->flash('error', 'El nombre está vacío');
@@ -104,11 +105,10 @@ class EntidadModal extends Component
                 // Aplicamos el bloqueo pesimista
                 $entidad = Entidad::where('id', 'like', '100%')
                     ->where('idt02doc', '1')
-                    ->lockForUpdate() // Bloqueo pesimista para evitar que alguien más edite este registro
+                    ->lockForUpdate()
                     ->orderByRaw('CAST(id AS UNSIGNED) DESC')
                     ->first();
 
-                // Sumar 1 al valor de id en PHP
                 $id = $entidad ? $entidad->id + 1 : '10000001';
 
                 Log::info('Entidad creada', [
@@ -121,10 +121,10 @@ class EntidadModal extends Component
                     'idt02doc' => '1'
                 ]);
 
-                Entidad::create([
+                $nuevaEntidad = Entidad::create([
                     'id' => $id,
                     'descripcion' => $this->entidad,
-                    'doc_ident' => $this->docIdent, // Asegúrate de guardar el documento de identidad
+                    'doc_ident' => $this->docIdent,
                     'estado_contribuyente' => '-',
                     'estado_domicilio' => '-',
                     'provincia' => '-',
@@ -132,8 +132,10 @@ class EntidadModal extends Component
                     'idt02doc' => $this->tipoDocId
                 ]);
 
-                // Emitir evento para actualizar la tabla
-                $this->dispatch('entidad-created');
+                // Emitir evento solo si está habilitado
+                if ($this->emitirEvento) {
+                    $this->dispatch($this->eventoNombre, ['entidad' => $nuevaEntidad]);
+                }
 
                 // Limpiar campos después de la inserción
                 $this->reset(['entidad', 'tipoDocId', 'docIdent']);
@@ -145,14 +147,11 @@ class EntidadModal extends Component
                 $this->openModal = false;
             });
         } catch (\Exception $e) {
-            // Manejar el error, mostrar el mensaje y mantener el modal abierto
             Log::error('Error al crear entidad: ' . $e->getMessage());
             session()->flash('error', 'Ocurrió un error: ' . $e->getMessage());
-            $this->openModal = true; // Asegurar que el modal permanezca abierto
+            $this->openModal = true;
         }
     }
-
-
 
     public function hydrate(ApiService $apiService)
     {
@@ -188,6 +187,7 @@ class EntidadModal extends Component
             $this->entidad = '';
         }
     }
+
     public function render()
     {
         return view('livewire.entidad-modal');
