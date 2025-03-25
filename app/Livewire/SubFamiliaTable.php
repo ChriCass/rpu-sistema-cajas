@@ -37,7 +37,6 @@ final class SubFamiliaTable extends PowerGridComponent
     {
         return SubFamilia::query()
             ->join('familias', 'subfamilias.id_familias', '=', 'familias.id')
-            ->where('subfamilias.id_familias', 'NOT LIKE', '0%')
             ->select(
                 'subfamilias.id',
                 'subfamilias.id as il',  

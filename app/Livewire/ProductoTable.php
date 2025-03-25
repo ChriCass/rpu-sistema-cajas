@@ -22,9 +22,10 @@ final class ProductoTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        
-
         return [
+            Header::make()
+                ->showSearchInput(),
+
             Exportable::make(fileName: 'Tabla Producto') 
             ->type(Exportable::TYPE_XLS), 
         
@@ -36,7 +37,14 @@ final class ProductoTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Producto::query();
+        return Producto::query()
+            ->leftJoin('detalle', 'l_productos.id_detalle', '=', 'detalle.id')
+            ->select(
+                'l_productos.id',
+                'l_productos.id_detalle',
+                'l_productos.descripcion as producto_descripcion',
+                'detalle.descripcion as detalle_descripcion'
+            );
     }
 
     public function relationSearch(): array
@@ -47,32 +55,71 @@ final class ProductoTable extends PowerGridComponent
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-           
             ->add('id')
-            ->add('id_detalle');
+            ->add('id_detalle')
+            ->add('producto_descripcion')
+            ->add('detalle_descripcion');
     }
 
     public function columns(): array
     {
         return [
-            Column::make('Id', 'id')
+            Column::make('ID Detalle', 'id_detalle')
                 ->sortable()
                 ->searchable(),
- 
 
-            Column::make('Id detalle', 'id_detalle')
+            Column::make('Descripción Detalle', 'detalle_descripcion')
                 ->sortable()
                 ->searchable(),
-                Column::make('descripcion', 'descripcion')
+
+            Column::make('ID', 'id')
                 ->sortable()
                 ->searchable(),
-            
+
+            Column::make('Descripción Producto', 'producto_descripcion')
+                ->sortable()
+                ->searchable(),
         ];
     }
 
     public function filters(): array
     {
         return [
+            Filter::inputText('id_detalle')
+                ->operators(['contains'])
+                ->placeholder('Buscar por ID Detalle...')
+                ->builder(function (Builder $builder, $value) {
+                    if (!empty($value['value'])) {
+                        $builder->where('l_productos.id_detalle', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            Filter::inputText('detalle_descripcion')
+                ->operators(['contains'])
+                ->placeholder('Buscar por Descripción Detalle...')
+                ->builder(function (Builder $builder, $value) {
+                    if (!empty($value['value'])) {
+                        $builder->where('detalle.descripcion', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            Filter::inputText('id')
+                ->operators(['contains'])
+                ->placeholder('Buscar por ID...')
+                ->builder(function (Builder $builder, $value) {
+                    if (!empty($value['value'])) {
+                        $builder->where('l_productos.id', 'like', "%{$value['value']}%");
+                    }
+                }),
+
+            Filter::inputText('producto_descripcion')
+                ->operators(['contains'])
+                ->placeholder('Buscar por Descripción Producto...')
+                ->builder(function (Builder $builder, $value) {
+                    if (!empty($value['value'])) {
+                        $builder->where('l_productos.descripcion', 'like', "%{$value['value']}%");
+                    }
+                }),
         ];
     }
 
