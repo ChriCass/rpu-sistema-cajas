@@ -48,12 +48,7 @@ class ParteDiarioMaquinaria extends Component
     public $diferencia = ''; // Total diferencia
     public $interrupciones = '';
     
-    // Consumo de combustible
-    public $combustible = '';
-    public $lubricantes = '';
-    public $horometroInicioConsumo = '';
-    public $horometroFinConsumo = '';
-    public $diferenciaConsumo = '';
+    // Propiedades para valorización
     public $horaPorTrabajo = '';
     public $precioPorHora = '';
     public $importeACobrar = '';
@@ -62,6 +57,8 @@ class ParteDiarioMaquinaria extends Component
     public $descripcionTrabajo = '';
     public $observaciones = '';
     public $pagado = 0; // 0 = pendiente, 1 = pagado
+    public $montoPagado = '';
+    public $montoPendiente = '0.00';
     
     public $tiposVenta = [];
     
@@ -139,18 +136,47 @@ class ParteDiarioMaquinaria extends Component
         }
     }
 
+    public function updatedHoraInicioManana()
+    {
+        $this->calcularHorasManana();
+    }
+
+    public function updatedHoraFinManana()
+    {
+        $this->calcularHorasManana();
+    }
+
+    public function updatedHoraInicioTarde()
+    {
+        $this->calcularHorasTarde();
+    }
+
+    public function updatedHoraFinTarde()
+    {
+        $this->calcularHorasTarde();
+    }
+
     public function calcularHorasManana()
     {
         if ($this->horaInicioManana && $this->horaFinManana) {
             try {
                 $inicio = Carbon::createFromFormat('H:i', $this->horaInicioManana);
                 $fin = Carbon::createFromFormat('H:i', $this->horaFinManana);
-                $this->horasManana = number_format($fin->diffInMinutes($inicio) / 60, 2);
+                
+                // Si la hora de fin es menor que la hora de inicio, asumimos que es del día siguiente
+                if ($fin < $inicio) {
+                    $fin->addDay();
+                }
+                
+                $diferencia = $fin->diffInMinutes($inicio);
+                $this->horasManana = number_format($diferencia / 60, 2);
                 $this->calcularTotalHoras();
             } catch (\Exception $e) {
-                // En caso de formato incorrecto
                 $this->horasManana = '';
             }
+        } else {
+            $this->horasManana = '';
+            $this->calcularTotalHoras();
         }
     }
 
@@ -160,52 +186,126 @@ class ParteDiarioMaquinaria extends Component
             try {
                 $inicio = Carbon::createFromFormat('H:i', $this->horaInicioTarde);
                 $fin = Carbon::createFromFormat('H:i', $this->horaFinTarde);
-                $this->horasTarde = number_format($fin->diffInMinutes($inicio) / 60, 2);
+                
+                // Si la hora de fin es menor que la hora de inicio, asumimos que es del día siguiente
+                if ($fin < $inicio) {
+                    $fin->addDay();
+                }
+                
+                $diferencia = $fin->diffInMinutes($inicio);
+                $this->horasTarde = number_format($diferencia / 60, 2);
                 $this->calcularTotalHoras();
             } catch (\Exception $e) {
-                // En caso de formato incorrecto
                 $this->horasTarde = '';
             }
+        } else {
+            $this->horasTarde = '';
+            $this->calcularTotalHoras();
         }
     }
 
     public function calcularTotalHoras()
     {
-        $this->totalHoras = number_format(floatval($this->horasManana) + floatval($this->horasTarde), 2);
+        $manana = floatval($this->horasManana ?: 0);
+        $tarde = floatval($this->horasTarde ?: 0);
+        $this->totalHoras = number_format($manana + $tarde, 2);
+    }
+
+    public function updatedHorometroInicioManana()
+    {
+        $this->calcularDiferenciaHorometroManana();
+    }
+
+    public function updatedHorometroFinManana()
+    {
+        $this->calcularDiferenciaHorometroManana();
+    }
+
+    public function updatedHorometroInicioTarde()
+    {
+        $this->calcularDiferenciaHorometroTarde();
+    }
+
+    public function updatedHorometroFinTarde()
+    {
+        $this->calcularDiferenciaHorometroTarde();
     }
 
     public function calcularDiferenciaHorometroManana()
     {
-        if ($this->horometroInicioManana && $this->horometroFinManana) {
-            $this->diferenciaHorometroManana = number_format(floatval($this->horometroFinManana) - floatval($this->horometroInicioManana), 2);
+        if ($this->horometroInicioManana !== '' && $this->horometroFinManana !== '') {
+            try {
+                $inicio = floatval($this->horometroInicioManana);
+                $fin = floatval($this->horometroFinManana);
+                
+                if ($fin >= $inicio) {
+                    $this->diferenciaHorometroManana = number_format($fin - $inicio, 2);
+                } else {
+                    $this->diferenciaHorometroManana = '0.00';
+                }
+                
+                $this->calcularDiferenciaTotal();
+            } catch (\Exception $e) {
+                $this->diferenciaHorometroManana = '0.00';
+            }
+        } else {
+            $this->diferenciaHorometroManana = '0.00';
             $this->calcularDiferenciaTotal();
         }
     }
     
     public function calcularDiferenciaHorometroTarde()
     {
-        if ($this->horometroInicioTarde && $this->horometroFinTarde) {
-            $this->diferenciaHorometroTarde = number_format(floatval($this->horometroFinTarde) - floatval($this->horometroInicioTarde), 2);
+        if ($this->horometroInicioTarde !== '' && $this->horometroFinTarde !== '') {
+            try {
+                $inicio = floatval($this->horometroInicioTarde);
+                $fin = floatval($this->horometroFinTarde);
+                
+                if ($fin >= $inicio) {
+                    $this->diferenciaHorometroTarde = number_format($fin - $inicio, 2);
+                } else {
+                    $this->diferenciaHorometroTarde = '0.00';
+                }
+                
+                $this->calcularDiferenciaTotal();
+            } catch (\Exception $e) {
+                $this->diferenciaHorometroTarde = '0.00';
+            }
+        } else {
+            $this->diferenciaHorometroTarde = '0.00';
             $this->calcularDiferenciaTotal();
         }
     }
     
     public function calcularDiferenciaTotal()
     {
-        $this->diferencia = number_format(floatval($this->diferenciaHorometroManana) + floatval($this->diferenciaHorometroTarde), 2);
+        $manana = floatval($this->diferenciaHorometroManana ?: 0);
+        $tarde = floatval($this->diferenciaHorometroTarde ?: 0);
+        $this->diferencia = number_format($manana + $tarde, 2);
     }
     
-    public function calcularDiferenciaConsumo()
+    public function updatedHoraPorTrabajo()
     {
-        if ($this->horometroInicioConsumo && $this->horometroFinConsumo) {
-            $this->diferenciaConsumo = number_format(floatval($this->horometroFinConsumo) - floatval($this->horometroInicioConsumo), 2);
-        }
+        $this->calcularImporte();
+    }
+
+    public function updatedPrecioPorHora()
+    {
+        $this->calcularImporte();
     }
 
     public function calcularImporte()
     {
-        if ($this->horaPorTrabajo && $this->precioPorHora) {
-            $this->importeACobrar = number_format(floatval($this->horaPorTrabajo) * floatval($this->precioPorHora), 2);
+        if ($this->horaPorTrabajo !== '' && $this->precioPorHora !== '') {
+            try {
+                $horas = floatval($this->horaPorTrabajo);
+                $precio = floatval($this->precioPorHora);
+                $this->importeACobrar = number_format($horas * $precio, 2);
+            } catch (\Exception $e) {
+                $this->importeACobrar = '0.00';
+            }
+        } else {
+            $this->importeACobrar = '0.00';
         }
     }
 
@@ -255,6 +355,49 @@ class ParteDiarioMaquinaria extends Component
     public function crearCliente()
     {
         $this->dispatch('openModalEntidad', true);
+    }
+
+    public function updatedPagado()
+    {
+        if ($this->pagado != '2') {
+            $this->montoPagado = '';
+            $this->montoPendiente = '0.00';
+        } else {
+            $this->calcularMontoPendiente();
+        }
+    }
+
+    public function updatedMontoPagado()
+    {
+        $this->calcularMontoPendiente();
+    }
+
+    public function updatedImporteACobrar()
+    {
+        if ($this->pagado == '2') {
+            $this->calcularMontoPendiente();
+        }
+    }
+
+    public function calcularMontoPendiente()
+    {
+        if ($this->importeACobrar && $this->montoPagado !== '') {
+            try {
+                $importe = floatval(str_replace(',', '', $this->importeACobrar));
+                $pagado = floatval($this->montoPagado);
+                
+                if ($pagado <= $importe) {
+                    $this->montoPendiente = number_format($importe - $pagado, 2);
+                } else {
+                    $this->montoPagado = $importe;
+                    $this->montoPendiente = '0.00';
+                }
+            } catch (\Exception $e) {
+                $this->montoPendiente = '0.00';
+            }
+        } else {
+            $this->montoPendiente = $this->importeACobrar ?: '0.00';
+        }
     }
 
     public function render()

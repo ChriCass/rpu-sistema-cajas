@@ -36,6 +36,9 @@ use App\Livewire\ReporteDiarioMatrizView;
 use App\Livewire\ReporteInconcistenciasView;
 use App\Livewire\ReporteRegistroComprasView;
 use App\Livewire\ReporteRegistroVentasView;
+use App\Livewire\OperadorTable;
+use App\Livewire\UnidadTable;
+use App\Livewire\TipoVentaTable;
 
 /*
 |--------------------------------------------------------------------------
@@ -196,4 +199,16 @@ Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->n
     Route::get('/maquinarias/parte-diario', function () {
         return view('maquinarias.parte-diario', ['routeName' => 'parte-diario']);
     })->name('parte-diario');
+
+    Route::get('/maquinarias/operadores', function () {
+        return view('maquinarias.operadores', ['routeName' => 'operadores']);
+    })->name('operadores');
+
+    Route::get('/maquinarias/unidades', function () {
+        return view('maquinarias.unidades', ['routeName' => 'unidades']);
+    })->name('unidades');
+
+    Route::get('/maquinarias/tipos-venta', function () {
+        return view('maquinarias.tipos-venta', ['routeName' => 'tipos-venta']);
+    })->name('tipos-venta');
 });

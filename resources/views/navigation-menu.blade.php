@@ -84,10 +84,10 @@
                                                 
                                                 <!-- Configuración -->
                                                 <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200 border-t border-gray-200 mt-2">Configuración</div>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Operador</a>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Unidad</a>
-                                                <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidad</a>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tipo de venta</a>
+                                                <a href="{{ route('operadores') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Operadores</a>
+                                                <a href="{{ route('unidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Unidades</a>
+                                                <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
+                                                <a href="{{ route('tipos-venta') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tipos de venta</a>
                                                 <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                             </div>
                                         </div>
@@ -177,10 +177,10 @@
                                     
                                     <!-- Configuración -->
                                     <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200 border-t border-gray-200 mt-2">Configuración</div>
-                                    <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Operador</a>
-                                    <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Unidad</a>
-                                    <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidad</a>
-                                    <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tipo de venta</a>
+                                    <a href="{{ route('operadores') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Operadores</a>
+                                    <a href="{{ route('unidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Unidades</a>
+                                    <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
+                                    <a href="{{ route('tipos-venta') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tipos de venta</a>
                                     <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                 </div>
                             </div>

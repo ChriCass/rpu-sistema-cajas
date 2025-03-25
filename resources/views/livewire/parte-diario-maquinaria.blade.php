@@ -201,63 +201,71 @@
                     <tr>
                         <td class="border border-gray-300 px-2 py-2 text-sm font-medium">HORAS DE TRABAJO</td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horaInicioManana" wire:change="calcularHorasManana" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="HH:MM">
+                            <input type="time" wire:model.live="horaInicioManana" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" 
+                                   step="300">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horaFinManana" wire:change="calcularHorasManana" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="HH:MM">
+                            <input type="time" wire:model.live="horaFinManana" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" 
+                                   step="300">
                         </td>
                         <td class="border border-gray-300 p-0 text-center bg-teal-50">
                             <input type="text" wire:model="horasManana" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0">
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horaInicioTarde" wire:change="calcularHorasTarde" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="HH:MM">
+                            <input type="time" wire:model.live="horaInicioTarde" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" 
+                                   step="300">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horaFinTarde" wire:change="calcularHorasTarde" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="HH:MM">
+                            <input type="time" wire:model.live="horaFinTarde" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" 
+                                   step="300">
                         </td>
                         <td class="border border-gray-300 p-0 text-center bg-teal-50">
                             <input type="text" wire:model="horasTarde" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0">
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
-                        <td class="border border-gray-300 p-0 text-center bg-teal-50 font-medium">
+                        <td class="border border-gray-300 p-0 text-center bg-teal-50">
                             <input type="text" wire:model="totalHoras" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium">
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
                     </tr>
                     <tr>
                         <td class="border border-gray-300 px-2 py-2 text-sm font-medium">HORÓMETRO</td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horometroInicioManana" wire:change="calcularDiferenciaHorometroManana" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="Inicio">
+                            <input type="number" wire:model.live="horometroInicioManana" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0"
+                                   step="0.01" min="0" placeholder="0.00">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horometroFinManana" wire:change="calcularDiferenciaHorometroManana" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="Fin">
+                            <input type="number" wire:model.live="horometroFinManana" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0"
+                                   step="0.01" min="0" placeholder="0.00">
                         </td>
                         <td class="border border-gray-300 p-0 text-center bg-teal-50">
                             <input type="text" wire:model="diferenciaHorometroManana" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0">
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horometroInicioTarde" wire:change="calcularDiferenciaHorometroTarde" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="Inicio">
+                            <input type="number" wire:model.live="horometroInicioTarde" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0"
+                                   step="0.01" min="0" placeholder="0.00">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horometroFinTarde" wire:change="calcularDiferenciaHorometroTarde" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0" placeholder="Fin">
+                            <input type="number" wire:model.live="horometroFinTarde" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0"
+                                   step="0.01" min="0" placeholder="0.00">
                         </td>
                         <td class="border border-gray-300 p-0 text-center bg-teal-50">
                             <input type="text" wire:model="diferenciaHorometroTarde" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0">
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
-                        <td class="border border-gray-300 p-0 text-center bg-teal-50 font-medium">
+                        <td class="border border-gray-300 p-0 text-center bg-teal-50">
                             <input type="text" wire:model="diferencia" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium">
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
                     </tr>
                     <tr>
@@ -277,23 +285,13 @@
             </table>
         </div>
 
-        <!-- Tabla de consumo de combustible y valorización -->
+        <!-- Tabla de valorización -->
         <div class="mb-8">
-            <h3 class="text-sm font-bold pb-2 mb-2 text-teal-600 bg-gray-50 p-2 rounded">CONSUMO Y VALORIZACIÓN</h3>
+            <h3 class="text-sm font-bold pb-2 mb-2 text-teal-600 bg-gray-50 p-2 rounded">VALORIZACIÓN</h3>
             <table class="w-full border-collapse">
                 <thead>
                     <tr class="bg-gray-50">
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center" colspan="5">CONSUMO DE COMBUSTIBLE</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center" rowspan="2">HORÓMETRO</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center" colspan="3">VALORIZACIÓN</th>
-                    </tr>
-                    <tr class="bg-gray-50">
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">COMBUSTIBLE</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">LUBRICANTES</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">INICIO</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">TÉRMINO</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">DIFERENCIA</th>
-                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">1 HORA TRABAJADA</th>
+                        <th class="border border-gray-300 px-2 py-2 text-sm text-center">HORAS TRABAJADAS</th>
                         <th class="border border-gray-300 px-2 py-2 text-sm text-center">PRECIO/H</th>
                         <th class="border border-gray-300 px-2 py-2 text-sm text-center">IMPORTE A COBRAR</th>
                     </tr>
@@ -301,43 +299,18 @@
                 <tbody>
                     <tr>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="combustible" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
+                            <input type="number" wire:model.live="horaPorTrabajo" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0"
+                                   step="0.01" min="0" placeholder="0.00">
                         </td>
                         <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="lubricantes" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
-                        </td>
-                        <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horometroInicioConsumo" wire:change="calcularDiferenciaConsumo" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
-                        </td>
-                        <td class="border border-gray-300 p-0">
-                            <input type="text" wire:model="horometroFinConsumo" wire:change="calcularDiferenciaConsumo" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
+                            <input type="number" wire:model.live="precioPorHora" 
+                                   class="w-full py-2 px-2 text-center border-none focus:ring-0"
+                                   step="0.01" min="0" placeholder="0.00">
                         </td>
                         <td class="border border-gray-300 p-0 text-center bg-teal-50">
-                            <input type="text" wire:model="diferenciaConsumo" readonly
-                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0">
-                        </td>
-                        <td class="border border-gray-300 p-0 text-center">
-                            <input type="text" wire:model="horaPorTrabajo" wire:change="calcularImporte" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
-                        </td>
-                        <td class="border border-gray-300 p-0 text-center">
-                            <input type="text" wire:model="precioPorHora" wire:change="calcularImporte" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
-                        </td>
-                        <td class="border border-gray-300 p-0 text-center">
-                            <input type="text" wire:model="precioPorHora" wire:change="calcularImporte" 
-                                   class="w-full py-2 px-2 text-center border-none focus:ring-0">
-                        </td>
-                        <td class="border border-gray-300 px-3 py-2 text-sm font-medium bg-teal-50" colspan="3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-teal-600"></span>
-                                <input type="text" wire:model="importeACobrar" readonly
-                                       class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium">
-                            </div>
+                            <input type="text" wire:model="importeACobrar" readonly
+                                   class="w-full py-2 px-2 text-center border-none bg-teal-50 focus:ring-0 font-medium text-teal-700">
                         </td>
                     </tr>
                 </tbody>
@@ -373,17 +346,39 @@
             </div>
             <div>
                 <h3 class="text-sm font-bold pb-2 mb-2 text-teal-600 bg-gray-50 p-2 rounded">ESTADO DE PAGO</h3>
-                <div class="relative">
-                    <select wire:model="pagado" 
-                            class="w-full py-2 px-3 border border-gray-300 rounded focus:border-teal-500 focus:ring-0 bg-transparent appearance-none outline-none">
-                        <option value="0">PENDIENTE DE PAGO</option>
-                        <option value="1">PAGADO</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <svg class="fill-current h-4 w-4 text-teal-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
+                <div class="space-y-3">
+                    <div class="relative">
+                        <select wire:model.live="pagado" 
+                                class="w-full py-2 px-3 border border-gray-300 rounded focus:border-teal-500 focus:ring-0 bg-transparent appearance-none outline-none">
+                            <option value="0">PENDIENTE DE PAGO</option>
+                            <option value="1">PAGADO</option>
+                            <option value="2">PAGO PARCIAL</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4 text-teal-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
                     </div>
+
+                    @if($pagado == '2')
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <label class="w-1/3 text-sm font-medium">Monto Pagado:</label>
+                                <div class="w-2/3">
+                                    <input type="number" wire:model.live="montoPagado" 
+                                           class="w-full py-2 px-3 border border-gray-300 rounded focus:border-teal-500 focus:ring-0"
+                                           step="0.01" min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="w-1/3 text-sm font-medium">Monto Pendiente:</label>
+                                <div class="w-2/3 bg-teal-50 py-2 px-3 border border-gray-300 rounded text-teal-700 font-medium">
+                                    S/ {{ $montoPendiente }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
