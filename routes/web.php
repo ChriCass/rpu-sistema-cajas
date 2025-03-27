@@ -240,6 +240,12 @@ Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->n
         ]);
     })->name('pagos-maquinaria');
 
+    Route::get('/maquinarias/historial-pagos', function () {
+        return view('maquinarias.historial-pagos', [
+            'routeName' => 'historial-pagos'
+        ]);
+    })->name('historial-pagos-maquinaria');
+
     Route::get('/maquinarias/pagos/{id}/edit', function ($id) {
         Log::info('Accediendo a la ruta de edición de pagos de maquinaria', [
             'id' => $id,

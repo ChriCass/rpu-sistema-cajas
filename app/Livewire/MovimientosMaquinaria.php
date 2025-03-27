@@ -9,6 +9,7 @@ use App\Traits\WithNotifications;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class MovimientosMaquinaria extends Component
 {
@@ -30,6 +31,11 @@ class MovimientosMaquinaria extends Component
 
     public $idParteEliminar;
     public $confirmarEliminacion = false;
+
+    // Nuevas propiedades para el modal de documento
+    public $documentoModal = false;
+    public $documentoActual = null;
+    public $parteActual = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -137,6 +143,7 @@ class MovimientosMaquinaria extends Component
         $parte = ParteDiario::find($id);
         
         if (!$parte) {
+            $this->documentoModal = false; // Cerrar el modal de documento primero
             $this->dispatch('showNotification', [
                 'message' => 'No se encontró el parte diario',
                 'type' => 'error'
@@ -144,14 +151,66 @@ class MovimientosMaquinaria extends Component
             return;
         }
         
-        // Si es un parte con pago parcial o pagado, no se puede eliminar
-        if ($parte->estado_pago == '1' || $parte->estado_pago == '2') {
-            session()->flash('mensaje', 'No se puede eliminar un parte diario que ya ha sido pagado. Por favor, contacte al administrador.');
-            session()->flash('tipo', 'error');
-            return;
+        // Primero, buscar el documento asociado
+        $documento = $this->encontrarDocumentoAsociado($parte);
+        
+        if (!$documento) {
+            Log::warning('No se encontró documento asociado al parte diario', [
+                'parte_id' => $parte->id,
+                'numero_parte' => $parte->numero_parte,
+                'entidad_id' => $parte->entidad_id
+            ]);
+        } else {
+            // Verificar si tiene movimientos en libro de caja 3
+            $tieneMovimientosEnCaja3 = $this->verificarMovimientosEnCaja3($documento->id);
+            
+            if ($tieneMovimientosEnCaja3) {
+                $this->documentoModal = false; // Cerrar el modal de documento primero
+                session()->flash('mensaje', 'No se puede eliminar el parte diario porque tiene movimientos asociados en el Libro de Caja 3. Por favor, contacte al administrador.');
+                session()->flash('tipo', 'error');
+                return;
+            }
         }
         
         $this->confirmarEliminacion = true;
+    }
+    
+    /**
+     * Encuentra el documento asociado a un parte diario
+     * 
+     * @param ParteDiario $parte El parte diario
+     * @return \App\Models\Documento|null El documento asociado o null si no se encuentra
+     */
+    private function encontrarDocumentoAsociado($parte)
+    {
+        return \App\Models\Documento::where('id_t10tdoc', '82') // Tipo de documento Parte Diario
+            ->where('serie', '0000')
+            ->where('numero', $parte->numero_parte)
+            ->where('id_entidades', $parte->entidad_id)
+            ->first();
+    }
+    
+    /**
+     * Verifica si un documento tiene movimientos en el libro de caja 3
+     * 
+     * @param int $documentoId ID del documento a verificar
+     * @return bool True si tiene movimientos, False si no
+     */
+    private function verificarMovimientosEnCaja3($documentoId)
+    {
+        // Buscar movimientos en la tabla movimientos_de_caja que estén en el libro 3
+        $movimientosEnCaja3 = \App\Models\MovimientoDeCaja::where('id_documentos', $documentoId)
+            ->where('id_libro', 3) // Filtrar específicamente por libro de caja 3
+            ->count();
+        
+        // Registrar información para debugging
+        Log::info('Verificando movimientos en libro de caja 3', [
+            'documento_id' => $documentoId,
+            'tiene_movimientos' => $movimientosEnCaja3 > 0,
+            'cantidad_movimientos' => $movimientosEnCaja3
+        ]);
+        
+        return $movimientosEnCaja3 > 0;
     }
 
     public function cancelarEliminar()
@@ -172,95 +231,124 @@ class MovimientosMaquinaria extends Component
                 return;
             }
             
-            // Registrar información sobre el parte antes de eliminarlo
-            Log::info('Eliminando parte diario', [
-                'id' => $parte->id,
-                'numero_parte' => $parte->numero_parte,
-                'cliente' => $parte->entidad->descripcion ?? 'N/A',
-                'importe' => $parte->importe_cobrar,
-                'estado_pago' => $parte->estado_pago,
-                'usuario' => auth()->user()->id
-            ]);
-            
+            // Guardar algunos datos para el mensaje de confirmación
             $numeroParte = $parte->numero_parte;
-            $entidadId = $parte->entidad_id;
             
-            // Primero, buscar el documento asociado
-            $documento = \App\Models\Documento::where('id_t10tdoc', '82') // Tipo de documento Parte Diario
-                ->where('serie', '0000')
-                ->where('numero', $numeroParte)
-                ->where('id_entidades', $entidadId)
-                ->first();
-                
-            if ($documento) {
-                Log::info('Documento asociado encontrado, procediendo a eliminar', [
-                    'documento_id' => $documento->id,
-                    'serie' => $documento->serie,
-                    'numero' => $documento->numero,
-                    'entidad_id' => $documento->id_entidades
-                ]);
-                
-                // Primero eliminar los detalles del documento
-                $detalles = \App\Models\DDetalleDocumento::where('id_referencia', $documento->id)->get();
-                
-                if ($detalles->count() > 0) {
-                    Log::info('Eliminando ' . $detalles->count() . ' detalles de documento', [
-                        'documento_id' => $documento->id,
-                        'detalles_ids' => $detalles->pluck('id')->toArray()
-                    ]);
-                    
-                    // Eliminar todos los detalles
+            // Buscar el documento asociado
+            $documento = $this->encontrarDocumentoAsociado($parte);
+            
+            // Proceso de eliminación en transacción
+            DB::beginTransaction();
+            
+            try {
+                if ($documento) {
+                    // Eliminar detalles del documento
                     \App\Models\DDetalleDocumento::where('id_referencia', $documento->id)->delete();
                     
-                    Log::info('Detalles del documento eliminados correctamente');
-                } else {
-                    Log::info('No se encontraron detalles asociados al documento');
+                    // Eliminar movimientos de caja (excepto libro 3)
+                    \App\Models\MovimientoDeCaja::where('id_documentos', $documento->id)
+                        ->where('id_libro', '!=', 3)
+                        ->delete();
+                    
+                    // Eliminar el documento
+                    $documento->delete();
                 }
                 
-                // También verificar y eliminar cualquier movimiento de caja asociado
-                $movimientos = \App\Models\MovimientoDeCaja::where('id_documentos', $documento->id)->get();
+                // Eliminar el parte diario
+                $parte->delete();
                 
-                if ($movimientos->count() > 0) {
-                    Log::info('Eliminando ' . $movimientos->count() . ' movimientos de caja asociados', [
-                        'documento_id' => $documento->id,
-                        'movimientos_ids' => $movimientos->pluck('id')->toArray()
-                    ]);
-                    
-                    // Eliminar movimientos de caja asociados
-                    \App\Models\MovimientoDeCaja::where('id_documentos', $documento->id)->delete();
-                    
-                    Log::info('Movimientos de caja eliminados correctamente');
-                }
+                DB::commit();
                 
-                // Finalmente eliminar el documento
-                $documento->delete();
-                
-                Log::info('Documento eliminado correctamente');
-            } else {
-                Log::warning('No se encontró documento asociado al parte diario', [
-                    'parte_id' => $parte->id,
-                    'numero_parte' => $numeroParte,
-                    'entidad_id' => $entidadId
-                ]);
+                // Mensaje de éxito
+                session()->flash('mensaje', "Parte diario #{$numeroParte} y su documento asociado eliminados correctamente.");
+                session()->flash('tipo', 'success');
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
             }
             
-            // Eliminar el parte
-            $parte->delete();
-            
-            session()->flash('mensaje', "Parte diario #{$numeroParte} y su documento asociado eliminados correctamente.");
-            session()->flash('tipo', 'success');
-            
+            // Cerrar el modal de confirmación
             $this->confirmarEliminacion = false;
+            
+            // Refrescar la página para actualizar la tabla
+            return redirect()->route('movimientos-maquinaria');
             
         } catch (\Exception $e) {
             Log::error('Error al eliminar parte diario y/o documento asociado', [
                 'id' => $this->idParteEliminar,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
             
             session()->flash('mensaje', 'Error al eliminar el parte diario. Por favor, inténtelo de nuevo.');
             session()->flash('tipo', 'error');
+            $this->confirmarEliminacion = false;
         }
+    }
+
+    public function verDocumento($parteId)
+    {
+        try {
+            // Obtener el parte diario
+            $parte = ParteDiario::find($parteId);
+            
+            if (!$parte) {
+                $this->dispatch('showNotification', [
+                    'message' => 'No se encontró el parte diario',
+                    'type' => 'error'
+                ])->self();
+                return;
+            }
+            
+            // Buscar documento asociado
+            $documento = \App\Models\Documento::where('id_t10tdoc', '82') // Tipo de documento Parte Diario
+                ->where('serie', '0000')
+                ->where('numero', $parte->numero_parte)
+                ->where('id_entidades', $parte->entidad_id)
+                ->first();
+                
+            if (!$documento) {
+                $this->dispatch('showNotification', [
+                    'message' => 'No se encontró un documento asociado a este parte diario',
+                    'type' => 'warning'
+                ])->self();
+                return;
+            }
+            
+            // Obtener detalles del documento
+            $detalles = \App\Models\DDetalleDocumento::where('id_referencia', $documento->id)->get();
+            
+            // Guardar información para el modal
+            $this->documentoActual = $documento;
+            $this->parteActual = $parte;
+            $this->documentoActual->detalles = $detalles;
+            
+            // Abrir el modal
+            $this->documentoModal = true;
+            
+        } catch (\Exception $e) {
+            Log::error('Error al obtener documento', [
+                'parte_id' => $parteId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            $this->dispatch('showNotification', [
+                'message' => 'Error al obtener el documento: ' . $e->getMessage(),
+                'type' => 'error'
+            ])->self();
+        }
+    }
+
+    public function cerrarModalDocumento()
+    {
+        $this->documentoModal = false;
+        $this->documentoActual = null;
+        $this->parteActual = null;
+    }
+
+    public function imprimirDocumento()
+    {
+        // Esta función utiliza JavaScript para imprimir el contenido del modal
+        $this->dispatch('imprimir-documento');
     }
 }

@@ -80,6 +80,7 @@
                                                 <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200">Operaciones</div>
                                                 <a href="{{ route('movimientos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
                                                 <a href="{{ route('pagos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pagos</a>
+                                                <a href="{{ route('historial-pagos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Historial de Pagos</a>
                                                 <a href="{{ route('parte-diario') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Parte Diario</a>
                                                 
                                                 <!-- Configuración -->
@@ -173,6 +174,7 @@
                                     <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200">Operaciones</div>
                                     <a href="{{ route('movimientos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
                                     <a href="{{ route('pagos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pagos</a>
+                                    <a href="{{ route('historial-pagos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Historial de Pagos</a>
                                     <a href="{{ route('parte-diario') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Parte Diario</a>
                                     
                                     <!-- Configuración -->
