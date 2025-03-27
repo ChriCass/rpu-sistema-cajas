@@ -78,8 +78,8 @@
                                             <div x-show="dropdownOpen" class="absolute mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
                                                 <!-- Movimientos y Pagos -->
                                                 <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200">Operaciones</div>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pagos</a>
+                                                <a href="{{ route('movimientos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
+                                                <a href="{{ route('pagos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pagos</a>
                                                 <a href="{{ route('parte-diario') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Parte Diario</a>
                                                 
                                                 <!-- Configuración -->
@@ -171,8 +171,8 @@
                                 <div x-show="dropdownOpen" class="mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10" x-cloak>
                                     <!-- Movimientos y Pagos -->
                                     <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-200">Operaciones</div>
-                                    <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
-                                    <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pagos</a>
+                                    <a href="{{ route('movimientos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Movimientos</a>
+                                    <a href="{{ route('pagos-maquinaria') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pagos</a>
                                     <a href="{{ route('parte-diario') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Parte Diario</a>
                                     
                                     <!-- Configuración -->

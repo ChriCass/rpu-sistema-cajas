@@ -6,9 +6,12 @@ use App\Models\Operador;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class EditOperadorModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $operadorId;
     public $nombre;
     public $estado;
@@ -47,17 +50,17 @@ class EditOperadorModal extends ModalComponent
         try {
             $operador = Operador::findOrFail($this->operadorId);
             $operador->update([
-                'nombre' => $this->nombre,
+                'nombre' => strtoupper($this->nombre),
                 'estado' => (int)$this->estado
             ]);
             
             $this->dispatch('operadorUpdated');
             $this->closeModal();
-            session()->flash('message', 'Operador actualizado exitosamente.');
+            $this->notify('success', 'Operador actualizado exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error updating operador: ' . $e->getMessage());
-            session()->flash('error', 'Error al actualizar el operador: ' . $e->getMessage());
+            $this->notify('error', 'Error al actualizar el operador: ' . $e->getMessage());
         }
     }
 

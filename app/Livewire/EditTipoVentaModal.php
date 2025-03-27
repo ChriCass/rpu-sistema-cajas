@@ -6,9 +6,12 @@ use App\Models\TipoVenta;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class EditTipoVentaModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $tipoVentaId;
     public $descripcion;
     public $estado;
@@ -31,24 +34,24 @@ class EditTipoVentaModal extends ModalComponent
         $this->estado = (int)$tipoVenta->estado;
     }
 
-    public function update()
+    public function save()
     {
         $this->validate();
 
         try {
             $tipoVenta = TipoVenta::findOrFail($this->tipoVentaId);
             $tipoVenta->update([
-                'descripcion' => $this->descripcion,
+                'descripcion' => strtoupper($this->descripcion),
                 'estado' => (int)$this->estado
             ]);
             
             $this->dispatch('tipoVentaUpdated');
             $this->closeModal();
-            session()->flash('message', 'Tipo de venta actualizado exitosamente.');
+            $this->notify('success', 'Tipo de venta actualizado exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error updating tipo venta: ' . $e->getMessage());
-            session()->flash('error', 'Error al actualizar el tipo de venta: ' . $e->getMessage());
+            $this->notify('error', 'Error al actualizar el tipo de venta: ' . $e->getMessage());
         }
     }
 

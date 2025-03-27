@@ -21,7 +21,7 @@ use App\Livewire\AplicacionDetail;
 use App\Livewire\BalanceCuentaAnalisis;
 use App\Livewire\BalanceCuentasView;
 use App\Livewire\EdRegistroDocumentosCxc;
-
+use Illuminate\Support\Facades\Log;
 
 use App\Livewire\MatrizDeCobrosView;
 use App\Livewire\MatrizDePagosView;
@@ -196,9 +196,30 @@ Route::get('/reportes/reporte-inconsistencias', ReporteInconcistenciasView::clas
 Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->name('reporte.diario.matriz');
  
     // Rutas para Maquinarias
+    Route::get('/maquinarias/movimientos', function () {
+        return view('maquinarias.movimientos');
+    })->middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->name('movimientos-maquinaria');
+
     Route::get('/maquinarias/parte-diario', function () {
-        return view('maquinarias.parte-diario', ['routeName' => 'parte-diario']);
+        return view('maquinarias.parte-diario', [
+            'routeName' => 'parte-diario',
+            'origen' => request()->query('origen', 'nuevo')
+        ]);
     })->name('parte-diario');
+
+    Route::get('/maquinarias/parte-diario/{id}/edit', function ($id) {
+        Log::info('Accediendo a la ruta de edición de parte diario', [
+            'id' => $id,
+            'url' => request()->url(),
+            'path' => request()->path()
+        ]);
+        
+        return view('maquinarias.parte-diario', [
+            'routeName' => 'parte-diario',
+            'origen' => 'edicion',
+            'id' => $id
+        ]);
+    })->name('parte-diario.edit');
 
     Route::get('/maquinarias/operadores', function () {
         return view('maquinarias.operadores', ['routeName' => 'operadores']);
@@ -211,4 +232,25 @@ Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->n
     Route::get('/maquinarias/tipos-venta', function () {
         return view('maquinarias.tipos-venta', ['routeName' => 'tipos-venta']);
     })->name('tipos-venta');
+
+    Route::get('/maquinarias/pagos', function () {
+        return view('maquinarias.pagos', [
+            'routeName' => 'pagos',
+            'origen' => request()->query('origen', 'nuevo')
+        ]);
+    })->name('pagos-maquinaria');
+
+    Route::get('/maquinarias/pagos/{id}/edit', function ($id) {
+        Log::info('Accediendo a la ruta de edición de pagos de maquinaria', [
+            'id' => $id,
+            'url' => request()->url(),
+            'path' => request()->path()
+        ]);
+        
+        return view('maquinarias.pagos', [
+            'routeName' => 'pagos',
+            'origen' => 'edicion',
+            'id' => $id
+        ]);
+    })->name('pagos-maquinaria.edit');
 });

@@ -6,9 +6,12 @@ use App\Models\Unidad;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class DeleteUnidadModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $unidadId;
 
     public static function modalMaxWidth(): string
@@ -29,11 +32,11 @@ class DeleteUnidadModal extends ModalComponent
             
             $this->dispatch('unidadDeleted');
             $this->closeModal();
-            session()->flash('message', 'Unidad eliminada exitosamente.');
+            $this->notify('success', 'Unidad eliminada exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error deleting unidad: ' . $e->getMessage());
-            session()->flash('error', 'Error al eliminar la unidad: ' . $e->getMessage());
+            $this->notify('error', 'Error al eliminar la unidad: ' . $e->getMessage());
         }
     }
 

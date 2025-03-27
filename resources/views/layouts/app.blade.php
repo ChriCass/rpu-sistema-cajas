@@ -60,6 +60,9 @@
         <main>
             {{ $slot }}
         </main>
+
+        <!-- Sistema de Notificaciones -->
+        <livewire:notification-system />
     </div>
 
     @stack('modals')

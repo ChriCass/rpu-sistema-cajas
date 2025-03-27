@@ -6,9 +6,12 @@ use App\Models\Operador;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class OperadorModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $nombre;
     public $estado = 1;
 
@@ -28,17 +31,17 @@ class OperadorModal extends ModalComponent
 
         try {
             Operador::create([
-                'nombre' => $this->nombre,
+                'nombre' => strtoupper($this->nombre),
                 'estado' => $this->estado
             ]);
             
             $this->dispatch('operadorCreated');
             $this->closeModal();
-            session()->flash('message', 'Operador creado exitosamente.');
+            $this->notify('success', 'Operador creado exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error creating operador: ' . $e->getMessage());
-            session()->flash('error', 'Error al crear el operador: ' . $e->getMessage());
+            $this->notify('error', 'Error al crear el operador: ' . $e->getMessage());
         }
     }
 

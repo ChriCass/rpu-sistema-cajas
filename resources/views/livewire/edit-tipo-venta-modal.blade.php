@@ -1,6 +1,6 @@
 <div>
     <x-card title="Editar Tipo de Venta">
-        <form class="flex flex-wrap justify-center -mx-4" wire:submit.prevent="update">
+        <form class="flex flex-wrap justify-center -mx-4" wire:submit.prevent="save">
             @if (session()->has('message'))
                 <x-alert title="Éxito!" positive>
                     {{ session('message') }}

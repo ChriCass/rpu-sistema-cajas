@@ -16,6 +16,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\WithExport;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 final class UnidadTable extends PowerGridComponent
 {
@@ -137,22 +138,31 @@ final class UnidadTable extends PowerGridComponent
                 'descripcion' => $this->descripcion,
                 'estado' => $this->estado
             ]);
+            $this->dispatch('unidadUpdated');
         } else {
             Unidad::create([
                 'numero' => $this->numero,
                 'descripcion' => $this->descripcion,
                 'estado' => $this->estado
             ]);
+            $this->dispatch('unidadCreated');
         }
 
         $this->closeModal();
-        $this->dispatch('pg:eventRefresh-default');
     }
 
     public function deleteUnidad($data): void
     {
         $unidad = Unidad::find($data['unidad']['id']);
         $unidad->delete();
-        $this->dispatch('pg:eventRefresh-default');
+        $this->dispatch('unidadDeleted');
+    }
+
+    #[On('unidadCreated')]
+    #[On('unidadUpdated')]
+    #[On('unidadDeleted')]
+    public function refreshTable()
+    {
+        $this->fillData();
     }
 }

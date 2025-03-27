@@ -6,9 +6,12 @@ use App\Models\TipoVenta;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class TipoVentaModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $descripcion;
     public $estado = 1;
 
@@ -28,17 +31,17 @@ class TipoVentaModal extends ModalComponent
 
         try {
             TipoVenta::create([
-                'descripcion' => $this->descripcion,
+                'descripcion' => strtoupper($this->descripcion),
                 'estado' => $this->estado
             ]);
             
             $this->dispatch('tipoVentaCreated');
             $this->closeModal();
-            session()->flash('message', 'Tipo de venta creado exitosamente.');
+            $this->notify('success', 'Tipo de venta creado exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error creating tipo venta: ' . $e->getMessage());
-            session()->flash('error', 'Error al crear el tipo de venta: ' . $e->getMessage());
+            $this->notify('error', 'Error al crear el tipo de venta: ' . $e->getMessage());
         }
     }
 

@@ -6,9 +6,12 @@ use App\Models\Operador;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class DeleteOperadorModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $operadorId;
 
     public static function modalMaxWidth(): string
@@ -29,11 +32,11 @@ class DeleteOperadorModal extends ModalComponent
             
             $this->dispatch('operadorDeleted');
             $this->closeModal();
-            session()->flash('message', 'Operador eliminado exitosamente.');
+            $this->notify('success', 'Operador eliminado exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error deleting operador: ' . $e->getMessage());
-            session()->flash('error', 'Error al eliminar el operador: ' . $e->getMessage());
+            $this->notify('error', 'Error al eliminar el operador: ' . $e->getMessage());
         }
     }
 

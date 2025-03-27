@@ -6,9 +6,12 @@ use App\Models\Unidad;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use Illuminate\Support\Facades\Log;
+use App\Traits\WithNotifications;
 
 class EditUnidadModal extends ModalComponent
 {
+    use WithNotifications;
+
     public $unidadId;
     public $numero;
     public $descripcion;
@@ -41,18 +44,18 @@ class EditUnidadModal extends ModalComponent
         try {
             $unidad = Unidad::findOrFail($this->unidadId);
             $unidad->update([
-                'numero' => $this->numero,
-                'descripcion' => $this->descripcion,
+                'numero' => strtoupper($this->numero),
+                'descripcion' => strtoupper($this->descripcion),
                 'estado' => (int)$this->estado
             ]);
             
             $this->dispatch('unidadUpdated');
             $this->closeModal();
-            session()->flash('message', 'Unidad actualizada exitosamente.');
+            $this->notify('success', 'Unidad actualizada exitosamente.');
             
         } catch (\Exception $e) {
             Log::error('Error updating unidad: ' . $e->getMessage());
-            session()->flash('error', 'Error al actualizar la unidad: ' . $e->getMessage());
+            $this->notify('error', 'Error al actualizar la unidad: ' . $e->getMessage());
         }
     }
 
