@@ -65,6 +65,7 @@
                                                 <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
                                                 <a href="{{ route('cajas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cajas</a>
                                                 <a href="{{ route('centro-costos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Centro de costos</a>
+                                                <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                             </div>
                                         </div>
                                         
@@ -89,7 +90,7 @@
                                                 <a href="{{ route('unidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Unidades</a>
                                                 <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
                                                 <a href="{{ route('tipos-venta') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tipos de venta</a>
-                                                <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
+                                                <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                             </div>
                                         </div>
                                         
@@ -159,6 +160,7 @@
                                     <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
                                     <a href="{{ route('cajas') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cajas</a>
                                     <a href="{{ route('centro-costos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Centro de costos</a>
+                                    <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                 </div>
                             </div>
                              
@@ -183,7 +185,7 @@
                                     <a href="{{ route('unidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Unidades</a>
                                     <a href="{{ route('entidades') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Entidades</a>
                                     <a href="{{ route('tipos-venta') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Tipos de venta</a>
-                                    <a href="#" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
+                                    <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                 </div>
                             </div>
 

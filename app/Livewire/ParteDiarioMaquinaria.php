@@ -231,9 +231,9 @@ class ParteDiarioMaquinaria extends Component
             $this->horaFinTarde = $parte->hora_fin_tarde ? $this->formatearHora($parte->hora_fin_tarde) : '';
             
             // Formatear valores numéricos a string con 2 decimales
-            $this->horasManana = $parte->horas_manana ? number_format((float)$parte->horas_manana, 2) : '';
-            $this->horasTarde = $parte->horas_tarde ? number_format((float)$parte->horas_tarde, 2) : '';
-            $this->totalHoras = $parte->total_horas ? number_format((float)$parte->total_horas, 2) : '';
+            $this->horasManana = $parte->horas_manana ? number_format((float)$parte->horas_manana, 2, '.', '') : '';
+            $this->horasTarde = $parte->horas_tarde ? number_format((float)$parte->horas_tarde, 2, '.', '') : '';
+            $this->totalHoras = $parte->total_horas ? number_format((float)$parte->total_horas, 2, '.', '') : '';
             
             // Registrar los valores convertidos
             Log::info('Valores de horas convertidos para la vista', [
@@ -278,9 +278,9 @@ class ParteDiarioMaquinaria extends Component
             $this->horometroFinManana = $parte->horometro_fin_manana !== null ? (string)$parte->horometro_fin_manana : '';
             $this->horometroInicioTarde = $parte->horometro_inicio_tarde !== null ? (string)$parte->horometro_inicio_tarde : '';
             $this->horometroFinTarde = $parte->horometro_fin_tarde !== null ? (string)$parte->horometro_fin_tarde : '';
-            $this->diferenciaHorometroManana = $parte->diferencia_manana ? number_format((float)$parte->diferencia_manana, 2) : '0.00';
-            $this->diferenciaHorometroTarde = $parte->diferencia_tarde ? number_format((float)$parte->diferencia_tarde, 2) : '0.00';
-            $this->diferencia = $parte->diferencia_total ? number_format((float)$parte->diferencia_total, 2) : '0.00';
+            $this->diferenciaHorometroManana = $parte->diferencia_manana ? number_format((float)$parte->diferencia_manana, 2, '.', '') : '0.00';
+            $this->diferenciaHorometroTarde = $parte->diferencia_tarde ? number_format((float)$parte->diferencia_tarde, 2, '.', '') : '0.00';
+            $this->diferencia = $parte->diferencia_total ? number_format((float)$parte->diferencia_total, 2, '.', '') : '0.00';
             
             // Registrar valores de horómetros
             Log::info('Valores de horómetros convertidos para la vista', [
@@ -323,7 +323,7 @@ class ParteDiarioMaquinaria extends Component
                 Log::info('Calculando importe a cobrar en cargarDatosParte');
                 $this->calcularImporte();
             } else {
-                $this->importeACobrar = $parte->importe_cobrar ? number_format((float)$parte->importe_cobrar, 2) : '0.00';
+                $this->importeACobrar = $parte->importe_cobrar ? number_format((float)$parte->importe_cobrar, 2, '.', '') : '0.00';
             }
             
             // Si es pago parcial, calcular el monto pendiente
@@ -443,7 +443,7 @@ class ParteDiarioMaquinaria extends Component
                 }
                 
                 $diferencia = $fin->diffInMinutes($inicio);
-                $this->horasManana = number_format($diferencia / 60, 2);
+                $this->horasManana = number_format($diferencia / 60, 2, '.', '');
                 $this->calcularTotalHoras();
             } catch (\Exception $e) {
                 $this->horasManana = '';
@@ -467,7 +467,7 @@ class ParteDiarioMaquinaria extends Component
                 }
                 
                 $diferencia = $fin->diffInMinutes($inicio);
-                $this->horasTarde = number_format($diferencia / 60, 2);
+                $this->horasTarde = number_format($diferencia / 60, 2, '.', '');
                 $this->calcularTotalHoras();
             } catch (\Exception $e) {
                 $this->horasTarde = '';
@@ -482,7 +482,7 @@ class ParteDiarioMaquinaria extends Component
     {
         $manana = floatval($this->horasManana ?: 0);
         $tarde = floatval($this->horasTarde ?: 0);
-        $this->totalHoras = number_format($manana + $tarde, 2);
+        $this->totalHoras = number_format($manana + $tarde, 2, '.', '');
     }
 
     public function updatedHorometroInicioManana()
@@ -513,7 +513,7 @@ class ParteDiarioMaquinaria extends Component
                 $fin = floatval($this->horometroFinManana);
                 
                 if ($fin >= $inicio) {
-                    $this->diferenciaHorometroManana = number_format($fin - $inicio, 2);
+                    $this->diferenciaHorometroManana = number_format($fin - $inicio, 2, '.', '');
                 } else {
                     $this->diferenciaHorometroManana = '0.00';
                 }
@@ -536,7 +536,7 @@ class ParteDiarioMaquinaria extends Component
                 $fin = floatval($this->horometroFinTarde);
                 
                 if ($fin >= $inicio) {
-                    $this->diferenciaHorometroTarde = number_format($fin - $inicio, 2);
+                    $this->diferenciaHorometroTarde = number_format($fin - $inicio, 2, '.', '');
                 } else {
                     $this->diferenciaHorometroTarde = '0.00';
                 }
@@ -555,7 +555,7 @@ class ParteDiarioMaquinaria extends Component
     {
         $manana = floatval($this->diferenciaHorometroManana ?: 0);
         $tarde = floatval($this->diferenciaHorometroTarde ?: 0);
-        $this->diferencia = number_format($manana + $tarde, 2);
+        $this->diferencia = number_format($manana + $tarde, 2, '.', '');
     }
     
     public function updatedHoraPorTrabajo()
@@ -595,7 +595,7 @@ class ParteDiarioMaquinaria extends Component
             try {
                 $horas = floatval($this->horaPorTrabajo);
                 $precio = floatval($this->precioPorHora);
-                $this->importeACobrar = number_format($horas * $precio, 2);
+                $this->importeACobrar = number_format($horas * $precio, 2, '.', '');
                 
                 Log::info('Importe calculado correctamente', [
                     'horas' => $horas,
@@ -1237,11 +1237,11 @@ class ParteDiarioMaquinaria extends Component
     {
         if ($this->importeACobrar && $this->montoPagado !== '') {
             try {
-                $importe = floatval(str_replace(',', '', $this->importeACobrar));
+                $importe = floatval($this->importeACobrar);
                 $pagado = floatval($this->montoPagado);
                 
                 if ($pagado <= $importe) {
-                    $this->montoPendiente = number_format($importe - $pagado, 2);
+                    $this->montoPendiente = number_format($importe - $pagado, 2, '.', '');
                 } else {
                     $this->montoPagado = $importe;
                     $this->montoPendiente = '0.00';

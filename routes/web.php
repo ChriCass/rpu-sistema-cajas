@@ -39,6 +39,7 @@ use App\Livewire\ReporteRegistroVentasView;
 use App\Livewire\OperadorTable;
 use App\Livewire\UnidadTable;
 use App\Livewire\TipoVentaTable;
+use App\Livewire\CorreosElectronicos;
 
 /*
 |--------------------------------------------------------------------------
@@ -152,6 +153,8 @@ Route::middleware([
     Route::get('/configuracion/centro-costos', function () {
         return view('configuracion.centro-costos', ['routeName' => 'centro-costos']);
     })->name('centro-costos');
+
+    Route::get('/configuracion/correos', CorreosElectronicos::class)->name('correos');
 
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
