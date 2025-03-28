@@ -88,6 +88,7 @@ class ParteDiarioMaquinaria extends Component
     public $montoPendiente = '0.00';
     
     public $tiposVenta = [];
+    public $numeroAnterior;
     
     public function mount($origen = 'nuevo', $id = null)
     {
@@ -317,6 +318,7 @@ class ParteDiarioMaquinaria extends Component
             $this->pagado = (string)$parte->estado_pago;
             $this->montoPagado = $parte->monto_pagado ? (string)$parte->monto_pagado : '';
             $this->numero = $parte->numero_parte ? (string)$parte->numero_parte : '';
+            $this->numeroAnterior = $parte->numero_parte ? (string)$parte->numero_parte : '';
             
             // Calcular el importe a cobrar en caso de que no esté definido
             if (empty($this->importeACobrar) && $this->horaPorTrabajo && $this->precioPorHora) {
@@ -692,6 +694,7 @@ class ParteDiarioMaquinaria extends Component
                     'pagado' => 'required|in:0,1,2',
                     'observaciones' => 'nullable|string|max:1000',
                     'interrupciones' => 'nullable|string|max:1000',
+                    'numero' => 'required|not_in:--,0',
                 ]);
             } catch (\Illuminate\Validation\ValidationException $e) {
                 // Extraer el primer mensaje de error para mostrarlo con notify
@@ -708,11 +711,27 @@ class ParteDiarioMaquinaria extends Component
                 throw $e;
             }
 
-            // Validación de pago parcial
-            if ($this->pagado == '2' && (empty($this->montoPagado) || $this->montoPagado <= 0)) {
-                Log::warning('Error: Pago parcial sin monto válido');
-                $this->notify('error', 'Para pago parcial, debe ingresar un monto mayor a 0.');
+            // Verificar si el número de parte ya existe en la base de datos
+            $existeNumero = ParteDiario::where('numero_parte', $this->numero)
+                ->when($this->origen === 'edicion' && $this->id, function($query) {
+                    // Si es edición, excluir el parte actual de la búsqueda
+                    return $query->where('id', '!=', $this->id);
+                })
+                ->exists();
+            
+            if ($existeNumero) {
+                Log::warning('Intento de usar un número de parte ya existente', [
+                    'numero' => $this->numero,
+                    'id_parte' => $this->id,
+                    'usuario' => Auth::user()->id
+                ]);
+                $this->notify('error', 'El número de parte ya existe en la base de datos. Por favor, ingrese otro número.');
                 return;
+            }
+
+            // Validación de pago parcial
+            if ($this->pagado == '2') {
+                $this->calcularMontoPendiente();
             }
 
             // Buscar la apertura correspondiente solo si está pagado o pago parcial
@@ -838,16 +857,13 @@ class ParteDiarioMaquinaria extends Component
                     'estado_pago' => $this->pagado ?? null,
                     'monto_pagado' => $this->montoPagado ?? null,
                     'observaciones' => $this->observaciones ?? null,
+                    'numero_parte' => $this->numero,
                 ];
 
                 Log::info('Datos a guardar:', $datos);
 
                 if ($this->origen === 'nuevo') {
-                    // Generar número de parte
-                    $ultimoParte = ParteDiario::orderBy('numero_parte', 'desc')->first();
-                    $numero = $ultimoParte ? intval($ultimoParte->numero_parte) + 1 : 1;
-                    $datos['numero_parte'] = $numero;
-                    Log::info('Nuevo número de parte generado: ' . $datos['numero_parte']);
+                    
                     
                     $parte = ParteDiario::create($datos);
                     $mensaje = 'Parte diario creado correctamente!';
@@ -858,7 +874,7 @@ class ParteDiarioMaquinaria extends Component
                         'tipoDocumento' => 82,
                         'tipoDocDescripcion' => 'Parte Diario',
                         'serieNumero1' => '0000',
-                        'serieNumero2' => $numero,
+                        'serieNumero2' => $this->numero,
                         'tipoDocId' => $this->tipoDocId,
                         'docIdent' => $this->codigoEntidad,
                         'entidad' => $this->cliente,
@@ -870,7 +886,7 @@ class ParteDiarioMaquinaria extends Component
                         'igv' => 0,
                         'noGravado' => $parte->importe_cobrar,
                         'precio' => $parte->importe_cobrar,
-                        'observaciones' => 'Parte diario de maquinaria - ' . $numero,
+                        'observaciones' => 'Parte diario de maquinaria - ' . $this->numero,
                         'user' => Auth::user()->id,
                         'productos' => [
                             [
@@ -924,7 +940,26 @@ class ParteDiarioMaquinaria extends Component
                     }
 
                     // Registrar documento usando el servicio
-                    $this->registroDocService->guardarDocumento($data);
+                    try {
+                        $resultado = $this->registroDocService->guardarDocumento($data);
+                        
+                        // Log adicional para verificar la respuesta
+                        Log::info('Respuesta del servicio guardarDocumento:', [
+                            'resultado' => $resultado
+                        ]);
+                        
+                        // Verifica si el resultado indica un error
+                        if (isset($resultado['error']) || (isset($resultado['status']) && $resultado['status'] === 'error')) {
+                            throw new \Exception(isset($resultado['mensaje']) ? $resultado['mensaje'] : 'Error desconocido al actualizar el documento');
+                        }
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        Log::error('Error específico al registrar documento: ' . $e->getMessage(), [
+                            'parte_id' => $parte->id
+                        ]);
+                        $this->notify('error', 'No se puede registrar el movimiento: ' . $e->getMessage());
+                        return;
+                    }
 
                     // Registro de voucher para pago parcial
                     if ($this->pagado == '2') {  // PAGO PARCIAL
@@ -940,7 +975,7 @@ class ParteDiarioMaquinaria extends Component
                                 'MONEDA' => 'PEN',
                                 'DATOS' => [
                                     [
-                                        'OBSERVACION' => 'Parte diario de maquinaria - ' . $numero,
+                                        'OBSERVACION' => 'Parte diario de maquinaria - ' . $this->numero,
                                         'CUENTA' => 44,
                                         'DOCUMENTO' => $parte->id,
                                         'MONTO' => $this->montoPagado,
@@ -992,12 +1027,14 @@ class ParteDiarioMaquinaria extends Component
                         return;
                     }
                     
+                    
                     $parte->update($datos);
                     $mensaje = 'Parte diario actualizado correctamente!';
+                    
                     Log::info('Parte diario actualizado con ID: ' . $this->id);
                     
                     // Obtener el ID del documento asociado al parte diario
-                    $documentoId = $this->obtenerIdDocumento('0000', $parte->numero_parte, $parte->entidad_id);
+                    $documentoId = $this->obtenerIdDocumento('0000', $this->numeroAnterior, $parte->entidad_id);
                     
                     Log::info('ID del documento obtenido para actualización', [
                         'parte_id' => $parte->id,
@@ -1079,8 +1116,29 @@ class ParteDiarioMaquinaria extends Component
                         }
                     }
 
+                    
                     // Actualizar el documento usando el servicio
-                    $this->registroDocService->guardarDocumento($data);
+                    try {
+                        $resultado = $this->registroDocService->guardarDocumento($data);
+                        
+                        // Log adicional para verificar la respuesta
+                        Log::info('Respuesta del servicio guardarDocumento:', [
+                            'resultado' => $resultado
+                        ]);
+                        
+                        // Verifica si el resultado indica un error
+                        if (isset($resultado['error']) || (isset($resultado['status']) && $resultado['status'] === 'error')) {
+                            throw new \Exception(isset($resultado['mensaje']) ? $resultado['mensaje'] : 'Por que tiene movimientos en caja');
+                        }
+                    } catch (\Exception $e) {
+                        DB::rollBack();
+                        Log::error('Error específico al actualizar documento: ' . $e->getMessage(), [
+                            'documento_id' => $documentoId,
+                            'parte_id' => $parte->id
+                        ]);
+                        $this->notify('error', 'No se puede modificar el movimiento: ' . $e->getMessage());
+                        return;
+                    }
 
                     // Actualización del voucher para pago parcial
                     if ($this->pagado == '2') {  // PAGO PARCIAL
@@ -1139,6 +1197,7 @@ class ParteDiarioMaquinaria extends Component
                             throw $e; // Re-lanzar la excepción para que sea manejada por el try-catch principal
                         }
                     }
+                        
                 }
 
                 // Si todo salió bien, confirmar la transacción

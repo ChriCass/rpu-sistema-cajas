@@ -29,7 +29,12 @@
             <div class="text-right">
                 <h2 class="text-xl font-bold mb-2">PARTE DIARIO DE MAQUINARIA</h2>
                 <div class="bg-white text-teal-600 rounded px-3 py-1 inline-block">
-                    <span class="font-bold">Nº {{ $numero }}</span>
+                    <div class="flex items-center">
+                        <span class="font-bold mr-1">Nº</span>
+                        <input type="text" wire:model="numero" 
+                            class="py-1 px-2 font-bold w-24 border-0 focus:ring-0 bg-transparent text-center text-teal-600" 
+                            placeholder="0"/>
+                    </div>
                 </div>
             </div>
         </div>
