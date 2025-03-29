@@ -17,9 +17,6 @@
             @endcomponent
 
             <x-card>
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-teal-600">Reportes</h1>
-                </div>
                 @include('partials.reportes')
             </x-card>
         </div>
