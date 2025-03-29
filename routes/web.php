@@ -65,6 +65,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 // Ruta original
 Route::redirect('/', '/login');
 
+// Rutas accesibles para todos los roles autenticados
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -74,6 +75,88 @@ Route::middleware([
         return view('dashboard', ['routeName' => 'dashboard']);
     })->name('dashboard');
 
+    // Rutas para Maquinarias - accesibles para admin, tesorero y supervisor maquinaria
+    Route::middleware(['role:admin|tesorero|supervisor maquinaria'])->prefix('maquinarias')->group(function () {
+        Route::get('/movimientos', function () {
+            return view('maquinarias.movimientos');
+        })->name('movimientos-maquinaria');
+
+        Route::get('/parte-diario', function () {
+            return view('maquinarias.parte-diario', [
+                'routeName' => 'parte-diario',
+                'origen' => request()->query('origen', 'nuevo')
+            ]);
+        })->name('parte-diario');
+
+        Route::get('/parte-diario/{id}/edit', function ($id) {
+            Log::info('Accediendo a la ruta de edición de parte diario', [
+                'id' => $id,
+                'url' => request()->url(),
+                'path' => request()->path()
+            ]);
+            
+            return view('maquinarias.parte-diario', [
+                'routeName' => 'parte-diario',
+                'origen' => 'edicion',
+                'id' => $id
+            ]);
+        })->name('parte-diario.edit');
+
+        Route::get('/operadores', function () {
+            return view('maquinarias.operadores', ['routeName' => 'operadores']);
+        })->name('operadores');
+
+        Route::get('/unidades', function () {
+            return view('maquinarias.unidades', ['routeName' => 'unidades']);
+        })->name('unidades');
+
+        Route::get('/tipos-venta', function () {
+            return view('maquinarias.tipos-venta', ['routeName' => 'tipos-venta']);
+        })->name('tipos-venta');
+
+        Route::get('/pagos', function () {
+            return view('maquinarias.pagos', [
+                'routeName' => 'pagos',
+                'origen' => request()->query('origen', 'nuevo')
+            ]);
+        })->name('pagos-maquinaria');
+
+        Route::get('/historial-pagos', function () {
+            return view('maquinarias.historial-pagos', [
+                'routeName' => 'historial-pagos'
+            ]);
+        })->name('historial-pagos-maquinaria');
+
+        Route::get('/pagos/{id}/edit', function ($id) {
+            Log::info('Accediendo a la ruta de edición de pagos de maquinaria', [
+                'id' => $id,
+                'url' => request()->url(),
+                'path' => request()->path()
+            ]);
+            
+            return view('maquinarias.pagos', [
+                'routeName' => 'pagos',
+                'origen' => 'edicion',
+                'id' => $id
+            ]);
+        })->name('pagos-maquinaria.edit');
+        
+        // Ruta para el reporte de Matriz Maquinaria
+        Route::get('/reportes/matriz-maquinaria', App\Livewire\MatrizMaquinariaView::class)->name('reportes.matriz.maquinaria');
+        
+        // Ruta para el reporte de gráficos de ventas
+        Route::get('/reportes/graficos', [App\Http\Controllers\ReportesController::class, 'graficoVentas'])->name('reportes.graficos');
+    });
+});
+
+// Rutas solo para admin y tesorero
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+    'role:admin|tesorero',
+])->group(function () {
+    // Tesorería
     Route::get('/tesoreria/movimientos', function () {
         return view('tesoreria.movimientos', ['routeName' => 'movimientos']);
     })->name('movimientos');
@@ -89,12 +172,12 @@ Route::middleware([
     Route::get('/acciones-de-caja', function () {
         return view('tesoreria.acciones-de-caja', ['routeName' => 'acciones-de-caja']);
     })->name('acciones-de-caja');
-
     
     Route::get('/importador', function () {
         return view('importadores.importador', ['routeName' => 'importador']);
     })->name('importador');
 
+    // Pendientes
     Route::prefix('pendientes')->group(function () {
         Route::get('/cxc', function () {
             return view('deudas.documentos-cxc', ['routeName' => 'cxc']);
@@ -121,6 +204,7 @@ Route::middleware([
         return view('importadores.importador', ['routeName' => 'importador-general']);
     })->name('importador-general');
     
+    // Productos
     Route::get('/productos/familias', function () {
         return view('logistica.familia', ['routeName' => 'familias']);
     })->name('familias');
@@ -137,6 +221,7 @@ Route::middleware([
         return view('logistica.producto', ['routeName' => 'producto']);
     })->name('producto');
 
+    // Configuración
     Route::get('/configuracion/entidades', function () {
         return view('configuracion.entidades', ['routeName' => 'entidades']);
     })->name('entidades');
@@ -144,7 +229,6 @@ Route::middleware([
     Route::get('/configuracion/cuentas', function () {
         return view('configuracion.cuentas', ['routeName' => 'cuentas']);
     })->name('cuentas');
-
     
     Route::get('/configuracion/cajas', function () {
         return view('configuracion.cajas', ['routeName' => 'cajas']);
@@ -156,16 +240,13 @@ Route::middleware([
 
     Route::get('/configuracion/correos', CorreosElectronicos::class)->name('correos');
 
+    // Apertura
     Route::prefix('apertura/{aperturaId}/edit')->group(function () {
         Route::get('/', AperturaEditParent::class)->name('apertura.edit');
         Route::get('/avanzado',  RegistroGeneralAvanz::class)->name('apertura.avanzado');
-     
-     
-
     });
-   /// Route::get('/apertura/{aperturaId}/edit', [AperturaController::class, 'edit'])->name('apertura.edit');
-    /// usar el aperturaController si hay futuros problemas en el manejo de layouts y uso de rutas con livewire
 
+    // Aplicaciones y Traspasos
     Route::prefix('aplicaciones/{aplicacionesId}')->group(function (){
         Route::get('/', AplicacionDetail::class)->name('aplicacion.show');
     });
@@ -174,92 +255,22 @@ Route::middleware([
         Route::get('/', TraspasoDetail::class)->name('traspaso.show');
     }); 
     
-
+    // Reportes
     Route::get('/reportes/matriz-cobros', MatrizDeCobrosView::class)->name('reportes.matriz.cobros');
     Route::get('/reportes/matriz-pagos', MatrizDePagosView::class)->name('reportes.matriz.pagos');
-
     Route::get('/reportes/reporte-caja', ReporteCajaView::class)->name('reportes.reporte.caja');
     Route::get('/reportes/reporte-caja-mes', ReporteCajaXMesView::class)->name('reportes.reporte.caja.mes');
     Route::get('/reportes/reporte-caja-anio', ReporteCajaXAnioView::class)->name('reportes.reporte.caja.anio');
     Route::get('/reportes/Resultado-Por-Centro-De-Costos', ResultadoPorCentroDeCostos::class)->name('resultado.por.centro.de.costos');
     Route::get('/reportes/reporte-registro-compras', ReporteRegistroComprasView::class)->name('reporte.registro.compras');
-Route::get('/reportes/reporte-registro-ventas', ReporteRegistroVentasView::class)->name('reporte.registro.ventas');
-
-Route::get('/reportes/balance-cuentas', BalanceCuentasView::class)->name('balance.cuentas');
-
-Route::prefix('/reportes/balance-cuentas/{tipoDeCuenta}')->group(function (){
-    Route::get('/', BalanceCuentaAnalisis::class)->name('balance.cuenta.analisis');
-}); 
-
-
-
-
-Route::get('/reportes/reporte-analitico-costo', ReporteAnaliticoCostoView::class)->name('reporte.analitico.costo');
-Route::get('/reportes/reporte-inconsistencias', ReporteInconcistenciasView::class)->name('reporte.inconsistencias');
-Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->name('reporte.diario.matriz');
- 
-    // Rutas para Maquinarias
-    Route::get('/maquinarias/movimientos', function () {
-        return view('maquinarias.movimientos');
-    })->middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->name('movimientos-maquinaria');
-
-    Route::get('/maquinarias/parte-diario', function () {
-        return view('maquinarias.parte-diario', [
-            'routeName' => 'parte-diario',
-            'origen' => request()->query('origen', 'nuevo')
-        ]);
-    })->name('parte-diario');
-
-    Route::get('/maquinarias/parte-diario/{id}/edit', function ($id) {
-        Log::info('Accediendo a la ruta de edición de parte diario', [
-            'id' => $id,
-            'url' => request()->url(),
-            'path' => request()->path()
-        ]);
-        
-        return view('maquinarias.parte-diario', [
-            'routeName' => 'parte-diario',
-            'origen' => 'edicion',
-            'id' => $id
-        ]);
-    })->name('parte-diario.edit');
-
-    Route::get('/maquinarias/operadores', function () {
-        return view('maquinarias.operadores', ['routeName' => 'operadores']);
-    })->name('operadores');
-
-    Route::get('/maquinarias/unidades', function () {
-        return view('maquinarias.unidades', ['routeName' => 'unidades']);
-    })->name('unidades');
-
-    Route::get('/maquinarias/tipos-venta', function () {
-        return view('maquinarias.tipos-venta', ['routeName' => 'tipos-venta']);
-    })->name('tipos-venta');
-
-    Route::get('/maquinarias/pagos', function () {
-        return view('maquinarias.pagos', [
-            'routeName' => 'pagos',
-            'origen' => request()->query('origen', 'nuevo')
-        ]);
-    })->name('pagos-maquinaria');
-
-    Route::get('/maquinarias/historial-pagos', function () {
-        return view('maquinarias.historial-pagos', [
-            'routeName' => 'historial-pagos'
-        ]);
-    })->name('historial-pagos-maquinaria');
-
-    Route::get('/maquinarias/pagos/{id}/edit', function ($id) {
-        Log::info('Accediendo a la ruta de edición de pagos de maquinaria', [
-            'id' => $id,
-            'url' => request()->url(),
-            'path' => request()->path()
-        ]);
-        
-        return view('maquinarias.pagos', [
-            'routeName' => 'pagos',
-            'origen' => 'edicion',
-            'id' => $id
-        ]);
-    })->name('pagos-maquinaria.edit');
+    Route::get('/reportes/reporte-registro-ventas', ReporteRegistroVentasView::class)->name('reporte.registro.ventas');
+    Route::get('/reportes/balance-cuentas', BalanceCuentasView::class)->name('balance.cuentas');
+    
+    Route::prefix('/reportes/balance-cuentas/{tipoDeCuenta}')->group(function (){
+        Route::get('/', BalanceCuentaAnalisis::class)->name('balance.cuenta.analisis');
+    }); 
+    
+    Route::get('/reportes/reporte-analitico-costo', ReporteAnaliticoCostoView::class)->name('reporte.analitico.costo');
+    Route::get('/reportes/reporte-inconsistencias', ReporteInconcistenciasView::class)->name('reporte.inconsistencias');
+    Route::get('/reportes/reporte-diario-matriz', ReporteDiarioMatrizView::class)->name('reporte.diario.matriz');
 });

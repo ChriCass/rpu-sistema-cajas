@@ -17,6 +17,7 @@ class AsignarRolesSeeder extends Seeder
         // Asegurarse de que los roles existan
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $tesoreroRole = Role::firstOrCreate(['name' => 'tesorero']);
+        $supervisorMaquinariaRole = Role::firstOrCreate(['name' => 'supervisor maquinaria']);
 
         // Lista de correos o IDs de usuarios que serán admins
         $admins = [
@@ -29,6 +30,11 @@ class AsignarRolesSeeder extends Seeder
         $tesoreros = [
             'dsr_61@hotmail.com',
             'dala.conta12@gmail.com',
+        ];
+
+        // Lista de correos o IDs de usuarios que serán supervisores de maquinaria
+        $supervisoresMaquinaria = [
+            // Añade aquí los correos de los usuarios que serán supervisores de maquinaria
         ];
 
         // Asignar roles a los admins
@@ -44,6 +50,14 @@ class AsignarRolesSeeder extends Seeder
             $user = User::where('email', $email)->first();
             if ($user) {
                 $user->assignRole($tesoreroRole);
+            }
+        }
+
+        // Asignar roles a los supervisores de maquinaria
+        foreach ($supervisoresMaquinaria as $email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->assignRole($supervisorMaquinariaRole);
             }
         }
     }

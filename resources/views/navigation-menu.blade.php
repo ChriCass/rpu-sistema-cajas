@@ -29,6 +29,8 @@
                                 <div class="hidden sm:block sm:ml-6">
                                     <div class="flex space-x-4">
                                         <a href="{{ route('dashboard') }}" wire:navigate class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                                        
+                                        @if(auth()->user()->hasRole(['admin', 'tesorero']))
                                         <div x-data="{ dropdownOpen: false }" class="relative">
                                             <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
                                                 Módulo de Caja
@@ -68,7 +70,9 @@
                                                 <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                             </div>
                                         </div>
+                                        @endif
                                         
+                                        @if(auth()->user()->hasRole(['admin', 'tesorero', 'supervisor maquinaria']))
                                         <div x-data="{ dropdownOpen: false }" class="relative">
                                             <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false" class="text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
                                                 Maquinarias
@@ -93,6 +97,7 @@
                                                 <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                             </div>
                                         </div>
+                                        @endif
                                         
                                         @if(auth()->user()->hasRole('admin'))
                                         <div x-data="{ dropdownOpen: false }" class="relative">
@@ -124,6 +129,8 @@
                                 </button>
                             </div>
                             <a href="{{ route('dashboard') }}" wire:navigate class="text-gray-900 block px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
+                            
+                            @if(auth()->user()->hasRole(['admin', 'tesorero']))
                             <div x-data="{ dropdownOpen: false }" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="text-gray-900 block px-3 py-2 rounded-md text-base font-medium flex items-center">
                                     Módulo de Caja
@@ -163,7 +170,9 @@
                                     <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                 </div>
                             </div>
+                            @endif
                              
+                            @if(auth()->user()->hasRole(['admin', 'tesorero', 'supervisor maquinaria']))
                             <div x-data="{ dropdownOpen: false }" class="relative">
                                 <button @click="dropdownOpen = !dropdownOpen" class="text-gray-900 block px-3 py-2 rounded-md text-base font-medium flex items-center">
                                     Maquinarias
@@ -188,6 +197,7 @@
                                     <a href="{{ route('correos') }}" wire:navigate class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Correos electrónicos</a>
                                 </div>
                             </div>
+                            @endif
 
                             @if(auth()->user()->hasRole('admin'))
                             <div x-data="{ dropdownOpen: false }" class="relative">
