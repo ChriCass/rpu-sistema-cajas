@@ -146,6 +146,9 @@ Route::middleware([
         
         // Ruta para el reporte de gráficos de ventas
         Route::get('/reportes/graficos', [App\Http\Controllers\ReportesController::class, 'graficoVentas'])->name('reportes.graficos');
+        
+        // Ruta para el reporte de horas trabajadas por operador
+        Route::get('/reportes/horas-operador', App\Livewire\HorasOperadorView::class)->name('reportes.horas.operador');
     });
 });
 

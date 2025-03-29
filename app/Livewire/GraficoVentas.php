@@ -61,31 +61,31 @@ class GraficoVentas extends Component
             // Procesar cada parte diario
             foreach ($partesDiarios as $parte) {
                 try {
-                    // Extraer componentes de la fecha
+                // Extraer componentes de la fecha
                     $fecha = Carbon::parse($parte->fecha_inicio);
-                    $anio = (string)$fecha->year;
-                    $mes = (string)$fecha->month;
-                    $dia = (string)$fecha->day;
-                    $total = (float)$parte->importe_cobrar;
+                $anio = (string)$fecha->year;
+                $mes = (string)$fecha->month;
+                $dia = (string)$fecha->day;
+                $total = (float)$parte->importe_cobrar;
                     
                     if ($total <= 0) {
                         continue; // Saltamos importes con valor 0 o negativo
                     }
-                    
-                    // Agrupar datos por año, mes y día
-                    if (!isset($this->todosLosDatos[$anio])) {
-                        $this->todosLosDatos[$anio] = [];
-                    }
-                    
-                    if (!isset($this->todosLosDatos[$anio][$mes])) {
-                        $this->todosLosDatos[$anio][$mes] = [];
-                    }
-                    
-                    // Si ya existe un valor para este día, sumamos al valor existente
-                    if (isset($this->todosLosDatos[$anio][$mes][$dia])) {
-                        $this->todosLosDatos[$anio][$mes][$dia] += $total;
-                    } else {
-                        $this->todosLosDatos[$anio][$mes][$dia] = $total;
+                
+                // Agrupar datos por año, mes y día
+                if (!isset($this->todosLosDatos[$anio])) {
+                    $this->todosLosDatos[$anio] = [];
+                }
+                
+                if (!isset($this->todosLosDatos[$anio][$mes])) {
+                    $this->todosLosDatos[$anio][$mes] = [];
+                }
+                
+                // Si ya existe un valor para este día, sumamos al valor existente
+                if (isset($this->todosLosDatos[$anio][$mes][$dia])) {
+                    $this->todosLosDatos[$anio][$mes][$dia] += $total;
+                } else {
+                    $this->todosLosDatos[$anio][$mes][$dia] = $total;
                     }
                 } catch (\Exception $e) {
                     logger("ERROR procesando parte diario: " . $e->getMessage());
@@ -123,8 +123,8 @@ class GraficoVentas extends Component
             // Obtener datos actualizados
             $datosActualizados = $this->getDatosGrafico();
             logger("Datos obtenidos para año {$anio}: " . json_encode($datosActualizados));
-            
-            // Notificar al frontend que debe actualizar los gráficos
+        
+        // Notificar al frontend que debe actualizar los gráficos
             $this->dispatch('datosRecargados', $datosActualizados);
             
             // También forzar un refresh del componente para asegurar sincronización
@@ -147,8 +147,8 @@ class GraficoVentas extends Component
             // Obtener datos actualizados
             $datosActualizados = $this->getDatosGrafico();
             logger("Datos obtenidos para mes {$mes}: " . json_encode($datosActualizados));
-            
-            // Notificar al frontend que debe actualizar los gráficos
+        
+        // Notificar al frontend que debe actualizar los gráficos
             $this->dispatch('datosRecargados', $datosActualizados);
             
             // También forzar un refresh del componente para asegurar sincronización
@@ -198,6 +198,19 @@ class GraficoVentas extends Component
             $datosTendenciaSemanal = [];
             $datosComparacionMensual = [];
             $datosRendimientoAnual = [];
+            
+            // Preparar datos para los nuevos gráficos de productividad
+            $datosDistribucionHoras = [];
+            $datosVentasPorUnidad = []; // Nuevo array para ventas por unidad
+            
+            // Consultar datos adicionales para los gráficos de productividad
+            $datosMesActual = $this->obtenerDatosProductividad($anio, $mes);
+            
+            // Consultar datos de ventas por unidad
+            $datosVentasPorUnidad = $this->obtenerVentasPorUnidad($anio, $mes);
+            
+            // Consultar datos de ventas por tipo de venta
+            $datosVentasPorTipoVenta = $this->obtenerVentasPorTipoVenta($anio, $mes);
             
             // 1. Datos para el gráfico principal: importe diario
             for ($dia = 1; $dia <= $diasEnMes; $dia++) {
@@ -305,6 +318,12 @@ class GraficoVentas extends Component
                 ];
             }
             
+            // 5. Datos para el gráfico de Distribución de Horas (Mañana vs Tarde)
+            $datosDistribucionHoras = [
+                ['x' => 'Mañana', 'y' => $datosMesActual['horas_manana'] ?? 0],
+                ['x' => 'Tarde', 'y' => $datosMesActual['horas_tarde'] ?? 0]
+            ];
+            
             $tituloMes = $nombresMeses[$mes] ?? "Mes $mes";
             $tituloBase = $tieneValores 
                 ? "Importes de Partes Diarios - {$tituloMes} del $anio" 
@@ -326,6 +345,18 @@ class GraficoVentas extends Component
                 'rendimientoAnual' => [
                     'datos' => $datosRendimientoAnual,
                     'titulo' => "Rendimiento Mensual - Año $anio"
+                ],
+                'distribucionHoras' => [
+                    'datos' => $datosDistribucionHoras,
+                    'titulo' => "Distribución de Horas - {$tituloMes} $anio"
+                ],
+                'ventasPorUnidad' => [
+                    'datos' => $datosVentasPorUnidad,
+                    'titulo' => "Ventas por Unidad - {$tituloMes} $anio"
+                ],
+                'ventasPorTipoVenta' => [
+                    'datos' => $datosVentasPorTipoVenta,
+                    'titulo' => "Ventas por Tipo de Venta - {$tituloMes} $anio"
                 ]
             ];
             
@@ -352,8 +383,154 @@ class GraficoVentas extends Component
                 'rendimientoAnual' => [
                     'datos' => [],
                     'titulo' => 'Rendimiento Anual - No hay datos'
+                ],
+                'distribucionHoras' => [
+                    'datos' => [],
+                    'titulo' => 'Distribución de Horas - No hay datos'
+                ],
+                'ventasPorUnidad' => [
+                    'datos' => [],
+                    'titulo' => 'Ventas por Unidad - No hay datos'
+                ],
+                'ventasPorTipoVenta' => [
+                    'datos' => [],
+                    'titulo' => 'Ventas por Tipo de Venta - No hay datos'
                 ]
             ];
+        }
+    }
+    
+    /**
+     * Obtiene datos de productividad para el mes y año seleccionados
+     */
+    protected function obtenerDatosProductividad($anio, $mes)
+    {
+        try {
+            // Formatear fechas para consulta
+            $fechaInicio = "{$anio}-{$mes}-01";
+            $ultimoDia = cal_days_in_month(CAL_GREGORIAN, $mes, $anio);
+            $fechaFin = "{$anio}-{$mes}-{$ultimoDia}";
+            
+            // Consultar datos de productividad
+            $datosProductividad = \App\Models\ParteDiario::selectRaw('
+                SUM(horas_trabajadas) as horas_trabajadas,
+                SUM(total_horas) as total_horas,
+                SUM(horas_manana) as horas_manana,
+                SUM(horas_tarde) as horas_tarde,
+                SUM(diferencia_total) as diferencia_total
+            ')
+            ->whereBetween('fecha_inicio', [$fechaInicio, $fechaFin])
+            ->first();
+            
+            if ($datosProductividad) {
+                return [
+                    'horas_trabajadas' => (float) $datosProductividad->horas_trabajadas,
+                    'total_horas' => (float) $datosProductividad->total_horas,
+                    'horas_manana' => (float) $datosProductividad->horas_manana,
+                    'horas_tarde' => (float) $datosProductividad->horas_tarde,
+                    'diferencia_total' => (float) $datosProductividad->diferencia_total
+                ];
+            }
+            
+            return [
+                'horas_trabajadas' => 0,
+                'total_horas' => 0,
+                'horas_manana' => 0,
+                'horas_tarde' => 0,
+                'diferencia_total' => 0
+            ];
+        } catch (\Exception $e) {
+            logger("Error al obtener datos de productividad: " . $e->getMessage());
+            return [
+                'horas_trabajadas' => 0,
+                'total_horas' => 0,
+                'horas_manana' => 0,
+                'horas_tarde' => 0,
+                'diferencia_total' => 0
+            ];
+        }
+    }
+    
+    /**
+     * Obtiene datos de ventas por unidad para el mes y año seleccionados
+     */
+    protected function obtenerVentasPorUnidad($anio, $mes)
+    {
+        try {
+            // Formatear fechas para consulta
+            $fechaInicio = "{$anio}-{$mes}-01";
+            $ultimoDia = cal_days_in_month(CAL_GREGORIAN, $mes, $anio);
+            $fechaFin = "{$anio}-{$mes}-{$ultimoDia}";
+            
+            // Consultar datos de ventas agrupados por unidad
+            $datosVentas = DB::table('partes_diarios')
+                ->join('unidades', 'partes_diarios.unidad_id', '=', 'unidades.id')
+                ->select(
+                    'unidades.id',
+                    'unidades.numero',
+                    'unidades.descripcion',
+                    DB::raw('SUM(partes_diarios.importe_cobrar) as importe_total')
+                )
+                ->whereBetween('partes_diarios.fecha_inicio', [$fechaInicio, $fechaFin])
+                ->whereNotNull('partes_diarios.importe_cobrar')
+                ->groupBy('unidades.id', 'unidades.numero', 'unidades.descripcion')
+                ->orderBy('importe_total', 'desc')
+                ->get();
+            
+            // Preparar el formato para el gráfico
+            $resultado = [];
+            foreach ($datosVentas as $dato) {
+                $resultado[] = [
+                    'x' => "{$dato->numero} - {$dato->descripcion}",
+                    'y' => (float) $dato->importe_total
+                ];
+            }
+            
+            return $resultado;
+        } catch (\Exception $e) {
+            logger("Error al obtener datos de ventas por unidad: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene datos de ventas por tipo de venta para el mes y año seleccionados
+     */
+    protected function obtenerVentasPorTipoVenta($anio, $mes)
+    {
+        try {
+            // Formatear fechas para consulta
+            $fechaInicio = "{$anio}-{$mes}-01";
+            $ultimoDia = cal_days_in_month(CAL_GREGORIAN, $mes, $anio);
+            $fechaFin = "{$anio}-{$mes}-{$ultimoDia}";
+            
+            // Consultar datos de ventas agrupados por tipo de venta
+            $datosVentas = DB::table('partes_diarios')
+                ->join('tipos_venta', 'partes_diarios.tipo_venta_id', '=', 'tipos_venta.id')
+                ->select(
+                    'tipos_venta.id',
+                    'tipos_venta.descripcion',
+                    DB::raw('SUM(partes_diarios.importe_cobrar) as importe_total')
+                )
+                ->whereBetween('partes_diarios.fecha_inicio', [$fechaInicio, $fechaFin])
+                ->whereNotNull('partes_diarios.importe_cobrar')
+                ->groupBy('tipos_venta.id', 'tipos_venta.descripcion')
+                ->orderBy('importe_total', 'desc')
+                ->get();
+            
+            // Preparar el formato para el gráfico
+            $resultado = [];
+            foreach ($datosVentas as $dato) {
+                $resultado[] = [
+                    'x' => $dato->descripcion,
+                    'y' => (float) $dato->importe_total
+                ];
+            }
+            
+            return $resultado;
+        } catch (\Exception $e) {
+            logger("Error al obtener datos de ventas por tipo de venta: " . $e->getMessage());
+            return [];
         }
     }
     

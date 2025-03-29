@@ -329,7 +329,7 @@
                     </div>
 
                     <!-- Control de horas -->
-                    <div class="border border-gray-300 rounded-lg overflow-hidden mb-4">
+                    <div class="border border-gray-300 rounded-lg overflow-hidden mb-4 control-horas-section">
                         <div class="bg-gray-100 px-4 py-2 border-b border-gray-300">
                             <h3 class="font-bold text-gray-700 uppercase">CONTROL DE HORAS</h3>
                         </div>
@@ -404,7 +404,7 @@
                     </div>
 
                     <!-- Valorización -->
-                    <div class="border border-gray-300 rounded-lg overflow-hidden mb-4">
+                    <div class="border border-gray-300 rounded-lg overflow-hidden mb-4 valorization-section">
                         <div class="bg-gray-100 px-4 py-2 border-b border-gray-300">
                             <h3 class="font-bold text-gray-700 uppercase">VALORIZACIÓN</h3>
                         </div>
@@ -459,7 +459,7 @@
                             <h3 class="font-bold text-gray-700 uppercase">OBSERVACIONES</h3>
                         </div>
                         <div class="p-4">
-                            <p>{{ $parteActual->observaciones ?? 'Sin observaciones' }}</p>
+                            <p class="text-gray-700">{{ $parteActual->observaciones ?? 'Sin observaciones' }}</p>
                         </div>
                     </div>
 
@@ -478,31 +478,6 @@
                                 @elseif($parteActual->estado_pago == '2')
                                     <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">PAGADO</span>
                                 @endif
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Información adicional del documento -->
-                    <div class="border border-gray-300 rounded-lg overflow-hidden">
-                        <div class="bg-gray-100 px-4 py-2 border-b border-gray-300">
-                            <h3 class="font-bold text-gray-700 uppercase">INFORMACIÓN DEL DOCUMENTO</h3>
-                        </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <p class="font-medium text-gray-700">Serie/Número:</p>
-                                    <p class="mt-1 mb-3 font-semibold">{{ $documentoActual->serie ?? '0000' }}-{{ $documentoActual->numero ?? $parteActual->numero_parte }}</p>
-                                    
-                                    <p class="font-medium text-gray-700">Fecha de emisión:</p>
-                                    <p class="mt-1 font-semibold">{{ isset($documentoActual->fecha) ? \Carbon\Carbon::parse($documentoActual->fecha)->format('d/m/Y') : \Carbon\Carbon::parse($parteActual->fecha_inicio)->format('d/m/Y') }}</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium text-gray-700">Cliente:</p>
-                                    <p class="mt-1 mb-3 font-semibold">{{ $parteActual->entidad->descripcion ?? 'N/A' }}</p>
-                                    
-                                    <p class="font-medium text-gray-700">RUC Cliente:</p>
-                                    <p class="mt-1 font-semibold">{{ $parteActual->entidad->num_documento ?? 'Sin RUC' }}</p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -567,55 +542,96 @@
                                     width: 100%;
                                 }
                                 
-                                /* Ajustes agresivos para que todo quepa en una sola página */
-                                #print-container h1, #print-container h2, #print-container h3 {
-                                    margin-top: 0.25rem !important;
-                                    margin-bottom: 0.25rem !important;
-                                    font-size: 90% !important;
-                                }
-                                
-                                #print-container .p-4, #print-container .p-6 {
-                                    padding: 0.25rem !important;
-                                }
-                                
-                                #print-container .mb-4 {
-                                    margin-bottom: 0.25rem !important;
-                                }
-                                
-                                #print-container .mb-3 {
-                                    margin-bottom: 0.15rem !important;
-                                }
-                                
+                                /* Reglas para evitar que las tablas se corten */
                                 #print-container table {
-                                    font-size: 9px !important;
+                                    font-size: 8px !important;
+                                    page-break-inside: auto !important;
+                                    border-collapse: collapse !important;
+                                    width: 100% !important;
                                 }
                                 
-                                #print-container .text-sm {
-                                    font-size: 0.7rem !important;
+                                #print-container tr {
+                                    page-break-inside: avoid !important;
+                                    page-break-after: auto !important;
                                 }
                                 
-                                #print-container .text-lg, #print-container .text-xl {
-                                    font-size: 0.9rem !important;
+                                #print-container td, #print-container th {
+                                    page-break-inside: avoid !important;
+                                    padding: 2px !important;
+                                }
+                                
+                                #print-container thead {
+                                    display: table-header-group !important;
+                                }
+                                
+                                #print-container tfoot {
+                                    display: table-footer-group !important;
+                                }
+                                
+                                /* Reducir todos los márgenes y espaciados */
+                                #print-container * {
+                                    margin: 0 !important;
+                                    padding: 0 !important;
+                                }
+                                
+                                #print-container .border {
+                                    border-width: 1px !important;
+                                }
+                                
+                                #print-container h1, 
+                                #print-container h2, 
+                                #print-container h3 {
+                                    font-size: 10px !important;
+                                    margin-top: 2px !important;
+                                    margin-bottom: 2px !important;
+                                    padding: 2px !important;
+                                }
+                                
+                                #print-container p {
+                                    font-size: 8px !important;
+                                    margin-bottom: 2px !important;
+                                }
+                                
+                                #print-container .p-4, 
+                                #print-container .p-6, 
+                                #print-container .px-4, 
+                                #print-container .py-2,
+                                #print-container .px-6,
+                                #print-container .py-4 {
+                                    padding: 2px !important;
+                                }
+                                
+                                #print-container .mb-4,
+                                #print-container .mb-3 {
+                                    margin-bottom: 3px !important;
+                                }
+                                
+                                #print-container .text-sm,
+                                #print-container .text-xs {
+                                    font-size: 8px !important;
+                                }
+                                
+                                #print-container .text-lg, 
+                                #print-container .text-xl {
+                                    font-size: 10px !important;
                                 }
                                 
                                 #print-container .gap-4 {
-                                    gap: 0.25rem !important;
+                                    gap: 3px !important;
                                 }
                                 
-                                #print-container .px-3 {
-                                    padding-left: 0.15rem !important;
-                                    padding-right: 0.15rem !important;
+                                /* Asegurar que las tablas de control de horas y valorización no se corten */
+                                #print-container .overflow-x-auto {
+                                    overflow: visible !important;
                                 }
                                 
-                                #print-container .py-2, #print-container .py-3 {
-                                    padding-top: 0.1rem !important;
-                                    padding-bottom: 0.1rem !important;
+                                /* Controlar el flujo de elementos en la página */
+                                #print-container .border.border-gray-300.rounded-lg.overflow-hidden.mb-4 {
+                                    page-break-inside: avoid !important;
+                                    margin-bottom: 5px !important;
                                 }
                                 
-                                #print-container .mt-1, #print-container .mt-2 {
-                                    margin-top: 0.1rem !important;
-                                }
-                                
+                                /* Estilos para los colores de fondo */
                                 #print-container .bg-white {
                                     background-color: white !important;
                                 }
@@ -639,14 +655,45 @@
                                     print-color-adjust: exact !important;
                                 }
                                 
+                                /* Configuración de página */
                                 @page {
                                     size: A4 portrait;
-                                    margin: 4mm 3mm;
+                                    margin: 0.5cm;
                                 }
                                 
-                                /* Eliminar cualquier salto de página forzado */
-                                #print-container .break-after {
+                                /* Eliminar decoraciones innecesarias */
+                                #print-container .rounded-lg,
+                                #print-container .rounded {
+                                    border-radius: 0 !important;
+                                }
+                                
+                                #print-container .shadow-xl,
+                                #print-container .shadow-md,
+                                #print-container .shadow {
+                                    box-shadow: none !important;
+                                }
+                                
+                                /* Ajustes específicos para la sección de valorización */
+                                #print-container .valorization-section table {
+                                    font-size: 9px !important;
+                                    font-weight: bold !important;
+                                }
+                                
+                                /* Ajustes específicos para la sección de control de horas */
+                                #print-container .control-horas-section table {
+                                    font-size: 7px !important;
+                                }
+                                
+                                #print-container .control-horas-section td,
+                                #print-container .control-horas-section th {
+                                    padding: 1px !important;
+                                }
+                                
+                                /* Estilos adicionales para asegurar que la tabla de valorización se vea */
+                                #print-container .valorization-section {
+                                    page-break-before: auto !important;
                                     page-break-after: auto !important;
+                                    page-break-inside: avoid !important;
                                 }
                             }
                         </style>
@@ -664,10 +711,39 @@
                     printContainer.innerHTML = '';
                     printContainer.appendChild(clonedContent);
                     
-                    // Eliminar cualquier salto de página (ya no se necesita)
-                    const sections = printContainer.querySelectorAll('.border.border-gray-300.rounded-lg.overflow-hidden.mb-4');
-                    sections.forEach(section => {
-                        section.classList.remove('break-after');
+                    // Realizar optimizaciones adicionales en el DOM del contenedor de impresión
+                    const allSections = printContainer.querySelectorAll('.border.border-gray-300.rounded-lg.overflow-hidden.mb-4');
+                    allSections.forEach(section => {
+                        // Asegurar que cada sección no se corte
+                        section.style.pageBreakInside = 'avoid';
+                        section.style.marginBottom = '5px';
+                        
+                        // Reducir padding en elementos internos
+                        const sectionDivs = section.querySelectorAll('div');
+                        sectionDivs.forEach(div => {
+                            div.style.padding = '2px';
+                        });
+                    });
+                    
+                    // Optimizar tablas
+                    const allTables = printContainer.querySelectorAll('table');
+                    allTables.forEach(table => {
+                        table.style.fontSize = '7px';
+                        table.style.width = '100%';
+                        table.style.pageBreakInside = 'auto';
+                        
+                        // Optimizar celdas
+                        const cells = table.querySelectorAll('th, td');
+                        cells.forEach(cell => {
+                            cell.style.padding = '1px';
+                            cell.style.pageBreakInside = 'avoid';
+                        });
+                        
+                        // Asegurar que filas no se corten
+                        const rows = table.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            row.style.pageBreakInside = 'avoid';
+                        });
                     });
                     
                     // Agregar estilos de impresión
@@ -680,7 +756,7 @@
                         // Restaurar después de imprimir
                         document.head.innerHTML = originalStyles;
                         printContainer.innerHTML = '';
-                    }, 200);
+                    }, 300);
                 } else {
                     console.error('No se encontró el contenido del modal para imprimir');
                 }

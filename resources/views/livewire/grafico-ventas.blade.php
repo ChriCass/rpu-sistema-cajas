@@ -47,30 +47,73 @@
             </div>
         </div>
 
+        <!-- Mensaje de ayuda para recargar si los gráficos no aparecen -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        Si los gráficos no aparecen correctamente, por favor <button onclick="location.reload()" class="font-medium underline hover:text-blue-800 focus:outline-none">recargue la página</button>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Contenedor principal de gráficos -->
-        <div x-data="ventasCharts(@js($datosGrafico))" x-init="initCharts()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Gráfico 1: Importes Diarios -->
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h2 class="text-lg font-semibold mb-4" x-text="titulos.importeDiario"></h2>
-                <div id="graficoImporteDiario" style="height: 350px;"></div>
+        <div x-data="ventasCharts(@js($datosGrafico))" x-init="initCharts()" class="grid grid-cols-1 gap-6">
+            <!-- Primera fila: Gráficos de ventas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Gráfico 1: Importes Diarios -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.importeDiario"></h2>
+                    <div id="graficoImporteDiario" style="height: 350px;"></div>
+                </div>
+                
+                <!-- Gráfico 2: Tendencia Semanal -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.tendenciaSemanal"></h2>
+                    <div id="graficoTendenciaSemanal" style="height: 350px;"></div>
+                </div>
+                
+                <!-- Gráfico 3: Comparación Mensual -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.comparacionMensual"></h2>
+                    <div id="graficoComparacionMensual" style="height: 350px;"></div>
+                </div>
+                
+                <!-- Gráfico 4: Rendimiento Anual -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.rendimientoAnual"></h2>
+                    <div id="graficoRendimientoAnual" style="height: 350px;"></div>
+                </div>
             </div>
             
-            <!-- Gráfico 2: Tendencia Semanal -->
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h2 class="text-lg font-semibold mb-4" x-text="titulos.tendenciaSemanal"></h2>
-                <div id="graficoTendenciaSemanal" style="height: 350px;"></div>
+            <!-- Segunda fila: Gráficos de productividad -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Gráfico 6: Distribución de Horas -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.distribucionHoras"></h2>
+                    <div id="graficoDistribucionHoras" style="height: 350px;"></div>
+                </div>
+                
+                <!-- Gráfico 7: Ventas por Unidad -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.ventasPorUnidad"></h2>
+                    <div id="graficoVentasPorUnidad" style="height: 350px;"></div>
+                </div>
             </div>
             
-            <!-- Gráfico 3: Comparación Mensual -->
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h2 class="text-lg font-semibold mb-4" x-text="titulos.comparacionMensual"></h2>
-                <div id="graficoComparacionMensual" style="height: 350px;"></div>
-            </div>
-            
-            <!-- Gráfico 4: Rendimiento Anual -->
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h2 class="text-lg font-semibold mb-4" x-text="titulos.rendimientoAnual"></h2>
-                <div id="graficoRendimientoAnual" style="height: 350px;"></div>
+            <!-- Tercera fila: Gráfico de Ventas por Tipo de Venta -->
+            <div class="grid grid-cols-1 gap-6 mt-6">
+                <!-- Gráfico 8: Ventas por Tipo de Venta -->
+        <div class="bg-white p-4 rounded-lg shadow">
+                    <h2 class="text-lg font-semibold mb-4" x-text="titulos.ventasPorTipoVenta"></h2>
+                    <div id="graficoVentasPorTipoVenta" style="height: 350px;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -86,7 +129,10 @@
                     importeDiario: null,
                     tendenciaSemanal: null,
                     comparacionMensual: null,
-                    rendimientoAnual: null
+                    rendimientoAnual: null,
+                    distribucionHoras: null,
+                    ventasPorUnidad: null,
+                    ventasPorTipoVenta: null
                 },
                 
                 // Datos para los gráficos
@@ -94,7 +140,10 @@
                     importeDiario: inicialData?.importeDiario?.datos || [],
                     tendenciaSemanal: inicialData?.tendenciaSemanal?.datos || [],
                     comparacionMensual: inicialData?.comparacionMensual?.datos || [],
-                    rendimientoAnual: inicialData?.rendimientoAnual?.datos || []
+                    rendimientoAnual: inicialData?.rendimientoAnual?.datos || [],
+                    distribucionHoras: inicialData?.distribucionHoras?.datos || [],
+                    ventasPorUnidad: inicialData?.ventasPorUnidad?.datos || [],
+                    ventasPorTipoVenta: inicialData?.ventasPorTipoVenta?.datos || []
                 },
                 
                 // Títulos para los gráficos
@@ -102,7 +151,10 @@
                     importeDiario: inicialData?.importeDiario?.titulo || 'Importes Diarios',
                     tendenciaSemanal: inicialData?.tendenciaSemanal?.titulo || 'Tendencia Semanal',
                     comparacionMensual: inicialData?.comparacionMensual?.titulo || 'Comparación Mensual',
-                    rendimientoAnual: inicialData?.rendimientoAnual?.titulo || 'Rendimiento Anual'
+                    rendimientoAnual: inicialData?.rendimientoAnual?.titulo || 'Rendimiento Anual',
+                    distribucionHoras: inicialData?.distribucionHoras?.titulo || 'Distribución de Horas',
+                    ventasPorUnidad: inicialData?.ventasPorUnidad?.titulo || 'Ventas por Unidad',
+                    ventasPorTipoVenta: inicialData?.ventasPorTipoVenta?.titulo || 'Ventas por Tipo de Venta'
                 },
                 
                 // Inicializar todos los gráficos
@@ -188,6 +240,21 @@
                         this.titulos.rendimientoAnual = newData.rendimientoAnual.titulo || this.titulos.rendimientoAnual;
                     }
                     
+                    if (newData.distribucionHoras) {
+                        this.datos.distribucionHoras = Array.isArray(newData.distribucionHoras.datos) ? newData.distribucionHoras.datos : [];
+                        this.titulos.distribucionHoras = newData.distribucionHoras.titulo || this.titulos.distribucionHoras;
+                    }
+                    
+                    if (newData.ventasPorUnidad) {
+                        this.datos.ventasPorUnidad = Array.isArray(newData.ventasPorUnidad.datos) ? newData.ventasPorUnidad.datos : [];
+                        this.titulos.ventasPorUnidad = newData.ventasPorUnidad.titulo || this.titulos.ventasPorUnidad;
+                    }
+                    
+                    if (newData.ventasPorTipoVenta) {
+                        this.datos.ventasPorTipoVenta = Array.isArray(newData.ventasPorTipoVenta.datos) ? newData.ventasPorTipoVenta.datos : [];
+                        this.titulos.ventasPorTipoVenta = newData.ventasPorTipoVenta.titulo || this.titulos.ventasPorTipoVenta;
+                    }
+                    
                     console.log('Datos actualizados:', this.datos);
                     console.log('Títulos actualizados:', this.titulos);
                 },
@@ -198,6 +265,9 @@
                     this.renderTendenciaSemanal();
                     this.renderComparacionMensual();
                     this.renderRendimientoAnual();
+                    this.renderDistribucionHoras();
+                    this.renderVentasPorUnidad();
+                    this.renderVentasPorTipoVenta();
                 },
                 
                 // Renderizar gráfico de importes diarios
@@ -218,35 +288,35 @@
                     const datos = this.prepararDatos(this.datos.importeDiario);
                     
                     try {
-                        const options = {
-                            series: [{
-                                name: 'Importe',
+            const options = {
+                series: [{
+                    name: 'Importe',
                                 data: datos.values
-                            }],
-                            chart: {
-                                type: 'area',
+                }],
+                chart: {
+                    type: 'area',
                                 height: 350,
                                 zoom: { enabled: true },
                                 animations: { enabled: true }
-                            },
-                            title: {
+                },
+                title: {
                                 text: this.titulos.importeDiario,
-                                align: 'center',
+                    align: 'center',
                                 style: { fontSize: '14px', fontWeight: 'bold' }
                             },
                             dataLabels: { enabled: false },
                             stroke: { curve: 'smooth', width: 2 },
-                            colors: ['#14b8a6'],
-                            fill: {
-                                type: 'gradient',
-                                gradient: {
-                                    shadeIntensity: 1,
-                                    opacityFrom: 0.7,
-                                    opacityTo: 0.2,
-                                    stops: [0, 90, 100]
-                                }
-                            },
-                            xaxis: {
+                colors: ['#14b8a6'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.2,
+                        stops: [0, 90, 100]
+                    }
+                },
+                xaxis: {
                                 categories: datos.labels,
                                 title: { text: 'Día del mes' }
                             },
@@ -468,6 +538,360 @@
                         this.charts.rendimientoAnual.render();
                     } catch (error) {
                         console.error("Error al renderizar gráfico de rendimiento anual:", error);
+                    }
+                },
+                
+                // Renderizar gráfico de distribución de horas
+                renderDistribucionHoras() {
+                    // Destruir gráfico existente si hay uno
+                    if (this.charts.distribucionHoras) {
+                        this.charts.distribucionHoras.destroy();
+                        this.charts.distribucionHoras = null;
+                    }
+                    
+                    const contenedor = document.getElementById('graficoDistribucionHoras');
+                    if (!contenedor) return;
+                    
+                    // Limpiar el contenedor
+                    contenedor.innerHTML = '';
+                    
+                    // Preparar datos
+                    const datos = this.prepararDatos(this.datos.distribucionHoras);
+                    
+                    try {
+                        const options = {
+                            series: datos.values,
+                            chart: {
+                                type: 'donut',
+                                height: 350,
+                                animations: { enabled: true }
+                            },
+                    title: {
+                                text: this.titulos.distribucionHoras,
+                                align: 'center',
+                                style: { fontSize: '14px', fontWeight: 'bold' }
+                            },
+                            labels: datos.labels,
+                            colors: ['#38bdf8', '#fb923c'], // Azul para mañana, Naranja para tarde
+                            plotOptions: {
+                                pie: {
+                                    donut: {
+                                        size: '65%',
+                                        labels: {
+                                            show: true,
+                                            total: {
+                                                show: true,
+                                                label: 'Total Horas',
+                                                formatter: function(w) {
+                                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0).toFixed(2) + ' horas';
+                                                }
+                                            }
+                                        }
+                                    },
+                                    expandOnClick: true
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                                horizontalAlign: 'center'
+                            },
+                            dataLabels: { 
+                                enabled: true,
+                                formatter: function(val, opts) {
+                                    const total = opts.w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                    if (total === 0) return '0%';
+                                    return Math.round(val * 100 / total) + '%';
+                                }
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: val => val.toFixed(2) + ' horas'
+                                }
+                            },
+                            responsive: [{
+                                breakpoint: 480,
+                                options: {
+                                    chart: {
+                                        width: 320
+                                    },
+                                    legend: {
+                                        position: 'bottom'
+                                    }
+                                }
+                            }]
+                        };
+                        
+                        this.charts.distribucionHoras = new ApexCharts(contenedor, options);
+                        this.charts.distribucionHoras.render();
+                    } catch (error) {
+                        console.error("Error al renderizar gráfico de distribución de horas:", error);
+                    }
+                },
+                
+                // Renderizar gráfico de ventas por unidad
+                renderVentasPorUnidad() {
+                    // Destruir gráfico existente si hay uno
+                    if (this.charts.ventasPorUnidad) {
+                        this.charts.ventasPorUnidad.destroy();
+                        this.charts.ventasPorUnidad = null;
+                    }
+                    
+                    const contenedor = document.getElementById('graficoVentasPorUnidad');
+                    if (!contenedor) return;
+                    
+                    // Limpiar el contenedor
+                    contenedor.innerHTML = '';
+                    
+                    // Preparar datos
+                    const datos = this.prepararDatos(this.datos.ventasPorUnidad);
+                    
+                    try {
+                        const options = {
+                            series: [{
+                                name: 'Ventas',
+                                data: datos.values
+                            }],
+                            chart: {
+                                type: 'bar',
+                                height: 350,
+                                zoom: { enabled: false },
+                                animations: { enabled: true },
+                                toolbar: {
+                                    show: true,
+                                    tools: {
+                                        download: true,
+                                        selection: false,
+                                        zoom: false,
+                                        zoomin: false,
+                                        zoomout: false,
+                                        pan: false,
+                                        reset: false
+                                    }
+                                }
+                            },
+                            title: {
+                                text: this.titulos.ventasPorUnidad,
+                                align: 'center',
+                                style: { fontSize: '14px', fontWeight: 'bold' }
+                            },
+                            dataLabels: { 
+                                enabled: true,
+                                formatter: function(val) {
+                                    return 'S/. ' + val.toFixed(2);
+                                },
+                                style: {
+                                    fontSize: '12px',
+                                    colors: ['#fff']
+                                },
+                                background: {
+                                    enabled: true,
+                                    foreColor: '#444',
+                                    borderRadius: 2,
+                                    padding: 4,
+                                    opacity: 0.9,
+                                    borderWidth: 1,
+                                    borderColor: '#fff'
+                                },
+                                offsetX: 0,
+                                offsetY: 0
+                            },
+                            colors: ['#047857'],  // Verde oscuro
+                            plotOptions: {
+                                bar: {
+                                    horizontal: true,
+                                    barHeight: '70%',
+                                    borderRadius: 6,
+                                    distributed: false,
+                                    dataLabels: {
+                                        position: 'top'
+                                    }
+                                }
+                            },
+                            grid: {
+                                xaxis: {
+                                    lines: {
+                                        show: true
+                                    }
+                                },
+                                yaxis: {
+                                    lines: {
+                                        show: false
+                                    }
+                                }
+                            },
+                            xaxis: {
+                                categories: datos.labels,
+                                title: { 
+                                    text: 'Importe (S/.)',
+                                    style: {
+                                        fontSize: '12px',
+                                        fontWeight: 600
+                                    }
+                                },
+                                labels: {
+                                    formatter: val => 'S/. ' + val.toFixed(2)
+                    }
+                },
+                yaxis: {
+                    title: {
+                                    text: 'Unidad',
+                                    style: {
+                                        fontSize: '12px',
+                                        fontWeight: 600
+                                    }
+                    },
+                    labels: {
+                                    style: {
+                                        fontSize: '11px'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                y: {
+                                    title: {
+                                        formatter: (seriesName) => 'Importe:'
+                                    },
+                                    formatter: val => 'S/. ' + val.toFixed(2)
+                                }
+                            },
+                            fill: {
+                                type: 'gradient',
+                                gradient: {
+                                    shade: 'dark',
+                                    type: 'horizontal',
+                                    shadeIntensity: 0.3,
+                                    gradientToColors: ['#10b981'],  // Verde más claro
+                                    inverseColors: false,
+                                    opacityFrom: 1,
+                                    opacityTo: 1
+                                }
+                            },
+                            responsive: [{
+                                breakpoint: 480,
+                                options: {
+                                    chart: {
+                                        height: 400
+                                    },
+                                    plotOptions: {
+                                        bar: {
+                                            barHeight: '80%'
+                                        }
+                                    },
+                                    dataLabels: {
+                                        enabled: false
+                                    }
+                                }
+                            }]
+                        };
+                        
+                        this.charts.ventasPorUnidad = new ApexCharts(contenedor, options);
+                        this.charts.ventasPorUnidad.render();
+                    } catch (error) {
+                        console.error("Error al renderizar gráfico de ventas por unidad:", error);
+                    }
+                },
+                
+                // Renderizar gráfico de ventas por tipo de venta
+                renderVentasPorTipoVenta() {
+                    // Destruir gráfico existente si hay uno
+                    if (this.charts.ventasPorTipoVenta) {
+                        this.charts.ventasPorTipoVenta.destroy();
+                        this.charts.ventasPorTipoVenta = null;
+                    }
+                    
+                    const contenedor = document.getElementById('graficoVentasPorTipoVenta');
+                    if (!contenedor) return;
+                    
+                    // Limpiar el contenedor
+                    contenedor.innerHTML = '';
+                    
+                    // Preparar datos
+                    const datos = this.prepararDatos(this.datos.ventasPorTipoVenta);
+                    
+                    try {
+                        const options = {
+                            series: datos.values,
+                            chart: {
+                                type: 'pie',
+                                height: 350,
+                                animations: { enabled: true },
+                                toolbar: {
+                                    show: true,
+                                    tools: {
+                                        download: true,
+                                        selection: false,
+                                        zoom: false,
+                                        zoomin: false,
+                                        zoomout: false,
+                                        pan: false,
+                                        reset: false
+                                    }
+                                }
+                            },
+                            title: {
+                                text: this.titulos.ventasPorTipoVenta,
+                                align: 'center',
+                                style: { fontSize: '14px', fontWeight: 'bold' }
+                            },
+                            labels: datos.labels,
+                            colors: ['#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#0891b2'],
+                            plotOptions: {
+                                pie: {
+                                    expandOnClick: true,
+                                    donut: {
+                                        size: '0%'
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                                horizontalAlign: 'center',
+                                fontSize: '12px'
+                            },
+                            dataLabels: { 
+                                enabled: true,
+                                formatter: function(val, opts) {
+                                    const total = opts.w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                    return Math.round(val * 100 / total) + '%';
+                                },
+                                style: {
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    colors: ['#fff']
+                                },
+                                dropShadow: {
+                                    enabled: true,
+                                    color: '#000',
+                                    top: 1,
+                                    left: 1,
+                                    blur: 2,
+                                    opacity: 0.3
+                    }
+                },
+                tooltip: {
+                    y: {
+                                    formatter: function(val) {
+                            return 'S/. ' + val.toFixed(2);
+                        }
+                                }
+                            },
+                            responsive: [{
+                                breakpoint: 480,
+                                options: {
+                                    chart: {
+                                        height: 300
+                                    },
+                                    legend: {
+                                        position: 'bottom'
+                                    }
+                                }
+                            }]
+                        };
+                        
+                        this.charts.ventasPorTipoVenta = new ApexCharts(contenedor, options);
+                        this.charts.ventasPorTipoVenta.render();
+            } catch (error) {
+                        console.error("Error al renderizar gráfico de ventas por tipo de venta:", error);
                     }
                 },
                 
